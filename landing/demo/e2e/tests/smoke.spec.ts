@@ -27,8 +27,8 @@ test("smoke: brand list -> detail -> edit -> save -> rollback", async ({ page, r
   await page.goto("/brands");
   await expect(page.getByRole("heading", { name: "Brands", level: 1 })).toBeVisible();
 
-  // 2. Open Slack detail
-  await page.getByRole("link", { name: /Slack/ }).first().click();
+  // 2. Open Slack detail (row is role=button now that the entire row is clickable)
+  await page.getByRole("button", { name: /Open Slack/ }).first().click();
   await expect(page.getByRole("heading", { name: "Slack", level: 1 })).toBeVisible();
 
   // 3. Ready profile editor visible (Voice tab default)
