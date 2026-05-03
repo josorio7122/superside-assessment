@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { api } from "../../lib/api";
 import { UploadCard } from "./UploadCard";
 import { ProfileEditor } from "./ProfileEditor";
+import { ReplaceWithPdfCard } from "./ReplaceWithPdfCard";
 import { Sidebar } from "./Sidebar";
 import { useProfileEvents } from "../../lib/sse";
 import { Skeleton } from "../../components/ui/skeleton";
@@ -117,7 +118,10 @@ export function BrandDetail({ brandId }: Props) {
           )}
 
           {current?.status === "ready" && current.profile && (
-            <ProfileEditor profileId={current.id} initial={current.profile} brandId={brandId} />
+            <>
+              <ProfileEditor profileId={current.id} initial={current.profile} brandId={brandId} />
+              <ReplaceWithPdfCard brandId={brandId} />
+            </>
           )}
         </div>
 
