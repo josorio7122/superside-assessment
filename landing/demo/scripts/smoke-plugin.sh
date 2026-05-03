@@ -20,8 +20,8 @@ GEN_ID=$(curl -sS -X POST "$API/api/generations/image" \
   | jq -r .id)
 echo "    generationId=$GEN_ID"
 
-echo "==> polling status (60s timeout)…"
-deadline=$(( $(date +%s) + 60 ))
+echo "==> polling status (240s timeout)…"
+deadline=$(( $(date +%s) + 240 ))
 while :; do
   json=$(curl -sS "$API/api/generations/$GEN_ID")
   s=$(echo "$json" | jq -r .status)
@@ -32,7 +32,7 @@ while :; do
     exit 1
   fi
   if [ "$(date +%s)" -ge "$deadline" ]; then
-    echo "TIMEOUT after 60s" >&2
+    echo "TIMEOUT after 240s" >&2
     exit 1
   fi
   sleep 2

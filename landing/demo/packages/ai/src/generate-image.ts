@@ -22,7 +22,7 @@ export async function generateImageVariant(
 ): Promise<{ image: Uint8Array; usage: ImageVariantUsage }> {
   const t0 = Date.now();
   const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 60_000);
+  const to = setTimeout(() => ctrl.abort(), 180_000);
   try {
     const { image } = await generateImage({
       model: openai.image("gpt-image-2"),

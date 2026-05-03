@@ -35,9 +35,15 @@ app.get("/api/_storage/*", async (c) => {
   const key = decodeURIComponent(path);
   try {
     const buf = await getPdf(key);
+    const ext = key.split(".").pop()?.toLowerCase();
+    const contentType =
+      ext === "png" ? "image/png" :
+      ext === "jpg" || ext === "jpeg" ? "image/jpeg" :
+      ext === "webp" ? "image/webp" :
+      "application/pdf";
     return new Response(new Uint8Array(buf), {
       headers: {
-        "Content-Type": "application/pdf",
+        "Content-Type": contentType,
         "Content-Disposition": `inline; filename="${key.split("/").pop()}"`,
       },
     });
