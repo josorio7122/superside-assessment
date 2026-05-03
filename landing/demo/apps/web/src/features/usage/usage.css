@@ -1,0 +1,185 @@
+/* Ported 1:1 from landing/src/components/mockups/UsageMockup.astro */
+
+.usage-head-actions { display: flex; gap: 0.5rem; align-items: center; }
+.range {
+  display: inline-flex;
+  padding: 2px;
+  background: oklch(96% 0.005 60);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+}
+.range button {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  padding: 0.32rem 0.7rem;
+  background: transparent;
+  border: none;
+  color: var(--color-stone);
+  cursor: pointer;
+  border-radius: 3px;
+}
+.range button[data-active] {
+  background: oklch(99% 0.003 60);
+  color: var(--color-charcoal);
+  box-shadow: 0 1px 2px oklch(20% 0.012 50 / 0.06);
+}
+
+.usage-layout { display: grid; gap: 1rem; }
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid var(--color-hairline);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.stat {
+  padding: 1rem 1.25rem;
+  border-right: 1px solid var(--color-hairline);
+}
+.stat:last-child { border-right: none; }
+.stat-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-stone);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.stat-value {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.65rem;
+  font-weight: 380;
+  color: var(--color-charcoal);
+  line-height: 1;
+  letter-spacing: -0.015em;
+}
+.stat-currency {
+  font-size: 0.95rem;
+  color: var(--color-stone);
+  margin-right: 1px;
+  vertical-align: 0.2em;
+}
+.stat-unit {
+  font-size: 0.95rem;
+  color: var(--color-stone);
+  margin-left: 1px;
+}
+.stat-delta {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--color-stone);
+  letter-spacing: 0.02em;
+}
+
+.chart-card {
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-hairline);
+  border-radius: 6px;
+}
+.chart-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.85rem;
+}
+.chart-card h4, .user-table h4 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-charcoal);
+}
+
+.user-table {
+  padding: 1rem 1.25rem 0.85rem;
+  border: 1px solid var(--color-hairline);
+  border-radius: 6px;
+}
+.user-table header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.6rem;
+}
+.user-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+.user-table th {
+  text-align: left;
+  padding: 0.45rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  color: var(--color-stone);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--color-hairline);
+}
+.user-table th.num { text-align: right; }
+.user-table td {
+  padding: 0.5rem 0.5rem;
+  color: var(--color-charcoal);
+  border-bottom: 1px solid var(--color-hairline);
+}
+.user-table td.num { text-align: right; }
+.user-table tr:last-child td { border-bottom: none; }
+
+.u-cell { display: inline-flex; align-items: center; gap: 0.5rem; }
+.u-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: oklch(85% 0.06 35);
+  color: oklch(25% 0.05 35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+
+.share-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 120px;
+}
+.share-bar {
+  flex: 1;
+  height: 4px;
+  background: oklch(96% 0.005 60);
+  border-radius: 2px;
+  overflow: hidden;
+  display: block;
+}
+.share-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-coral);
+  border-radius: 2px;
+}
+.share-num {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--color-stone);
+  min-width: 32px;
+  text-align: right;
+}
+
+.subtle { color: var(--color-stone); }
+.small { font-size: 0.75rem; }
+
+@media (max-width: 720px) {
+  .summary { grid-template-columns: 1fr; }
+  .stat { border-right: none; border-bottom: 1px solid var(--color-hairline); }
+  .stat:last-child { border-bottom: none; }
+  .user-table th:nth-child(4),
+  .user-table td:nth-child(4) { display: none; }
+}
