@@ -1,0 +1,11 @@
+node_modules
+.turbo
+dist
+.env
+*.log
+playwright-report
+test-results
+e2e/baselines/.diff
+infra/seed-pdfs/*.pdf
+infra/seed-extractions/*.json
+.localstack

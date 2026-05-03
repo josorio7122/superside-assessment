@@ -1,0 +1,31 @@
+{
+  "name": "studio-demo",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.30.1",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "setup": "pnpm install && pnpm infra:up && pnpm infra:wait && pnpm db:migrate && pnpm db:seed",
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "infra:up": "docker compose -f infra/docker-compose.yml up -d",
+    "infra:down": "docker compose -f infra/docker-compose.yml down -v",
+    "infra:wait": "node scripts/wait-for-infra.mjs",
+    "db:migrate": "pnpm --filter @studio/db migrate",
+    "db:seed": "pnpm --filter @studio/db seed",
+    "db:reset": "pnpm --filter @studio/db reset",
+    "test:e2e": "pnpm --filter @studio/e2e test",
+    "test:visual": "pnpm --filter @studio/e2e test --grep visual",
+    "test:a11y": "pnpm --filter @studio/e2e test --grep a11y",
+    "test:smoke": "bash scripts/smoke.sh",
+    "fetch:pdfs": "bash scripts/fetch-seed-pdfs.sh"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "turbo": "^2.3.0",
+    "typescript": "^5.6.0"
+  }
+}
