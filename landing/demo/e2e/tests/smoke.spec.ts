@@ -2,6 +2,36 @@ import { test, expect } from "@playwright/test";
 
 const API = process.env.API_URL ?? "http://localhost:3001";
 
+test("brands table — dropdown rename + delete", async ({ page, request }) => {
+  // create a fresh brand via API so we don't depend on seed names
+  const created = await request
+    .post(`${API}/api/brands`, { data: { name: `RenameTarget-${Date.now()}` } })
+    .then((r) => r.json());
+
+  await page.goto("/brands");
+
+  const row = page.getByRole("button", { name: new RegExp(`Open ${created.name}`) });
+  await expect(row).toBeVisible();
+
+  await page.getByRole("button", { name: `Actions for ${created.name}` }).click();
+  await page.getByRole("menuitem", { name: "Rename" }).click();
+  const newName = `${created.name}-renamed`;
+  await page.getByLabel("Brand name").fill(newName);
+  await page.getByRole("button", { name: "Save" }).click();
+
+  await expect(
+    page.getByRole("button", { name: new RegExp(`Open ${newName}`) }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: `Actions for ${newName}` }).click();
+  await page.getByRole("menuitem", { name: "Delete" }).click();
+  await page.getByRole("button", { name: "Delete" }).click();
+
+  await expect(
+    page.getByRole("button", { name: new RegExp(`Open ${newName}`) }),
+  ).toHaveCount(0);
+});
+
 /**
  * Golden-path smoke test:
  *   /brands -> click Slack -> ready profile visible
