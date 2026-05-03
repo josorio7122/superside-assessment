@@ -1,0 +1,29 @@
+# Source brief — do not publish
+*.pdf
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Scratch / temp
+tmp/
+scratch/
+
+# Node (landing app)
+landing/node_modules/
+landing/dist/
+landing/.astro/
+landing/.cache/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Env
+.env
+.env.*
+!.env.example

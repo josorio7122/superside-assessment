@@ -1,0 +1,220 @@
+---
+import MockupShell from './MockupShell.astro';
+
+const brands = [
+	{ name: 'Slack', glyph: '#', hue: 320, status: 'ready', last: '2m', count: 412 },
+	{ name: 'Heineken', glyph: '★', hue: 130, status: 'ready', last: '14m', count: 287 },
+	{ name: 'Patagonia', glyph: '▲', hue: 30, status: 'ready', last: '1h', count: 198 },
+	{ name: 'Notion', glyph: 'N', hue: 0, status: 'ready', last: '3h', count: 144 },
+	{ name: 'Loom', glyph: '◐', hue: 270, status: 'ready', last: '8h', count: 126 },
+	{ name: 'Ramp', glyph: '⌃', hue: 200, status: 'processing', last: '12m', count: 0 },
+	{ name: 'Linear', glyph: '⌖', hue: 250, status: 'empty', last: '—', count: 0 },
+];
+---
+
+<MockupShell active="brands" path="brands" title="Brands" subtitle="7 brands · pilot tenant">
+	<div slot="head-actions" class="head-actions">
+		<div class="search">
+			<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4">
+				<circle cx="4.5" cy="4.5" r="3" /><path d="M7 7 L9.5 9.5" />
+			</svg>
+			<input type="text" placeholder="Search 7 brands" tabindex="-1" readonly />
+			<span class="kbd mono">⌘K</span>
+		</div>
+		<button type="button" class="head-btn primary">+ New brand</button>
+	</div>
+
+	<table class="brands-table">
+		<thead>
+			<tr>
+				<th>Brand</th>
+				<th>Guideline</th>
+				<th class="num">Generations · 30d</th>
+				<th>Last activity</th>
+				<th aria-label="Row action"></th>
+			</tr>
+		</thead>
+		<tbody>
+			{brands.map((b) => (
+				<tr>
+					<td>
+						<span class="col-name">
+							<span class="brand-glyph" style={`background:oklch(85% 0.06 ${b.hue})`}>
+								{b.glyph}
+							</span>
+							<span class="brand-name">{b.name}</span>
+						</span>
+					</td>
+					<td>
+						{b.status === 'ready' && (
+							<span class="status status-ready">
+								<span class="dot"></span>Ready
+							</span>
+						)}
+						{b.status === 'processing' && (
+							<span class="status status-processing">
+								<span class="dot"></span>Processing
+							</span>
+						)}
+						{b.status === 'empty' && (
+							<span class="status status-empty">
+								<span class="dot"></span>Empty
+							</span>
+						)}
+					</td>
+					<td class="num mono">{b.count.toLocaleString()}</td>
+					<td class="mono small subtle">{b.last === '—' ? '—' : `${b.last} ago`}</td>
+					<td class="row-action">
+						<svg width="14" height="3" viewBox="0 0 14 3" fill="currentColor">
+							<circle cx="2" cy="1.5" r="1" /><circle cx="7" cy="1.5" r="1" /><circle cx="12" cy="1.5" r="1" />
+						</svg>
+					</td>
+				</tr>
+			))}
+		</tbody>
+	</table>
+</MockupShell>
+
+<style>
+	.head-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+	.search {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.4rem 0.65rem;
+		border: 1px solid var(--color-hairline);
+		border-radius: 5px;
+		background: oklch(98% 0.003 60);
+		color: var(--color-stone);
+		min-width: 220px;
+	}
+	.search input {
+		all: unset;
+		flex: 1;
+		font-size: 0.8125rem;
+		color: var(--color-charcoal);
+	}
+	.search input::placeholder { color: var(--color-stone); }
+	.kbd {
+		font-size: 0.625rem;
+		color: var(--color-stone);
+		padding: 0.1rem 0.35rem;
+		background: oklch(96% 0.005 60);
+		border: 1px solid var(--color-hairline);
+		border-radius: 3px;
+	}
+
+	.head-btn {
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		font-weight: 500;
+		padding: 0.45rem 0.75rem;
+		border-radius: 5px;
+		border: 1px solid var(--color-hairline);
+		background: var(--color-charcoal);
+		color: var(--color-cream);
+		border-color: var(--color-charcoal);
+		cursor: pointer;
+	}
+
+	.brands-table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.8125rem;
+	}
+	.brands-table th {
+		text-align: left;
+		padding: 0.55rem 0.75rem;
+		font-family: var(--font-mono);
+		font-size: 0.625rem;
+		font-weight: 500;
+		color: var(--color-stone);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		border-bottom: 1px solid var(--color-hairline);
+	}
+	.brands-table th.num { text-align: right; }
+	.brands-table td {
+		padding: 0.65rem 0.75rem;
+		border-bottom: 1px solid var(--color-hairline);
+		color: var(--color-charcoal);
+	}
+	.brands-table td.num { text-align: right; }
+	.brands-table tbody tr:last-child td { border-bottom: none; }
+	.brands-table tbody tr:hover td { background: oklch(98% 0.005 60); }
+
+	.col-name {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+	}
+	.brand-glyph {
+		width: 28px;
+		height: 28px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 4px;
+		font-family: var(--font-serif);
+		font-size: 0.875rem;
+		color: oklch(25% 0.04 50);
+		font-weight: 500;
+	}
+	.brand-name { font-weight: 500; }
+
+	.status {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.6875rem;
+		padding: 0.18rem 0.5rem;
+		border-radius: 999px;
+	}
+	.status .dot {
+		width: 5px;
+		height: 5px;
+		border-radius: 50%;
+	}
+	.status-ready {
+		background: oklch(94% 0.04 145 / 0.5);
+		color: oklch(40% 0.1 145);
+	}
+	.status-ready .dot { background: oklch(60% 0.16 145); }
+	.status-processing {
+		background: oklch(94% 0.05 80 / 0.6);
+		color: oklch(45% 0.13 80);
+	}
+	.status-processing .dot {
+		background: oklch(70% 0.17 80);
+		animation: pulse 1.4s var(--ease-out-quart) infinite;
+	}
+	.status-empty {
+		background: oklch(96% 0.005 60);
+		color: var(--color-stone);
+		border: 1px dashed var(--color-hairline);
+	}
+	.status-empty .dot {
+		background: var(--color-stone);
+		opacity: 0.5;
+	}
+	@keyframes pulse {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.45; }
+	}
+
+	.small { font-size: 0.75rem; }
+	.subtle { color: var(--color-stone); }
+
+	.row-action {
+		text-align: right;
+		color: var(--color-stone);
+	}
+
+	@media (max-width: 720px) {
+		.brands-table th:nth-child(4),
+		.brands-table td:nth-child(4) { display: none; }
+		.search { min-width: 0; }
+		.search .kbd { display: none; }
+	}
+</style>

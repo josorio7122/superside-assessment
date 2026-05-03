@@ -1,0 +1,268 @@
+---
+const phases = [
+	{
+		name: 'MVP',
+		dot: 'weeks 0–3',
+		audience: '10 users',
+		focus: 'Internal pilot',
+		body:
+			'DesignTechCo Creative Studio, ten designers. Single tenant. OpenAI as the only model provider. Plugin built in parallel with the backend, submitted to Figma Community at end of week 3.',
+		ships: [
+			'Four user-facing actions wired end to end',
+			'Brand-guideline lifecycle: upload, extract, review, publish, version, rollback',
+			'Admin web: brand mgmt, generations history, usage dashboard, WorkOS Admin Portal embed',
+			'OpenAI only: GPT-5.1 (text + multimodal extraction) · gpt-image-2 (image)',
+		],
+		risks: [
+			{ k: 'Brand-guideline extraction garbage on narrow PDFs', v: 'Mandatory human review · hand-author fallback · rollback as a flag flip.' },
+			{ k: 'Plugin two-thread runtime debugging', v: 'Build the plugin in week 1 in parallel, not week 3, so integration issues surface early.' },
+			{ k: 'Pilot scope creep', v: 'Anything outside the four actions lands in Beta backlog. No exceptions.' },
+		],
+	},
+	{
+		name: 'Beta',
+		dot: 'weeks 3–6',
+		audience: 'more users',
+		focus: 'Multi-tenant + access + multi-provider',
+		body:
+			'One or two additional client orgs go live. MVP-pilot feedback drives priorities. RBAC, full observability, evals per feature, multi-provider routing in the LLM proxy. Public Community listing arrives mid-Beta.',
+		ships: [
+			'Feedback from MVP pilot: top items from DesignTechCo designers land first',
+			'RBAC via WorkOS Roles plus user_brand mapping in our Postgres',
+			'WorkOS Admin Portal widget embed for tenant team management',
+			'Multi-provider routing via LLM proxy: Claude (text) and fal.ai (image) as fallback or per-feature pick',
+			'PostHog: errors, alerts, session replay, feature flags, product analytics, LLM tracing, evals',
+			'Eval suite per feature: text gen, translation, image gen, PDF extraction',
+		],
+		risks: [
+			{ k: 'Cross-tenant or cross-brand leak under concurrency', v: 'Automated suite asserts org_id and user_brand on every endpoint. RBAC fixtures across role × endpoint × owned-vs-foreign brand.' },
+			{ k: 'Figma Community review past 10 business days', v: 'Beta tenants stay on private install through the review window. Public listing is additive, not blocking.' },
+			{ k: 'Eval false positives blocking publishes', v: 'Per-feature thresholds, not global. Permissive at week 4, tightened with run data. Audited manual override available.' },
+		],
+	},
+	{
+		name: 'Final Rollout',
+		dot: 'weeks 6–8',
+		audience: 'many users',
+		focus: 'Production launch posture',
+		body:
+			'Beta-tenant feedback drives priorities. Security signed off, performance verified, analytics rollups live, quality-of-life features for daily users.',
+		ships: [
+			'Feedback from Beta tenants: top items from multi-tenant usage land first',
+			'Analytics scaling decision · gated on Beta metrics · skip rollups, build rollups, or migrate to ClickHouse',
+			'Security review · auth + brand boundary pen-tested · OAuth app registration with Figma',
+			'Performance pass · index review · SSE ceiling · worker autoscale rules',
+			'Quality of life · history filters and search · usage breakdowns by feature, model, locale',
+		],
+		risks: [
+			{ k: 'Public plugin review still pending', v: 'Beta tenants stay on private install. Public listing arrival post-launch is acceptable; not on the critical path.' },
+			{ k: 'Two-week window tight for security + perf + QoL', v: 'Security review starts day one. QoL features prioritized by Beta-feedback frequency. Some QoL items are post-launch acceptable.' },
+			{ k: 'Two-week buffer to ceiling consumed', v: 'The 10-week ceiling exists for exactly this. Phase deliverables not blocked by Figma plugin review status.' },
+		],
+	},
+];
+---
+
+<div class="roadmap">
+	<div class="timeline" aria-hidden="true">
+		<div class="timeline-rule"></div>
+		{phases.map((p) => (
+			<div class="timeline-marker">
+				<span class="marker-dot"></span>
+				<span class="marker-label mono">{p.dot}</span>
+			</div>
+		))}
+	</div>
+
+	<div class="phases">
+		{phases.map((p, i) => (
+			<article class="phase">
+				<header>
+					<span class="phase-num mono">0{i + 1} · {p.audience}</span>
+					<h3 class="serif">{p.name}</h3>
+					<p class="phase-focus">{p.focus}</p>
+				</header>
+
+				<p class="phase-body">{p.body}</p>
+
+				<div class="phase-ships">
+					<span class="phase-label mono">ships</span>
+					<ul>
+						{p.ships.map((s) => <li>{s}</li>)}
+					</ul>
+				</div>
+
+				<div class="phase-risks">
+					<span class="phase-label mono">risks · mitigations</span>
+					<dl>
+						{p.risks.map((r) => (
+							<>
+								<dt>{r.k}</dt>
+								<dd>{r.v}</dd>
+							</>
+						))}
+					</dl>
+				</div>
+			</article>
+		))}
+	</div>
+</div>
+
+<style>
+	.roadmap {
+		display: flex;
+		flex-direction: column;
+		gap: 1.75rem;
+	}
+
+	.timeline {
+		position: relative;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		align-items: center;
+		padding: 1rem 0 0.5rem;
+	}
+	.timeline-rule {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 50%;
+		height: 1px;
+		background: var(--color-hairline);
+	}
+	.timeline-marker {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		justify-self: start;
+		padding-left: 0;
+		background: var(--color-cream);
+		padding-right: 0.6rem;
+	}
+	.marker-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--color-coral);
+		box-shadow: 0 0 0 4px var(--color-cream);
+	}
+	.marker-label {
+		font-size: 0.6875rem;
+		color: var(--color-stone);
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.phases {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(1.5rem, 3.5vw, 2.75rem);
+	}
+
+	.phase {
+		display: flex;
+		flex-direction: column;
+		gap: 1.1rem;
+		padding-right: 0.5rem;
+	}
+
+	.phase header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+	.phase-num {
+		font-size: 0.6875rem;
+		color: var(--color-coral);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+	.phase h3 {
+		margin: 0;
+		font-size: 1.85rem;
+		font-weight: 420;
+		color: var(--color-charcoal);
+		letter-spacing: -0.015em;
+		line-height: 1.05;
+	}
+	.phase-focus {
+		margin: 0;
+		font-size: 0.9375rem;
+		color: var(--color-stone);
+		font-style: italic;
+	}
+
+	.phase-body {
+		margin: 0;
+		font-size: 0.9375rem;
+		line-height: 1.6;
+		color: var(--color-reading);
+	}
+
+	.phase-label {
+		display: block;
+		font-size: 0.625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-stone);
+		margin-bottom: 0.45rem;
+	}
+
+	.phase-ships ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+		line-height: 1.45;
+		color: var(--color-charcoal);
+	}
+	.phase-ships li {
+		padding-left: 1rem;
+		position: relative;
+	}
+	.phase-ships li::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.65em;
+		width: 6px;
+		height: 1px;
+		background: var(--color-coral);
+	}
+
+	.phase-risks dl {
+		margin: 0;
+		display: block;
+	}
+	.phase-risks dt {
+		font-family: var(--font-sans);
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--color-charcoal);
+		margin: 1.1rem 0 0.25rem;
+	}
+	.phase-risks dt:first-child {
+		margin-top: 0;
+	}
+	.phase-risks dd {
+		margin: 0;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: var(--color-reading);
+	}
+
+	@media (max-width: 880px) {
+		.phases { grid-template-columns: 1fr; gap: 2.5rem; }
+		.timeline { grid-template-columns: 1fr; }
+		.timeline-rule { display: none; }
+		.timeline-marker {
+			justify-self: stretch;
+			padding-right: 0;
+			justify-content: flex-start;
+		}
+	}
+</style>

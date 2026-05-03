@@ -1,0 +1,392 @@
+---
+import MockupShell from './MockupShell.astro';
+
+const palette = [
+	{ name: 'Aubergine', hex: '#4A154B' },
+	{ name: 'Yellow', hex: '#ECB22E' },
+	{ name: 'Blue', hex: '#36C5F0' },
+	{ name: 'Green', hex: '#2EB67D' },
+	{ name: 'Red', hex: '#E01E5A' },
+];
+
+const tones = ['Confident', 'Witty', 'Conversational', 'Intelligent', 'Friendly', 'Helpful', 'Clear'];
+const banned = ['ninja', 'rock star', 'slacker', 'slacking', 'slackee', 'happy slacking'];
+---
+
+<MockupShell
+	active="brands"
+	path="brands/slack"
+	title="Slack"
+	breadcrumb={[
+		{ label: 'Brands', href: '#' },
+		{ label: 'Slack' },
+	]}
+>
+	<div slot="head-actions" class="head-actions">
+		<button type="button" class="head-btn">History</button>
+		<button type="button" class="head-btn primary">Save</button>
+	</div>
+
+	<div class="layout">
+		<div class="profile-tabs" role="tablist" aria-label="Profile sections">
+			<button type="button" role="tab" aria-selected="true" data-active>Voice</button>
+			<button type="button" role="tab">Visual</button>
+			<button type="button" role="tab">Localization</button>
+			<button type="button" role="tab">Banned</button>
+		</div>
+
+		<div class="profile-grid">
+			<div class="profile-main">
+				<section class="field">
+					<label>
+						<span class="lbl-row">
+							<span class="lbl">Tone descriptors</span>
+							<span class="lbl-meta">7 / 8</span>
+						</span>
+					</label>
+					<div class="chips">
+						{tones.map((t) => <span class="chip">{t}<span class="chip-x" aria-hidden="true">×</span></span>)}
+						<button type="button" class="chip chip-add">+ Add</button>
+					</div>
+				</section>
+
+				<section class="field">
+					<label>
+						<span class="lbl-row">
+							<span class="lbl">Voice principle</span>
+							<span class="lbl-meta mono">extracted, edited</span>
+						</span>
+					</label>
+					<div class="textbox">
+						<p>
+							We are humans, speaking to humans. Confident, never cocky. Witty, never
+							silly. Clear, concise, human. Slack is an adjective followed by a description
+							of our services. Never a noun, verb, plural, or possessive.
+						</p>
+					</div>
+				</section>
+
+				<section class="field">
+					<label>
+						<span class="lbl-row">
+							<span class="lbl">Banned terms</span>
+							<span class="lbl-meta">{banned.length}</span>
+						</span>
+					</label>
+					<div class="banned-grid">
+						{banned.map((w) => <span class="banned-chip">{w}</span>)}
+					</div>
+				</section>
+			</div>
+
+			<aside class="profile-side">
+				<div class="source-card">
+					<div class="source-icon" aria-hidden="true">
+						<svg width="22" height="28" viewBox="0 0 22 28" fill="none" stroke="currentColor" stroke-width="1.4">
+							<path d="M3 1.5 H15 L20 6.5 V26.5 H3 Z" />
+							<path d="M15 1.5 V6.5 H20" />
+							<path d="M6 12 H17 M6 16 H17 M6 20 H13" stroke-width="1.2" />
+						</svg>
+					</div>
+					<div class="source-meta">
+						<p class="source-name">slack-brand-v3.pdf</p>
+						<p class="source-sub mono">12 pages · 4.2 MB</p>
+					</div>
+					<button type="button" class="source-link" aria-label="Open source PDF">
+						<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+							<path d="M2 9 L9 2 M4 2 L9 2 L9 7" />
+						</svg>
+					</button>
+				</div>
+
+				<div class="palette-card">
+					<header>
+						<span class="card-eyebrow mono">visual · palette</span>
+					</header>
+					<ul class="swatches">
+						{palette.map((c) => (
+							<li>
+								<span class="sw" style={`background:${c.hex}`}></span>
+								<div>
+									<p>{c.name}</p>
+									<p class="mono">{c.hex}</p>
+								</div>
+							</li>
+						))}
+					</ul>
+				</div>
+
+				<div class="version-card">
+					<header>
+						<span class="card-eyebrow mono">versions</span>
+					</header>
+					<ul class="versions">
+						<li data-current>
+							<span class="v-num mono">v3</span>
+							<div>
+								<p>Manual edit · jo</p>
+								<p class="v-sub mono">2d ago · current</p>
+							</div>
+						</li>
+						<li>
+							<span class="v-num mono">v2</span>
+							<div>
+								<p>Re-extracted · system</p>
+								<p class="v-sub mono">11d ago</p>
+							</div>
+						</li>
+						<li>
+							<span class="v-num mono">v1</span>
+							<div>
+								<p>PDF upload · maya</p>
+								<p class="v-sub mono">26d ago</p>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</aside>
+		</div>
+	</div>
+</MockupShell>
+
+<style>
+	.head-actions { display: flex; gap: 0.4rem; }
+	.head-btn {
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		font-weight: 500;
+		padding: 0.4rem 0.75rem;
+		border-radius: 5px;
+		border: 1px solid var(--color-hairline);
+		background: transparent;
+		color: var(--color-charcoal);
+		cursor: pointer;
+	}
+	.head-btn.primary {
+		background: var(--color-charcoal);
+		color: var(--color-cream);
+		border-color: var(--color-charcoal);
+	}
+
+	.layout { display: flex; flex-direction: column; gap: 1rem; height: 100%; }
+
+	.profile-tabs {
+		display: flex;
+		gap: 0.25rem;
+		border-bottom: 1px solid var(--color-hairline);
+	}
+	.profile-tabs button {
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--color-stone);
+		background: none;
+		border: none;
+		padding: 0.5rem 0.85rem;
+		margin-bottom: -1px;
+		cursor: pointer;
+		border-bottom: 1.5px solid transparent;
+	}
+	.profile-tabs button[data-active] {
+		color: var(--color-charcoal);
+		border-bottom-color: var(--color-coral);
+	}
+
+	.profile-grid {
+		display: grid;
+		grid-template-columns: 1fr 200px;
+		gap: 1.25rem;
+	}
+
+	.field { margin-bottom: 1rem; }
+	.lbl-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		margin-bottom: 0.5rem;
+	}
+	.lbl {
+		font-size: 0.6875rem;
+		font-family: var(--font-mono);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-stone);
+	}
+	.lbl-meta {
+		font-size: 0.6875rem;
+		color: var(--color-stone);
+	}
+
+	.chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+	}
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.3rem 0.55rem;
+		background: oklch(96% 0.005 60);
+		border: 1px solid var(--color-hairline);
+		border-radius: 3px;
+		font-size: 0.75rem;
+		color: var(--color-charcoal);
+	}
+	.chip-x { color: var(--color-stone); font-size: 0.875rem; line-height: 1; }
+	.chip-add {
+		background: transparent;
+		color: var(--color-stone);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		cursor: pointer;
+		border-style: dashed;
+	}
+
+	.textbox {
+		padding: 0.7rem 0.85rem;
+		background: oklch(98% 0.003 60);
+		border: 1px solid var(--color-hairline);
+		border-radius: 4px;
+	}
+	.textbox p {
+		margin: 0;
+		font-size: 0.8125rem;
+		line-height: 1.55;
+		color: var(--color-charcoal);
+	}
+
+	.banned-grid {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+	}
+	.banned-chip {
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		padding: 0.25rem 0.5rem;
+		background: oklch(96% 0.012 25 / 0.7);
+		color: oklch(40% 0.13 25);
+		border-radius: 2px;
+		text-decoration: line-through;
+		text-decoration-color: oklch(70% 0.16 25);
+	}
+
+	.profile-side {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+	}
+
+	.source-card {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		gap: 0.6rem;
+		align-items: center;
+		padding: 0.7rem;
+		background: oklch(96% 0.005 60);
+		border: 1px solid var(--color-hairline);
+		border-radius: 5px;
+	}
+	.source-icon { color: var(--color-stone); }
+	.source-name { margin: 0; font-size: 0.75rem; font-weight: 500; color: var(--color-charcoal); }
+	.source-sub {
+		margin: 0.15rem 0 0;
+		font-size: 0.625rem;
+		color: var(--color-stone);
+		letter-spacing: 0.03em;
+	}
+	.source-link {
+		background: none;
+		border: none;
+		color: var(--color-stone);
+		cursor: pointer;
+		padding: 0.3rem;
+	}
+	.source-link:hover { color: var(--color-charcoal); }
+
+	.palette-card, .version-card {
+		padding: 0.75rem;
+		background: oklch(98% 0.003 60);
+		border: 1px solid var(--color-hairline);
+		border-radius: 5px;
+	}
+	.card-eyebrow {
+		font-size: 0.625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-stone);
+		display: block;
+		margin-bottom: 0.65rem;
+	}
+
+	.swatches {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+	}
+	.swatches li {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+	}
+	.sw {
+		width: 22px;
+		height: 22px;
+		border-radius: 3px;
+		flex-shrink: 0;
+		box-shadow: inset 0 0 0 1px oklch(0% 0 0 / 0.08);
+	}
+	.swatches p {
+		margin: 0;
+		font-size: 0.75rem;
+		color: var(--color-charcoal);
+		line-height: 1.2;
+	}
+	.swatches p.mono {
+		font-size: 0.625rem;
+		color: var(--color-stone);
+	}
+
+	.versions {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.55rem;
+	}
+	.versions li {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0.6rem;
+		align-items: baseline;
+	}
+	.v-num {
+		font-size: 0.6875rem;
+		color: var(--color-stone);
+		min-width: 22px;
+	}
+	.versions li[data-current] .v-num { color: var(--color-coral); font-weight: 500; }
+	.versions p {
+		margin: 0;
+		font-size: 0.75rem;
+		color: var(--color-charcoal);
+		line-height: 1.3;
+	}
+	.v-sub {
+		margin-top: 0.1rem !important;
+		font-size: 0.625rem;
+		color: var(--color-stone);
+		letter-spacing: 0.02em;
+	}
+
+	@media (max-width: 720px) {
+		.profile-grid { grid-template-columns: 1fr; }
+		.profile-side { flex-direction: row; flex-wrap: wrap; }
+		.profile-side > * { flex: 1; min-width: 160px; }
+	}
+</style>

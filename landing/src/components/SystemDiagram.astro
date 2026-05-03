@@ -1,0 +1,293 @@
+---
+// Hand-set system diagram. Three columns left to right:
+//   Col 1 — Clients (Figma plugin, Admin web)
+//   Col 2 — Auth + Server + DB (WorkOS, Hono API, Postgres)
+//   Col 3 — Async + Models + Storage (BullMQ+Worker, LLM proxy, S3)
+---
+
+<figure class="diagram">
+	<svg
+		viewBox="0 0 1020 520"
+		role="img"
+		aria-labelledby="diagram-title diagram-desc"
+		preserveAspectRatio="xMidYMid meet"
+	>
+		<title id="diagram-title">Studio system architecture</title>
+		<desc id="diagram-desc">
+			Three columns left to right. Clients on the left: Figma plugin and Admin web.
+			Auth, server, and database in the middle: WorkOS validates the Hono API,
+			the API does CRUD against Postgres. Async and models on the right: the API
+			calls the LLM proxy for synchronous text and translation, and enqueues
+			image generation and PDF extraction into a BullMQ queue that workers consume,
+			calling the LLM proxy and writing bytes to S3, with completion events flowing
+			back to the API via Redis pub sub. The LLM proxy routes to OpenAI only at
+			MVP, and lights up Claude and fal.ai as fallback or per-feature pick in Beta.
+		</desc>
+
+		<defs>
+			<marker
+				id="arrow"
+				viewBox="0 0 8 8"
+				refX="7"
+				refY="4"
+				markerWidth="7"
+				markerHeight="7"
+				orient="auto-start-reverse"
+			>
+				<path d="M0,0 L8,4 L0,8 z" fill="oklch(38% 0.012 50)" />
+			</marker>
+			<marker
+				id="arrow-soft"
+				viewBox="0 0 8 8"
+				refX="7"
+				refY="4"
+				markerWidth="6"
+				markerHeight="6"
+				orient="auto-start-reverse"
+			>
+				<path d="M0,0 L8,4 L0,8 z" fill="oklch(55% 0.005 50)" />
+			</marker>
+			<marker
+				id="arrow-coral"
+				viewBox="0 0 8 8"
+				refX="7"
+				refY="4"
+				markerWidth="6"
+				markerHeight="6"
+				orient="auto-start-reverse"
+			>
+				<path d="M0,0 L8,4 L0,8 z" fill="var(--color-coral)" />
+			</marker>
+			<marker
+				id="arrow-coral-start"
+				viewBox="0 0 8 8"
+				refX="1"
+				refY="4"
+				markerWidth="6"
+				markerHeight="6"
+				orient="auto"
+			>
+				<path d="M8,0 L0,4 L8,8 z" fill="var(--color-coral)" />
+			</marker>
+		</defs>
+
+		<g class="layer-label" aria-hidden="true">
+			<text x="40" y="50" class="layer">Clients</text>
+			<text x="320" y="50" class="layer">Auth · server</text>
+			<text x="620" y="50" class="layer">Async · models</text>
+			<text x="40" y="370" class="layer">Data stores</text>
+		</g>
+
+		<g class="node node-client">
+			<rect x="40" y="140" width="200" height="78" />
+			<text x="55" y="170" class="node-title serif">Figma plugin</text>
+			<text x="55" y="192" class="node-meta">main thread + UI iframe</text>
+			<text x="55" y="208" class="mono">bearer · SSE</text>
+		</g>
+
+		<g class="node node-client">
+			<rect x="40" y="255" width="200" height="78" />
+			<text x="55" y="285" class="node-title serif">Admin web</text>
+			<text x="55" y="307" class="node-meta">React + Vite + TanStack</text>
+			<text x="55" y="323" class="mono">cookie · SSE</text>
+		</g>
+
+		<g class="node node-auth">
+			<rect x="340" y="70" width="200" height="44" />
+			<text x="355" y="96" class="node-title-sm serif">WorkOS</text>
+			<text x="525" y="96" class="mono right">SSO · Orgs</text>
+		</g>
+
+		<g class="node node-api">
+			<rect x="320" y="150" width="240" height="110" />
+			<text x="335" y="182" class="node-title serif">Hono API</text>
+			<text x="335" y="208" class="node-meta">router · validator · service</text>
+			<text x="335" y="226" class="mono">TS · ~7 entity folders</text>
+			<text x="335" y="242" class="mono">SSE forwards events to clients</text>
+		</g>
+
+		<g class="node node-store">
+			<rect x="340" y="380" width="200" height="58" />
+			<text x="355" y="408" class="node-title serif">Postgres</text>
+			<text x="355" y="426" class="node-meta">tenant scoped</text>
+		</g>
+
+		<g class="node node-orch">
+			<rect x="620" y="150" width="180" height="110" />
+			<text x="635" y="182" class="node-title serif">BullMQ + Worker</text>
+			<text x="635" y="208" class="node-meta">image · pdf extraction</text>
+			<text x="635" y="226" class="mono">retry 3× · backoff</text>
+			<text x="635" y="244" class="mono">apps/worker</text>
+		</g>
+
+		<g class="node node-model">
+			<rect x="820" y="150" width="180" height="110" />
+			<text x="835" y="182" class="node-title serif">LLM proxy</text>
+			<text x="835" y="208" class="node-meta">mvp: openai only</text>
+			<text x="835" y="226" class="mono">beta: + claude (text)</text>
+			<text x="835" y="244" class="mono">beta: + fal.ai (image)</text>
+		</g>
+
+		<g class="node node-store">
+			<rect x="700" y="380" width="200" height="58" />
+			<text x="715" y="408" class="node-title serif">S3</text>
+			<text x="715" y="426" class="node-meta">PDFs · generated images</text>
+		</g>
+
+		<g class="edges" stroke-linecap="round" fill="none">
+			<path
+				d="M 240 179 H 320"
+				class="edge edge-sync"
+				marker-end="url(#arrow)"
+			/>
+
+			<path
+				d="M 240 294 C 280 294, 290 230, 320 230"
+				class="edge edge-sync"
+				marker-end="url(#arrow)"
+			/>
+
+			<path
+				d="M 440 114 V 150"
+				class="edge edge-soft"
+				marker-end="url(#arrow-soft)"
+			/>
+			<text x="448" y="138" class="edge-lbl mono">validate</text>
+
+			<path
+				d="M 440 260 V 380"
+				class="edge edge-sync"
+				marker-end="url(#arrow)"
+			/>
+			<text x="448" y="324" class="edge-lbl mono">CRUD</text>
+
+			<path
+				d="M 560 188 H 620"
+				class="edge edge-async"
+				marker-end="url(#arrow-coral)"
+			/>
+			<text x="568" y="182" class="edge-lbl mono coral">enqueue</text>
+
+			<path
+				d="M 620 224 H 560"
+				class="edge edge-async"
+				stroke-dasharray="2 4"
+				marker-end="url(#arrow-coral)"
+			/>
+			<text x="568" y="240" class="edge-lbl mono coral">pub/sub</text>
+
+			<path
+				d="M 560 160 H 595 V 130 H 910 V 150"
+				class="edge edge-sync"
+				marker-end="url(#arrow)"
+			/>
+			<text x="660" y="124" class="edge-lbl mono">sync · text + translate</text>
+
+			<path
+				d="M 800 205 H 820"
+				class="edge edge-sync"
+				marker-end="url(#arrow)"
+			/>
+
+			<path
+				d="M 760 260 V 380"
+				class="edge edge-sync"
+				marker-end="url(#arrow)"
+			/>
+			<text x="768" y="324" class="edge-lbl mono">put bytes</text>
+		</g>
+
+		<g class="legend" aria-hidden="true">
+			<g transform="translate(40, 480)">
+				<line x1="0" y1="6" x2="22" y2="6" class="edge edge-sync" />
+				<text x="28" y="10" class="legend-lbl mono">synchronous</text>
+			</g>
+			<g transform="translate(160, 480)">
+				<line x1="0" y1="6" x2="22" y2="6" class="edge edge-async" />
+				<text x="28" y="10" class="legend-lbl mono">enqueue</text>
+			</g>
+			<g transform="translate(252, 480)">
+				<line x1="0" y1="6" x2="22" y2="6" class="edge edge-async" stroke-dasharray="2 4" />
+				<text x="28" y="10" class="legend-lbl mono">pub/sub</text>
+			</g>
+			<g transform="translate(355, 480)">
+				<line x1="0" y1="6" x2="22" y2="6" class="edge edge-soft" />
+				<text x="28" y="10" class="legend-lbl mono">auth</text>
+			</g>
+		</g>
+	</svg>
+</figure>
+
+<style>
+	.diagram {
+		margin: 0;
+		padding: 0;
+		background: oklch(98% 0.005 60);
+		border: 1px solid var(--color-hairline);
+		border-radius: 6px;
+		overflow: hidden;
+	}
+	.diagram svg {
+		width: 100%;
+		height: auto;
+		display: block;
+		padding: 1.5rem 1rem 1rem;
+	}
+
+	.layer {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		fill: var(--color-stone);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	.node rect {
+		fill: oklch(99% 0.003 60);
+		stroke: oklch(78% 0.008 50);
+		stroke-width: 1;
+		rx: 4;
+	}
+	.node-api rect { fill: oklch(96% 0.005 60); stroke: oklch(60% 0.008 50); }
+	.node-auth rect { fill: oklch(96% 0.012 35 / 0.55); stroke: var(--color-coral); }
+	.node-orch rect { fill: oklch(98% 0.003 60); }
+	.node-model rect { fill: oklch(99% 0.003 60); stroke-dasharray: 3 3; }
+	.node-store rect { fill: oklch(96% 0.005 60); }
+
+	.node-title {
+		font-family: var(--font-serif);
+		font-size: 14px;
+		font-weight: 500;
+		fill: var(--color-charcoal);
+		letter-spacing: -0.01em;
+	}
+	.node-title-sm {
+		font-family: var(--font-serif);
+		font-size: 13px;
+		font-weight: 500;
+		fill: var(--color-charcoal);
+		letter-spacing: -0.01em;
+	}
+	.node-meta {
+		font-family: var(--font-sans);
+		font-size: 11px;
+		fill: var(--color-reading);
+	}
+	.mono {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		fill: var(--color-stone);
+		letter-spacing: 0.02em;
+	}
+	.right { text-anchor: end; }
+
+	.edge { stroke-width: 1.2; }
+	.edge-sync { stroke: oklch(38% 0.012 50); }
+	.edge-soft { stroke: oklch(60% 0.005 50); stroke-width: 1; }
+	.edge-async { stroke: var(--color-coral); stroke-width: 1.4; }
+
+	.edge-lbl { font-size: 9px; fill: var(--color-reading); }
+	.edge-lbl.coral { fill: var(--color-coral); }
+	.legend-lbl { font-size: 9.5px; fill: var(--color-stone); }
+
+</style>

@@ -1,0 +1,171 @@
+---
+import GuidelineMockup from './mockups/GuidelineMockup.astro';
+---
+
+<section id="top" class="hero">
+	<div class="hero-grid">
+		<div class="hero-text">
+			<p class="hero-eyebrow mono">
+				<span class="hero-eyebrow-dot" aria-hidden="true"></span>
+				Architecture-case deliverable, May 2026
+			</p>
+
+			<h1 class="hero-headline serif reveal">
+				A platform for designers,<br />
+				<span class="hero-emph">not a tool for designers.</span>
+			</h1>
+
+			<p class="hero-meta reveal-prose">
+				An architecture brief, in working code. Brand-true AI creative inside Figma,
+				built for the Superside hiring panel.
+			</p>
+
+			<div class="hero-actions reveal-prose">
+				<a class="btn-primary" href="#problem">
+					<span>Read the case</span>
+					<svg
+						width="14"
+						height="14"
+						viewBox="0 0 14 14"
+						aria-hidden="true"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.5"
+						stroke-linecap="round"
+					>
+						<path d="M3 11 L11 3 M5 3 L11 3 L11 9" />
+					</svg>
+				</a>
+			</div>
+		</div>
+
+		<div class="hero-visual reveal">
+			<GuidelineMockup />
+		</div>
+	</div>
+</section>
+
+<style>
+	.hero {
+		padding: clamp(7rem, 12vh, 9.5rem) clamp(1rem, 4vw, 2.5rem) clamp(4rem, 10vh, 7rem);
+		max-width: 1320px;
+		margin: 0 auto;
+	}
+
+	.hero-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
+		gap: clamp(2rem, 5vw, 4.5rem);
+		align-items: stretch;
+	}
+
+	.hero-eyebrow {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.55rem;
+		font-size: var(--text-label);
+		color: var(--color-stone);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		margin-bottom: 2rem;
+	}
+	.hero-eyebrow-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--color-coral);
+	}
+
+	.hero-headline {
+		font-size: var(--text-display);
+		line-height: 1.04;
+		letter-spacing: -0.018em;
+		font-weight: 380;
+		color: var(--color-charcoal);
+		margin: 0 0 1.75rem;
+		max-width: 18ch;
+	}
+	.hero-emph {
+		font-style: italic;
+		font-weight: 420;
+	}
+
+	.hero-meta {
+		font-size: 1.15rem;
+		line-height: 1.55;
+		color: var(--color-reading);
+		max-width: 42ch;
+		margin: 0 0 2.25rem;
+	}
+
+	.hero-actions {
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+		flex-wrap: wrap;
+	}
+
+	.btn-primary {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.625rem;
+		background: var(--color-coral);
+		color: var(--color-cream);
+		padding: 0.85rem 1.5rem;
+		border-radius: 999px;
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 500;
+		letter-spacing: -0.005em;
+		text-decoration: none;
+		transition: background 200ms var(--ease-out-quart), transform 200ms var(--ease-out-quart);
+	}
+	.btn-primary:hover {
+		background: var(--color-coral-deep);
+		transform: translateY(-1px);
+	}
+
+	.btn-text {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		color: var(--color-charcoal);
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 500;
+		text-decoration: none;
+		padding: 0.5rem 0;
+		border-bottom: 1px solid var(--color-hairline);
+		transition: border-color 200ms var(--ease-out-quart), color 200ms var(--ease-out-quart);
+	}
+	.btn-text:hover {
+		color: var(--color-coral);
+		border-bottom-color: var(--color-coral);
+	}
+
+	.hero-text {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+	.hero-visual {
+		position: relative;
+		display: flex;
+		align-items: stretch;
+	}
+	.hero-visual :global(.mockup-shell) {
+		flex: 1;
+		min-height: 560px;
+	}
+
+	@media (max-width: 980px) {
+		.hero-grid {
+			grid-template-columns: 1fr;
+			gap: 3rem;
+		}
+		.hero-headline { max-width: 22ch; }
+	}
+	@media (max-width: 540px) {
+		.hero-headline { max-width: 18ch; }
+	}
+</style>

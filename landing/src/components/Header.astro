@@ -1,0 +1,146 @@
+---
+const links = [
+	{ id: 'problem', label: 'The case', n: '01' },
+	{ id: 'solution', label: 'Solution', n: '02' },
+	{ id: 'roadmap', label: 'Roadmap', n: '03' },
+];
+---
+
+<header class="site-header" data-header>
+	<div class="header-inner">
+		<a href="#top" class="wordmark" aria-label="Studio, return to top">
+			<span class="wordmark-glyph">S</span>
+			<span class="wordmark-name">tudio</span>
+		</a>
+
+		<nav class="header-nav" aria-label="Primary">
+			<ol>
+				{
+					links.map((l) => (
+						<li>
+							<a href={`#${l.id}`} data-nav-link>
+								<span class="nav-num">{l.n}</span>
+								<span class="nav-label">{l.label}</span>
+							</a>
+						</li>
+					))
+				}
+			</ol>
+		</nav>
+
+		<span class="header-spacer" aria-hidden="true"></span>
+	</div>
+
+	<script>
+		const header = document.querySelector('[data-header]');
+		if (header) {
+			const onScroll = () => {
+				const scrolled = window.scrollY > 24;
+				header.toggleAttribute('data-scrolled', scrolled);
+			};
+			onScroll();
+			window.addEventListener('scroll', onScroll, { passive: true });
+		}
+	</script>
+</header>
+
+<style>
+	.site-header {
+		position: fixed;
+		top: 0;
+		inset-inline: 0;
+		z-index: 50;
+		background: oklch(97.5% 0.005 60 / 0.78);
+		backdrop-filter: saturate(140%) blur(14px);
+		-webkit-backdrop-filter: saturate(140%) blur(14px);
+		transition: background 220ms var(--ease-out-quart), border-color 220ms var(--ease-out-quart);
+		border-bottom: 1px solid transparent;
+	}
+	.site-header[data-scrolled] {
+		background: oklch(97.5% 0.005 60 / 0.92);
+		border-bottom-color: var(--color-hairline);
+	}
+
+	.header-inner {
+		max-width: 1320px;
+		margin: 0 auto;
+		padding: 0.95rem clamp(1rem, 4vw, 2.5rem);
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		align-items: center;
+		gap: 2.5rem;
+	}
+
+	.wordmark {
+		font-family: var(--font-serif);
+		font-size: 1.375rem;
+		font-weight: 500;
+		color: var(--color-charcoal);
+		text-decoration: none;
+		letter-spacing: -0.015em;
+		line-height: 1;
+		display: inline-flex;
+		align-items: baseline;
+	}
+	.wordmark-glyph {
+		color: var(--color-coral);
+		font-style: italic;
+		font-weight: 600;
+	}
+	.wordmark-name { letter-spacing: -0.02em; }
+
+	.header-nav { justify-self: center; }
+	.header-nav ol {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		gap: 1.85rem;
+	}
+	.header-nav a {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.5rem;
+		text-decoration: none;
+		color: var(--color-stone);
+		font-size: var(--text-label);
+		letter-spacing: 0.04em;
+		font-weight: 500;
+		padding: 0.4rem 0;
+		position: relative;
+		transition: color 180ms var(--ease-out-quart);
+	}
+	.header-nav a:hover { color: var(--color-charcoal); }
+	.header-nav a[data-active] { color: var(--color-charcoal); }
+	.header-nav a[data-active]::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: -2px;
+		height: 1.5px;
+		background: var(--color-coral);
+		transform-origin: left;
+		animation: nav-underline 320ms var(--ease-out-quart);
+	}
+	@keyframes nav-underline {
+		from { transform: scaleX(0); }
+		to { transform: scaleX(1); }
+	}
+
+	.nav-num {
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		color: var(--color-coral);
+		opacity: 0.6;
+	}
+	.header-nav a[data-active] .nav-num { opacity: 1; }
+	.nav-label { font-family: var(--font-sans); }
+
+	.header-spacer { display: inline-block; }
+
+	@media (max-width: 880px) {
+		.header-nav { display: none; }
+		.header-inner { grid-template-columns: auto 1fr auto; gap: 1rem; }
+	}
+</style>

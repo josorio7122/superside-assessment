@@ -1,0 +1,230 @@
+---
+import PluginMockup from './mockups/PluginMockup.astro';
+import GuidelineMockup from './mockups/GuidelineMockup.astro';
+import BrandsMockup from './mockups/BrandsMockup.astro';
+import HistoryMockup from './mockups/HistoryMockup.astro';
+import UsageMockup from './mockups/UsageMockup.astro';
+
+const tabs = [
+	{
+		id: 'plugin',
+		label: 'Figma plugin',
+		caption:
+			'Designer surface. Inside Figma. Select a layer, pick an action, the plugin renders the result and applies the chosen variant straight onto the layer or fill. Brand context, source PDF, and palette are always visible so prompts stay grounded.',
+	},
+	{
+		id: 'brands',
+		label: 'Brands',
+		caption:
+			'Tenant scoped list. Each brand carries a guideline status, a generation count over the trailing 30 days, and a last activity timestamp. The unit designers switch context to.',
+	},
+	{
+		id: 'guideline',
+		label: 'Brand detail',
+		caption:
+			'Drill into a brand. Versioned profile editor for tone, voice, palette, banned terms. Source PDF, version timeline, rollback. Every prompt the platform sends is grounded here.',
+	},
+	{
+		id: 'generations',
+		label: 'Generations',
+		caption:
+			'Append only audit of every model call. Live SSE updates, per row latency and cost, three image variants per generation, applied variant marked.',
+	},
+	{
+		id: 'usage',
+		label: 'Usage',
+		caption:
+			'Cost attribution by user. Daily spend chart, per user share, last activity. Reads from the same usage_event table the API writes on every model call.',
+	},
+];
+---
+
+<div class="mockup-region" data-mockup-region>
+	<div class="mockup-tablist" role="tablist" aria-label="Studio admin web mockups">
+		{tabs.map((t, i) => (
+			<button
+				type="button"
+				role="tab"
+				id={`tab-${t.id}`}
+				aria-selected={i === 0 ? 'true' : 'false'}
+				aria-controls={`panel-${t.id}`}
+				data-tab={t.id}
+				data-active={i === 0 ? '' : null}
+			>
+				<span class="tab-num mono">0{i + 1}</span>
+				<span class="tab-label">{t.label}</span>
+			</button>
+		))}
+	</div>
+
+	<div class="mockup-panels">
+		{tabs.map((t, i) => (
+			<div
+				role="tabpanel"
+				id={`panel-${t.id}`}
+				aria-labelledby={`tab-${t.id}`}
+				data-panel={t.id}
+				data-active={i === 0 ? '' : null}
+				hidden={i !== 0}
+			>
+				{t.id === 'plugin' && <PluginMockup />}
+				{t.id === 'brands' && <BrandsMockup />}
+				{t.id === 'guideline' && <GuidelineMockup />}
+				{t.id === 'generations' && <HistoryMockup />}
+				{t.id === 'usage' && <UsageMockup />}
+				<p class="mockup-caption">{t.caption}</p>
+			</div>
+		))}
+	</div>
+</div>
+
+<script>
+	const region = document.querySelector('[data-mockup-region]');
+	if (region) {
+		const tabs = region.querySelectorAll<HTMLButtonElement>('[data-tab]');
+		const panels = region.querySelectorAll<HTMLElement>('[data-panel]');
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		const activate = (id: string, focus: boolean) => {
+			let any = false;
+			tabs.forEach((t) => {
+				const match = t.dataset.tab === id;
+				if (match) any = true;
+				t.toggleAttribute('data-active', match);
+				t.setAttribute('aria-selected', match ? 'true' : 'false');
+				if (match && focus) t.focus();
+			});
+			if (!any) return;
+			panels.forEach((p) => {
+				const match = p.dataset.panel === id;
+				p.toggleAttribute('data-active', match);
+				p.hidden = !match;
+			});
+		};
+
+		tabs.forEach((t) => {
+			t.addEventListener('click', () => {
+				const id = t.dataset.tab!;
+				activate(id, false);
+				const url = new URL(window.location.href);
+				url.hash = `solution-${id}`;
+				history.replaceState(null, '', url.toString());
+			});
+			t.addEventListener('keydown', (ev) => {
+				const list = Array.from(tabs);
+				const idx = list.indexOf(t);
+				if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
+					ev.preventDefault();
+					const dir = ev.key === 'ArrowRight' ? 1 : -1;
+					const next = list[(idx + dir + list.length) % list.length];
+					activate(next.dataset.tab!, true);
+				} else if (ev.key === 'Home') {
+					ev.preventDefault();
+					activate(list[0].dataset.tab!, true);
+				} else if (ev.key === 'End') {
+					ev.preventDefault();
+					activate(list[list.length - 1].dataset.tab!, true);
+				}
+			});
+		});
+
+		const fromHash = () => {
+			const m = window.location.hash.match(/^#solution-(plugin|brands|guideline|generations|usage)/);
+			if (m) activate(m[1], false);
+		};
+		window.addEventListener('hashchange', fromHash);
+		fromHash();
+	}
+</script>
+
+<style>
+	.mockup-region {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.mockup-tablist {
+		display: flex;
+		gap: 0;
+		flex-wrap: wrap;
+		border-bottom: 1px solid var(--color-hairline);
+		padding-bottom: 0;
+	}
+	.mockup-tablist button {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.5rem;
+		background: none;
+		border: none;
+		padding: 0.7rem 1.1rem 0.85rem 0;
+		margin-right: 1.5rem;
+		cursor: pointer;
+		color: var(--color-stone);
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 500;
+		letter-spacing: -0.005em;
+		position: relative;
+		margin-bottom: -1px;
+		transition: color 180ms var(--ease-out-quart);
+	}
+	.mockup-tablist button:hover {
+		color: var(--color-charcoal);
+	}
+	.mockup-tablist button[data-active] {
+		color: var(--color-charcoal);
+	}
+	.mockup-tablist button[data-active]::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		bottom: -1px;
+		height: 1.5px;
+		width: 100%;
+		background: var(--color-coral);
+		transform-origin: left;
+		animation: tab-line 320ms var(--ease-out-quart);
+	}
+	@keyframes tab-line {
+		from { transform: scaleX(0); }
+		to { transform: scaleX(1); }
+	}
+	.tab-num {
+		font-size: 0.6875rem;
+		color: var(--color-stone);
+		opacity: 0.7;
+	}
+	.mockup-tablist button[data-active] .tab-num {
+		color: var(--color-coral);
+		opacity: 1;
+	}
+
+	.mockup-panels {
+		position: relative;
+	}
+	.mockup-panels > [data-panel] {
+		display: none;
+		flex-direction: column;
+		gap: 1rem;
+	}
+	.mockup-panels > [data-panel][data-active] {
+		display: flex;
+		animation: fade-in 240ms var(--ease-out-quart);
+	}
+	@keyframes fade-in {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.mockup-panels > [data-panel][data-active] { animation: none; }
+		.mockup-tablist button[data-active]::after { animation: none; }
+	}
+
+	.mockup-caption {
+		font-size: 0.9375rem;
+		line-height: 1.55;
+		color: var(--color-reading);
+		margin: 1rem 0 0;
+	}
+</style>

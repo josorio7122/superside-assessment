@@ -1,0 +1,582 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import MockupTabs from '../components/MockupTabs.astro';
+import SystemDiagram from '../components/SystemDiagram.astro';
+import Roadmap from '../components/Roadmap.astro';
+import Footer from '../components/Footer.astro';
+
+const features = [
+	{
+		n: '01',
+		title: 'Generate brand-true copy.',
+		body:
+			'N variants per text layer in a single round trip. Tone, voice, and banned terms grounded in the active brand profile. Structured output, character-limit aware.',
+	},
+	{
+		n: '02',
+		title: 'Translate into eight locales.',
+		body:
+			'One round trip per layer. Locale notes inside the brand profile preserve register; the tone of voice does not flatten on the way over.',
+	},
+	{
+		n: '03',
+		title: 'Generate images, on-brand.',
+		body:
+			'Text-to-image and image-to-image. Three variants per request, applied straight onto the layer or fill via figma.createImageAsync. Async with SSE so the plugin never blocks.',
+	},
+	{
+		n: '04',
+		title: 'Manage brand guidelines.',
+		body:
+			'Upload a PDF or author by hand. Multimodal extraction with mandatory human review. Versioned, rollback in one click. Every prompt grounds in the current profile.',
+	},
+	{
+		n: '05',
+		title: 'See what runs, what costs, what works.',
+		body:
+			'Admin dashboard for generations history, per-user spend, eval pass rates per feature. Backed by PostHog for errors, alerts, session replay, and LLM observability.',
+	},
+];
+---
+
+<Layout>
+	<Header />
+
+	<main>
+		<Hero />
+
+		<section id="problem" class="section section-problem">
+			<div class="section-shell">
+				<header class="section-header reveal">
+					<span class="eyebrow mono">01 · The case</span>
+					<h2 class="serif">
+						Twenty-five brands. Eight locales. <em>Ten designers,</em> leaving Figma to find images.
+					</h2>
+				</header>
+
+				<div class="prose reveal-prose">
+					<p>
+						DesignTechCo is a global digital-commerce group. A ten-person Creative Studio
+						inside it builds thousands of ad variants every month for twenty-five consumer
+						brands across web, mobile, and out-of-home. Marketing leadership wants generative
+						AI to speed up localisation and visual iteration. The bottleneck is not generation.
+						It is the workflow around generation.
+					</p>
+				</div>
+
+				<dl class="problem-pains reveal-prose">
+					<div>
+						<dt>Slow.</dt>
+						<dd>
+							Manual copy localisation runs to a <em>three-day turnaround</em> across
+							eight locales.
+						</dd>
+					</div>
+					<div>
+						<dt>Off-platform.</dt>
+						<dd>
+							Designers leave Figma to search stock or Midjourney for placeholder images.
+							Focus and version control break the moment they switch tabs.
+						</dd>
+					</div>
+					<div>
+						<dt>Drifting.</dt>
+						<dd>
+							Brand governance turns inconsistent the moment language markets and visual
+							styles collide. No single source of truth for tone, palette, or banned terms.
+						</dd>
+					</div>
+				</dl>
+			</div>
+		</section>
+
+		<section id="solution" class="section section-solution">
+			<div class="section-shell">
+				<header class="section-header reveal">
+					<span class="eyebrow mono">02 · Solution</span>
+					<h2 class="serif">
+						The platform <em>and</em> the architecture, in working code.
+					</h2>
+					<p class="section-lede">
+						Studio puts AI inside Figma where designers already work, grounds every prompt
+						in a structured brand profile, and reports cost per call. The same system, with
+						no new tables, scales to a multi-tenant SaaS for hundreds of orgs and thousands
+						of designers.
+					</p>
+				</header>
+
+				<div class="solution-stack">
+					<div class="features">
+						<div class="features-head reveal-prose">
+							<span class="sub-eyebrow mono">2.1 — Features</span>
+							<h3 class="serif">Five capabilities, one round trip apart.</h3>
+						</div>
+						<ol class="feature-list">
+							{features.map((f) => (
+								<li class="feature reveal-prose">
+									<span class="feature-num mono">{f.n}</span>
+									<div class="feature-body">
+										<h4>{f.title}</h4>
+										<p>{f.body}</p>
+									</div>
+								</li>
+							))}
+						</ol>
+					</div>
+
+					<div class="mockup-section">
+						<div class="mockup-section-head reveal-prose">
+							<span class="sub-eyebrow mono">2.2 — UI</span>
+							<h3 class="serif">Five surfaces, two contexts.</h3>
+							<p>
+								The Figma plugin sits where designers already work: a two thread runtime
+								that reads selected layers, calls the API, renders generated variants,
+								and applies the chosen one back onto the layer or fill. The admin web
+								hosts brand managers and Creative Ops. Brand context, prompts, and cost
+								data flow through one backend. Each tab is a real component frozen on a
+								representative state.
+							</p>
+						</div>
+						<div class="mockup-wide reveal">
+							<MockupTabs />
+						</div>
+					</div>
+
+					<div class="diagram-section">
+						<div class="diagram-section-head reveal-prose">
+							<span class="sub-eyebrow mono">2.3 — System</span>
+							<h3 class="serif">From plugin to model and back.</h3>
+							<p>
+								OpenAI for both text and image at MVP — same key, same billing, same
+								rate-limit pool. The LLM proxy abstracts the call site, so Beta opens
+								routing to Claude (text) and fal.ai (image) as fallback or per-feature
+								pick. Synchronous calls for copy variants and translation. Image
+								generation runs as a background job; the worker streams completion back
+								over SSE so the plugin never blocks. Multi-tenant from day one: one
+								deployment, every record scoped to its tenant. Adding a customer is a
+								new row, not a new fork.
+							</p>
+						</div>
+						<div class="diagram-wide reveal">
+							<SystemDiagram />
+						</div>
+
+						<aside class="tooling reveal-prose">
+							<span class="sub-eyebrow mono">tech choices · companion excalidraw goes deeper</span>
+							<dl>
+								<div>
+									<dt>OpenAI at MVP, multi-provider in Beta.</dt>
+									<dd>
+										One key, one bill, one rate-limit pool ships faster. The LLM proxy
+										abstracts the call site, so Beta opens routing to Claude and fal.ai
+										as fallback or per-feature pick. Config change, not a rewrite.
+									</dd>
+								</div>
+								<div>
+									<dt>PostHog as the single observability platform.</dt>
+									<dd>
+										Errors, alerts, session replay, feature flags, product analytics,
+										LLM tracing, evals per feature. One vendor, one query language,
+										one bill — fits a two-engineer team. Managed ClickHouse under the
+										hood, so telemetry is columnar without operating it.
+									</dd>
+								</div>
+								<div>
+									<dt>Postgres at MVP. Analytics scaling gated on Beta metrics.</dt>
+									<dd>
+										Direct Postgres queries through Beta. At Final Rollout we audit
+										actual volume + dashboard p95 and pick: skip rollups (low volume),
+										build daily rollups (medium), or commit to ClickHouse (high volume
+										or p95 past budget). Threshold-driven, not dogmatic.
+									</dd>
+								</div>
+								<div>
+									<dt>WorkOS for auth, RBAC, and tenant onboarding.</dt>
+									<dd>
+										SSO, sealed sessions, Roles, Admin Portal widget embed for tenant
+										team management. Zero custom auth code, SOC2-ready primitives,
+										multi-tenant from day one.
+									</dd>
+								</div>
+								<div>
+									<dt>BullMQ + Redis pub/sub + SSE for the async path.</dt>
+									<dd>
+										Image gen is the only async surface in scope. Worker enqueues,
+										publishes completion to Redis, API streams over SSE to the plugin.
+										No streaming text path needed at MVP — copy and translation are
+										sync round trips.
+									</dd>
+								</div>
+								<div>
+									<dt>Structured extraction over RAG.</dt>
+									<dd>
+										One canonical BrandProfile per brand, fixed JSON schema,
+										deterministic prompt construction. No vector store, no retrieval
+										drift, mandatory human review before publish, version + rollback
+										as a flag flip.
+									</dd>
+								</div>
+							</dl>
+						</aside>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section id="roadmap" class="section section-roadmap">
+			<div class="section-shell">
+				<header class="section-header reveal">
+					<span class="eyebrow mono">03 · Roadmap</span>
+					<h2 class="serif">
+						Two engineers, AI agents, <em>eight weeks.</em>
+						Ten-week ceiling for buffer.
+					</h2>
+					<p class="section-lede">
+						The MVP is not a slice. It is the architecture, on a tighter calendar.
+						OpenAI only at MVP — multi-provider routing (Claude, fal.ai) lights up in
+						Beta. RBAC, full observability, evals per feature, public plugin distribution.
+						Three phases mapped to user scale: ten users, more users, many users. No
+						Phase 4 backlog of must-haves.
+					</p>
+				</header>
+
+				<div class="roadmap-block reveal">
+					<Roadmap />
+				</div>
+
+				<aside class="cross-risks reveal-prose">
+					<span class="sub-eyebrow mono">cross-cutting risks</span>
+					<dl>
+						<div>
+							<dt>Hallucination.</dt>
+							<dd>
+								Brand-profile constraints, banned-terms list, structured-output
+								validation, every generation reviewed by the designer before applied. Eval
+								suite catches regressions across releases.
+							</dd>
+						</div>
+						<div>
+							<dt>Two-engineer capacity with AI agents.</dt>
+							<dd>
+								AI accelerates boilerplate, schemas, tests. Integration work (Figma SDK
+								quirks, OAuth edge cases, observability tuning) stays human-driven. Scope
+								discipline preserves the timeline.
+							</dd>
+						</div>
+						<div>
+							<dt>Plugin distribution.</dt>
+							<dd>
+								The plugin is the only architectural piece that goes through a third-party
+								review. Private install for the pilot sidesteps the queue. Public listing
+								scoped to Beta with private install as the fallback if Figma's review
+								window slips.
+							</dd>
+						</div>
+						<div>
+							<dt>Provider availability.</dt>
+							<dd>
+								Same-provider retry-with-backoff at MVP — single OpenAI dependency.
+								Beta lights up multi-provider routing in the LLM proxy: Claude for text,
+								fal.ai for image, fallback or per-feature pick.
+							</dd>
+						</div>
+					</dl>
+				</aside>
+			</div>
+		</section>
+	</main>
+
+	<Footer />
+</Layout>
+
+<style>
+	main { display: block; }
+
+	.section {
+		padding: clamp(4rem, 9vh, 7rem) clamp(1rem, 4vw, 2.5rem);
+	}
+
+	.section-shell {
+		max-width: 1320px;
+		margin: 0 auto;
+	}
+
+	.section-header {
+		margin-bottom: 2.5rem;
+	}
+
+	.eyebrow, .sub-eyebrow {
+		display: inline-block;
+		font-size: 0.6875rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-stone);
+		margin-bottom: 1.5rem;
+	}
+	.sub-eyebrow {
+		color: var(--color-coral);
+		margin-bottom: 0.85rem;
+	}
+
+	.section h2 {
+		margin: 0;
+		font-size: var(--text-headline);
+		font-weight: 420;
+		line-height: 1.08;
+		letter-spacing: -0.012em;
+		color: var(--color-charcoal);
+		max-width: 28ch;
+	}
+	.section h2 em {
+		font-style: italic;
+		font-weight: 420;
+		color: var(--color-coral);
+	}
+
+	.section-lede {
+		margin: 1.5rem 0 0;
+		font-size: 1.125rem;
+		line-height: 1.55;
+		color: var(--color-reading);
+		max-width: none;
+	}
+
+	.prose p {
+		font-size: 1.0625rem;
+		line-height: 1.65;
+		color: var(--color-reading);
+		margin: 0 0 1.25rem;
+	}
+	.prose p:last-child { margin-bottom: 0; }
+	.prose em {
+		font-style: italic;
+		color: var(--color-coral);
+		font-weight: 500;
+	}
+	.prose code {
+		font-family: var(--font-mono);
+		font-size: 0.875rem;
+		background: oklch(96% 0.005 60);
+		padding: 0.05em 0.4em;
+		border-radius: 2px;
+		color: var(--color-charcoal);
+	}
+
+	.problem-pains {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 2.5rem;
+		margin: 3rem 0 0;
+		padding-top: 2rem;
+		border-top: 1px solid var(--color-hairline);
+	}
+	.problem-pains dt {
+		font-family: var(--font-serif);
+		font-size: 1.5rem;
+		font-weight: 420;
+		color: var(--color-charcoal);
+		letter-spacing: -0.01em;
+		margin-bottom: 0.6rem;
+	}
+	.problem-pains dd {
+		margin: 0;
+		font-size: 0.9375rem;
+		line-height: 1.55;
+		color: var(--color-reading);
+		max-width: 32ch;
+	}
+	.problem-pains em {
+		font-style: italic;
+		color: var(--color-coral);
+		font-weight: 500;
+	}
+
+	.solution-stack {
+		display: flex;
+		flex-direction: column;
+		gap: clamp(3.5rem, 8vh, 6rem);
+	}
+
+	.features {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+		gap: clamp(2rem, 5vw, 4rem);
+		align-items: start;
+	}
+	.features-head h3 {
+		margin: 0;
+		font-family: var(--font-serif);
+		font-size: 1.65rem;
+		font-weight: 420;
+		color: var(--color-charcoal);
+		letter-spacing: -0.012em;
+		line-height: 1.15;
+	}
+	.feature-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+	}
+	.feature {
+		display: flex;
+		align-items: flex-start;
+		gap: 1.25rem;
+		padding: 1.5rem 0;
+		border-top: 1px solid var(--color-hairline);
+	}
+	.feature:last-child { border-bottom: 1px solid var(--color-hairline); }
+	.feature-num {
+		flex-shrink: 0;
+		width: 40px;
+		font-size: 0.8125rem;
+		color: var(--color-coral);
+		letter-spacing: 0.02em;
+		padding-top: 0.15rem;
+	}
+	.feature-body {
+		flex: 1;
+		min-width: 0;
+	}
+	.feature-body h4 {
+		margin: 0 0 0.4rem;
+		font-family: var(--font-sans);
+		font-size: 1.0625rem;
+		font-weight: 600;
+		color: var(--color-charcoal);
+		letter-spacing: -0.005em;
+	}
+	.feature-body p {
+		margin: 0;
+		font-size: 0.9375rem;
+		line-height: 1.55;
+		color: var(--color-reading);
+		max-width: 56ch;
+	}
+
+	.mockup-section, .diagram-section {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+	.mockup-section-head,
+	.diagram-section-head {
+		max-width: none;
+	}
+	.mockup-section-head p,
+	.diagram-section-head p {
+		max-width: none;
+	}
+	.mockup-section-head h3, .diagram-section-head h3 {
+		margin: 0 0 0.85rem;
+		font-family: var(--font-serif);
+		font-size: 1.65rem;
+		font-weight: 420;
+		color: var(--color-charcoal);
+		letter-spacing: -0.012em;
+		line-height: 1.15;
+	}
+	.mockup-section-head p, .diagram-section-head p {
+		margin: 0;
+		font-size: 0.9375rem;
+		line-height: 1.55;
+		color: var(--color-reading);
+	}
+	.mockup-section-head p code, .diagram-section-head p code {
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		background: oklch(96% 0.005 60);
+		padding: 0.05em 0.4em;
+		border-radius: 2px;
+		color: var(--color-charcoal);
+	}
+
+	.mockup-wide, .diagram-wide {
+		width: 100%;
+	}
+
+	.tooling {
+		margin: 0;
+		padding: 1.5rem 0 0;
+		border-top: 1px solid var(--color-hairline);
+	}
+	.tooling .sub-eyebrow { margin-bottom: 1rem; }
+	.tooling dl {
+		margin: 0;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem 2.5rem;
+	}
+	.tooling dt {
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 600;
+		color: var(--color-charcoal);
+		margin-bottom: 0.45rem;
+	}
+	.tooling dd {
+		margin: 0;
+		font-size: 0.875rem;
+		line-height: 1.55;
+		color: var(--color-reading);
+	}
+	.tooling code {
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		background: oklch(96% 0.005 60);
+		padding: 0.05em 0.35em;
+		border-radius: 2px;
+		color: var(--color-charcoal);
+	}
+
+	.section-roadmap {
+		background: oklch(96% 0.008 60);
+	}
+	.section-roadmap h2 {
+		max-width: 38ch;
+	}
+
+	.roadmap-block {
+		margin-top: 1rem;
+	}
+
+	.cross-risks {
+		margin: 3rem 0 0;
+		padding: 2rem 0 0;
+		border-top: 1px solid var(--color-hairline);
+	}
+	.cross-risks .sub-eyebrow { margin-bottom: 1rem; }
+	.cross-risks dl {
+		margin: 0;
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 1.5rem 2.5rem;
+	}
+	.cross-risks dt {
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 600;
+		color: var(--color-charcoal);
+		margin-bottom: 0.25rem;
+	}
+	.cross-risks dd {
+		margin: 0;
+		font-size: 0.875rem;
+		line-height: 1.55;
+		color: var(--color-reading);
+	}
+
+	@media (max-width: 980px) {
+		.features { grid-template-columns: 1fr; gap: 2rem; }
+		.tooling dl { grid-template-columns: 1fr; gap: 1.5rem; }
+		.cross-risks dl { grid-template-columns: 1fr; }
+	}
+	@media (max-width: 720px) {
+		.problem-pains { grid-template-columns: 1fr; gap: 2rem; }
+		.section h2 { max-width: 22ch; }
+	}
+</style>

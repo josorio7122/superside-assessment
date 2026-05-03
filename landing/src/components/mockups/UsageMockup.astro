@@ -1,0 +1,355 @@
+---
+import MockupShell from './MockupShell.astro';
+
+const days = [
+	{ d: 'Mon', cost: 0.42 },
+	{ d: 'Tue', cost: 0.61 },
+	{ d: 'Wed', cost: 0.55 },
+	{ d: 'Thu', cost: 1.08 },
+	{ d: 'Fri', cost: 0.87 },
+	{ d: 'Sat', cost: 0.36 },
+	{ d: 'Sun', cost: 0.31 },
+];
+const max = Math.max(...days.map((d) => d.cost));
+
+const users = [
+	{ name: 'Jo Osorio', initial: 'J', count: 142, cost: 4.20, last: '2m', share: 0.42 },
+	{ name: 'Maya R.', initial: 'M', count: 87, cost: 2.15, last: '11m', share: 0.21 },
+	{ name: 'Arvid B.', initial: 'A', count: 64, cost: 1.84, last: '24m', share: 0.18 },
+	{ name: 'Liu W.', initial: 'L', count: 38, cost: 0.92, last: '1h', share: 0.09 },
+	{ name: 'Kira P.', initial: 'K', count: 22, cost: 0.71, last: '3h', share: 0.07 },
+	{ name: 'Tomás F.', initial: 'T', count: 14, cost: 0.30, last: '5h', share: 0.03 },
+];
+---
+
+<MockupShell active="usage" path="usage" title="Usage" subtitle="last 7 days · org-wide">
+	<div slot="head-actions" class="head-actions">
+		<div class="range" role="tablist">
+			<button type="button" role="tab">Today</button>
+			<button type="button" role="tab" data-active>7d</button>
+			<button type="button" role="tab">30d</button>
+		</div>
+	</div>
+
+	<div class="layout">
+		<section class="summary">
+			<div class="stat">
+				<span class="stat-eyebrow mono">Total spend</span>
+				<p class="stat-value serif">
+					<span class="stat-currency">$</span><span>4.20</span>
+				</p>
+				<p class="stat-delta">
+					<span class="delta delta-up">↑ 18.4%</span>
+					<span class="delta-sub">vs prior 7d</span>
+				</p>
+			</div>
+			<div class="stat">
+				<span class="stat-eyebrow mono">Generations</span>
+				<p class="stat-value serif"><span>367</span></p>
+				<p class="stat-delta">
+					<span class="delta delta-up">↑ 12 over 7d</span>
+				</p>
+			</div>
+			<div class="stat">
+				<span class="stat-eyebrow mono">p95 latency</span>
+				<p class="stat-value serif"><span>2.8</span><span class="stat-unit">s</span></p>
+				<p class="stat-delta">
+					<span class="delta delta-down">↓ 0.4s</span>
+				</p>
+			</div>
+		</section>
+
+		<section class="chart">
+			<header>
+				<h4>Daily cost</h4>
+				<span class="mono small subtle">USD · 7d</span>
+			</header>
+			<div class="bars" aria-hidden="true">
+				{days.map((d) => (
+					<div class="bar-col">
+						<div class="bar-track">
+							<div class="bar" style={`height:${(d.cost / max) * 100}%`}>
+								<span class="bar-value mono">${d.cost.toFixed(2)}</span>
+							</div>
+						</div>
+						<span class="bar-day mono">{d.d}</span>
+					</div>
+				))}
+			</div>
+		</section>
+
+		<section class="user-table">
+			<header>
+				<h4>By user</h4>
+				<span class="mono small subtle">{users.length} active</span>
+			</header>
+			<table>
+				<thead>
+					<tr>
+						<th>User</th>
+						<th class="num">Generations</th>
+						<th class="num">Cost</th>
+						<th>Share</th>
+						<th>Last</th>
+					</tr>
+				</thead>
+				<tbody>
+					{users.map((u) => (
+						<tr>
+							<td>
+								<span class="u-cell">
+									<span class="avatar">{u.initial}</span>
+									{u.name}
+								</span>
+							</td>
+							<td class="num mono small">{u.count}</td>
+							<td class="num mono small">${u.cost.toFixed(2)}</td>
+							<td>
+								<span class="share-cell">
+									<span class="share-bar">
+										<span class="share-fill" style={`width:${u.share * 100}%`}></span>
+									</span>
+									<span class="mono share-num">{Math.round(u.share * 100)}%</span>
+								</span>
+							</td>
+							<td class="mono small subtle">{u.last} ago</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</section>
+	</div>
+</MockupShell>
+
+<style>
+	.head-actions { display: flex; gap: 0.5rem; align-items: center; }
+	.range {
+		display: inline-flex;
+		padding: 2px;
+		background: oklch(96% 0.005 60);
+		border: 1px solid var(--color-hairline);
+		border-radius: 5px;
+	}
+	.range button {
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		padding: 0.32rem 0.7rem;
+		background: transparent;
+		border: none;
+		color: var(--color-stone);
+		cursor: pointer;
+		border-radius: 3px;
+	}
+	.range button[data-active] {
+		background: oklch(99% 0.003 60);
+		color: var(--color-charcoal);
+		box-shadow: 0 1px 2px oklch(20% 0.012 50 / 0.06);
+	}
+
+	.layout { display: grid; gap: 1rem; }
+
+	.summary {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0;
+		border: 1px solid var(--color-hairline);
+		border-radius: 6px;
+		overflow: hidden;
+	}
+	.stat {
+		padding: 0.95rem 1.1rem;
+		border-right: 1px solid var(--color-hairline);
+	}
+	.stat:last-child { border-right: none; }
+	.stat-eyebrow {
+		font-size: 0.625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-stone);
+		display: block;
+		margin-bottom: 0.4rem;
+	}
+	.stat-value {
+		margin: 0;
+		font-size: 1.65rem;
+		font-weight: 380;
+		color: var(--color-charcoal);
+		line-height: 1;
+		letter-spacing: -0.015em;
+	}
+	.stat-currency {
+		font-size: 0.95rem;
+		color: var(--color-stone);
+		margin-right: 1px;
+		vertical-align: 0.2em;
+	}
+	.stat-unit {
+		font-size: 0.95rem;
+		color: var(--color-stone);
+		margin-left: 1px;
+	}
+	.stat-delta {
+		margin: 0.5rem 0 0;
+		display: inline-flex;
+		gap: 0.45rem;
+		align-items: baseline;
+		font-size: 0.6875rem;
+	}
+	.delta { font-family: var(--font-mono); }
+	.delta-up { color: oklch(45% 0.13 145); }
+	.delta-down { color: oklch(45% 0.13 145); }
+	.delta-sub { color: var(--color-stone); }
+
+	.chart {
+		padding: 0.95rem 1.1rem;
+		border: 1px solid var(--color-hairline);
+		border-radius: 6px;
+	}
+	.chart header {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		margin-bottom: 0.85rem;
+	}
+	.chart h4, .user-table h4 {
+		margin: 0;
+		font-family: var(--font-serif);
+		font-size: 1rem;
+		font-weight: 500;
+		color: var(--color-charcoal);
+	}
+	.bars {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		gap: 0.55rem;
+		height: 95px;
+	}
+	.bar-col {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		min-width: 0;
+	}
+	.bar-track {
+		flex: 1;
+		display: flex;
+		align-items: flex-end;
+		background: oklch(98% 0.005 60);
+		border-radius: 2px;
+		padding: 0.15rem;
+	}
+	.bar {
+		width: 100%;
+		background: linear-gradient(to top, var(--color-coral), oklch(72% 0.13 35));
+		border-radius: 1px;
+		min-height: 2px;
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+	}
+	.bar-value {
+		font-size: 0.5625rem;
+		color: var(--color-charcoal);
+		position: absolute;
+		top: -14px;
+		opacity: 0;
+		transition: opacity 200ms var(--ease-out-quart);
+	}
+	.bar-col:hover .bar-value { opacity: 1; }
+	.bar-day {
+		font-size: 0.625rem;
+		color: var(--color-stone);
+		text-align: center;
+	}
+
+	.user-table {
+		padding: 0.95rem 1.1rem 0.85rem;
+		border: 1px solid var(--color-hairline);
+		border-radius: 6px;
+	}
+	.user-table header {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		margin-bottom: 0.6rem;
+	}
+	.user-table table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.8125rem;
+	}
+	.user-table th {
+		text-align: left;
+		padding: 0.4rem 0.5rem;
+		font-family: var(--font-mono);
+		font-size: 0.5625rem;
+		font-weight: 500;
+		color: var(--color-stone);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		border-bottom: 1px solid var(--color-hairline);
+	}
+	.user-table th.num { text-align: right; }
+	.user-table td {
+		padding: 0.45rem 0.5rem;
+		color: var(--color-charcoal);
+		border-bottom: 1px solid var(--color-hairline);
+	}
+	.user-table td.num { text-align: right; }
+	.user-table tr:last-child td { border-bottom: none; }
+
+	.u-cell { display: inline-flex; align-items: center; gap: 0.5rem; }
+	.avatar {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: oklch(85% 0.06 35);
+		color: oklch(25% 0.05 35);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.625rem;
+		font-weight: 500;
+	}
+
+	.share-cell {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		min-width: 100px;
+	}
+	.share-bar {
+		flex: 1;
+		height: 4px;
+		background: oklch(96% 0.005 60);
+		border-radius: 2px;
+		overflow: hidden;
+		display: block;
+	}
+	.share-fill {
+		display: block;
+		height: 100%;
+		background: var(--color-coral);
+		border-radius: 2px;
+	}
+	.share-num {
+		font-size: 0.625rem;
+		color: var(--color-stone);
+		min-width: 26px;
+		text-align: right;
+	}
+
+	.small { font-size: 0.75rem; }
+	.subtle { color: var(--color-stone); }
+
+	@media (max-width: 720px) {
+		.summary { grid-template-columns: 1fr; }
+		.stat { border-right: none; border-bottom: 1px solid var(--color-hairline); }
+		.stat:last-child { border-bottom: none; }
+		.user-table th:nth-child(4),
+		.user-table td:nth-child(4),
+		.user-table th:nth-child(5),
+		.user-table td:nth-child(5) { display: none; }
+	}
+</style>

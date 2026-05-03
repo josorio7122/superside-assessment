@@ -1,0 +1,557 @@
+---
+const palette = ['#4A154B', '#ECB22E', '#36C5F0', '#2EB67D', '#E01E5A'];
+
+const variants = [
+	{
+		url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=420&q=70',
+		alt: 'Team collaborating around a laptop in sunlit office',
+		applied: true,
+	},
+	{
+		url: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=420&q=70',
+		alt: 'Group meeting around a table with afternoon light',
+		applied: false,
+	},
+	{
+		url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=420&q=70',
+		alt: 'Open workspace with people at standing desks',
+		applied: false,
+	},
+];
+
+const heroVariant = variants[0];
+---
+
+<div class="plugin-stage" role="img" aria-label="Studio Figma plugin, image generation panel inside a Slack ad design">
+	<div class="plugin-canvas" aria-hidden="true">
+		<div class="canvas-grid"></div>
+		<span class="canvas-label mono">slack-q2-ad.fig · page 1 · 100%</span>
+
+		<article class="ad ad-square">
+			<div class="ad-frame-label mono">hero-image · 1080 × 1080</div>
+			<div class="ad-image">
+				<img src={heroVariant.url} alt="" loading="lazy" decoding="async" />
+			</div>
+			<div class="ad-band">
+				<p class="ad-eyebrow mono">slack · q2 · en-US</p>
+				<h4 class="ad-headline">Where work happens.</h4>
+				<span class="ad-cta">
+					<span>Try Slack</span>
+					<svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+						<path d="M2 4.5 H7 M5 2.5 L7 4.5 L5 6.5" />
+					</svg>
+				</span>
+			</div>
+		</article>
+	</div>
+
+	<div class="plugin-panel">
+		<header class="panel-head">
+			<div class="panel-mark">
+				<span class="ws-mark" aria-hidden="true"></span>
+				<span class="panel-title">Studio</span>
+			</div>
+			<button type="button" class="brand-pill" aria-label="Switch brand">
+				<span class="brand-dot" style="background:#4A154B"></span>
+				Slack
+				<svg width="9" height="9" viewBox="0 0 9 9" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+					<path d="M2.5 3.5 L4.5 5.5 L6.5 3.5" />
+				</svg>
+			</button>
+			<button type="button" class="panel-close" aria-label="Close plugin">
+				<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+					<path d="M2 2 L9 9 M9 2 L2 9" />
+				</svg>
+			</button>
+		</header>
+
+		<nav class="panel-tabs" aria-label="Plugin actions">
+			<button type="button">Copy</button>
+			<button type="button">Translate</button>
+			<button type="button" data-active>Image</button>
+		</nav>
+
+		<div class="panel-body">
+			<section class="layer-card">
+				<div class="layer-thumb" aria-hidden="true">
+					<img src={heroVariant.url} alt="" loading="lazy" decoding="async" />
+				</div>
+				<div class="layer-meta">
+					<p class="layer-name">hero-image</p>
+					<p class="layer-sub mono">frame · 1024 × 1024</p>
+				</div>
+				<span class="layer-tag mono">selected</span>
+			</section>
+
+			<section class="prompt-field">
+				<label class="field-label mono">Prompt</label>
+				<div class="prompt-box">
+					<p>modern team collaboration, sunlit office</p>
+					<div class="prompt-foot">
+						<span class="mono">35 / 200</span>
+						<button type="button" class="prompt-cta">
+							Regenerate
+							<svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+								<path d="M7 2 V4.5 H4.5" /><path d="M2 4.5 a2.5 2.5 0 1 0 1 -2" />
+							</svg>
+						</button>
+					</div>
+				</div>
+			</section>
+
+			<section class="variants-section">
+				<div class="variants-head">
+					<span class="field-label mono">3 variants · gpt-image-2</span>
+					<span class="cost mono">4.2s · $0.12</span>
+				</div>
+				<div class="variants-grid">
+					{variants.map((v) => (
+						<div class="variant" data-applied={v.applied ? '' : null}>
+							<img class="variant-img" src={v.url} alt={v.alt} loading="lazy" decoding="async" />
+							{v.applied && <span class="variant-badge mono">applied</span>}
+						</div>
+					))}
+				</div>
+			</section>
+
+			<section class="brand-context">
+				<span class="field-label mono">grounded in</span>
+				<div class="ctx-row">
+					<span class="ctx-pill mono">slack-brand-v3.pdf</span>
+					<span class="ctx-pill mono">visual · palette</span>
+					<div class="palette-row" aria-hidden="true">
+						{palette.map((c) => <span class="ps" style={`background:${c}`}></span>)}
+					</div>
+				</div>
+			</section>
+		</div>
+
+		<footer class="panel-foot">
+			<span class="user-line">
+				<span class="user-dot">J</span>
+				<span class="mono">jo · DesignTechCo</span>
+			</span>
+			<span class="conn mono">
+				<span class="conn-dot"></span>connected
+			</span>
+		</footer>
+	</div>
+</div>
+
+<style>
+	.plugin-stage {
+		position: relative;
+		border-radius: 8px;
+		overflow: hidden;
+		aspect-ratio: 16 / 10;
+		background: oklch(22% 0.008 280);
+		box-shadow: var(--shadow-mockup);
+		min-height: 480px;
+	}
+
+	.plugin-canvas {
+		position: absolute;
+		inset: 0;
+		background: oklch(22% 0.008 280);
+		overflow: hidden;
+	}
+	.canvas-grid {
+		position: absolute;
+		inset: 0;
+		background-image:
+			linear-gradient(oklch(28% 0.008 280) 1px, transparent 1px),
+			linear-gradient(90deg, oklch(28% 0.008 280) 1px, transparent 1px);
+		background-size: 32px 32px;
+		opacity: 0.4;
+	}
+	.canvas-label {
+		position: absolute;
+		left: 14px;
+		top: 12px;
+		color: oklch(72% 0.006 280);
+		font-size: 10px;
+		letter-spacing: 0.04em;
+	}
+
+	.ad {
+		position: absolute;
+		display: flex;
+		flex-direction: column;
+		background: #4A154B;
+		border-radius: 6px;
+		overflow: hidden;
+		box-shadow: 0 1px 0 oklch(0% 0 0 / 0.4), 0 18px 40px oklch(0% 0 0 / 0.45);
+		font-family: var(--font-sans);
+	}
+	.ad-frame-label {
+		position: absolute;
+		top: -18px;
+		left: 0;
+		font-size: 9.5px;
+		color: oklch(64% 0.006 280);
+		letter-spacing: 0.04em;
+	}
+
+	.ad-square {
+		left: 7%;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 38%;
+		aspect-ratio: 1;
+	}
+	.ad-square .ad-image {
+		flex: 1.4;
+		overflow: hidden;
+		position: relative;
+		background: oklch(40% 0.04 50);
+	}
+	.ad-square .ad-image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+	.ad-band {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: 0.4rem;
+		padding: 0.85rem 0.95rem;
+		background: #4A154B;
+		color: #F8F4F0;
+	}
+	.ad-eyebrow {
+		font-size: 8.5px;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		color: #ECB22E;
+		margin: 0;
+	}
+	.ad-headline {
+		margin: 0;
+		font-family: var(--font-serif);
+		font-size: clamp(13px, 1.4vw, 17px);
+		font-weight: 500;
+		line-height: 1.1;
+		letter-spacing: -0.015em;
+		color: #F8F4F0;
+	}
+	.ad-cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		align-self: flex-start;
+		padding: 0.35rem 0.7rem;
+		background: #ECB22E;
+		color: #1D1C1D;
+		border-radius: 999px;
+		font-size: 10px;
+		font-weight: 600;
+		font-family: var(--font-sans);
+		margin-top: 0.2rem;
+	}
+
+	.plugin-panel {
+		position: absolute;
+		right: 16px;
+		top: 16px;
+		bottom: 16px;
+		width: clamp(300px, 38%, 360px);
+		background: oklch(16% 0.006 280);
+		border: 1px solid oklch(28% 0.008 280);
+		border-radius: 6px;
+		box-shadow: 0 1px 2px oklch(0% 0 0 / 0.2), 0 16px 36px oklch(0% 0 0 / 0.4);
+		display: flex;
+		flex-direction: column;
+		color: oklch(92% 0.005 60);
+		font-family: var(--font-sans);
+		font-size: 12px;
+		overflow: hidden;
+		z-index: 2;
+	}
+
+	.panel-head {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.55rem 0.7rem;
+		border-bottom: 1px solid oklch(26% 0.008 280);
+	}
+	.panel-mark {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+	.ws-mark {
+		width: 16px;
+		height: 16px;
+		border-radius: 3px;
+		background: linear-gradient(135deg, oklch(64% 0.16 35) 0%, oklch(50% 0.16 25) 100%);
+	}
+	.panel-title {
+		font-family: var(--font-serif);
+		font-size: 12px;
+		font-weight: 500;
+		letter-spacing: -0.01em;
+		color: oklch(96% 0.005 60);
+	}
+	.brand-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.25rem 0.5rem;
+		background: oklch(22% 0.008 280);
+		border: 1px solid oklch(30% 0.008 280);
+		border-radius: 999px;
+		font-size: 11px;
+		color: oklch(92% 0.005 60);
+		font-family: var(--font-sans);
+		justify-self: end;
+		cursor: pointer;
+	}
+	.brand-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+	}
+	.panel-close {
+		background: none;
+		border: none;
+		color: oklch(65% 0.006 280);
+		padding: 0.25rem;
+		cursor: pointer;
+	}
+
+	.panel-tabs {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		border-bottom: 1px solid oklch(26% 0.008 280);
+	}
+	.panel-tabs button {
+		font-family: var(--font-sans);
+		font-size: 11px;
+		font-weight: 500;
+		letter-spacing: 0.01em;
+		color: oklch(60% 0.006 280);
+		background: none;
+		border: none;
+		padding: 0.55rem 0.7rem;
+		cursor: pointer;
+		border-bottom: 1.5px solid transparent;
+		margin-bottom: -1px;
+	}
+	.panel-tabs button[data-active] {
+		color: oklch(96% 0.005 60);
+		border-bottom-color: var(--color-coral);
+	}
+
+	.panel-body {
+		flex: 1;
+		padding: 0.85rem 0.8rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		overflow: hidden;
+	}
+
+	.field-label {
+		font-size: 9px;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: oklch(60% 0.006 280);
+	}
+
+	.layer-card {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		align-items: center;
+		gap: 0.55rem;
+		padding: 0.5rem 0.6rem;
+		background: oklch(22% 0.008 280);
+		border: 1px solid oklch(30% 0.008 280);
+		border-radius: 4px;
+	}
+	.layer-thumb {
+		width: 30px;
+		height: 30px;
+		border-radius: 3px;
+		overflow: hidden;
+		flex-shrink: 0;
+	}
+	.layer-thumb img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+	.layer-meta { min-width: 0; }
+	.layer-name { margin: 0; font-size: 11.5px; font-weight: 500; color: oklch(96% 0.005 60); }
+	.layer-sub {
+		margin: 0.1rem 0 0;
+		font-size: 9.5px;
+		color: oklch(60% 0.006 280);
+		letter-spacing: 0.02em;
+	}
+	.layer-tag {
+		font-size: 9px;
+		padding: 0.15rem 0.4rem;
+		background: var(--color-coral-soft);
+		color: var(--color-coral);
+		border-radius: 2px;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.prompt-field { display: flex; flex-direction: column; gap: 0.35rem; }
+	.prompt-box {
+		background: oklch(22% 0.008 280);
+		border: 1px solid oklch(30% 0.008 280);
+		border-radius: 4px;
+		padding: 0.5rem 0.6rem 0.4rem;
+	}
+	.prompt-box p {
+		margin: 0 0 0.5rem;
+		font-size: 11.5px;
+		color: oklch(94% 0.005 60);
+		font-style: italic;
+		font-family: var(--font-serif);
+		line-height: 1.4;
+	}
+	.prompt-foot {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-top: 0.35rem;
+		border-top: 1px solid oklch(28% 0.008 280);
+	}
+	.prompt-foot .mono { font-size: 9.5px; color: oklch(55% 0.006 280); }
+	.prompt-cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		background: none;
+		border: none;
+		color: var(--color-coral);
+		font-size: 10.5px;
+		font-family: var(--font-mono);
+		font-weight: 500;
+		cursor: pointer;
+		padding: 0;
+	}
+
+	.variants-section { display: flex; flex-direction: column; gap: 0.45rem; }
+	.variants-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+	}
+	.cost { font-size: 9.5px; color: oklch(55% 0.006 280); }
+	.variants-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0.4rem;
+	}
+	.variant {
+		position: relative;
+		aspect-ratio: 1;
+		border-radius: 3px;
+		overflow: hidden;
+		border: 1px solid oklch(30% 0.008 280);
+		cursor: pointer;
+		background: oklch(40% 0.02 50);
+	}
+	.variant[data-applied] {
+		border-color: var(--color-coral);
+		box-shadow: 0 0 0 1px var(--color-coral);
+	}
+	.variant-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+	.variant-badge {
+		position: absolute;
+		bottom: 3px;
+		left: 3px;
+		font-size: 8.5px;
+		color: oklch(96% 0.005 60);
+		background: oklch(0% 0 0 / 0.6);
+		padding: 0.1rem 0.3rem;
+		border-radius: 2px;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.brand-context { display: flex; flex-direction: column; gap: 0.4rem; }
+	.ctx-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.35rem;
+	}
+	.ctx-pill {
+		font-size: 9.5px;
+		padding: 0.2rem 0.45rem;
+		background: oklch(22% 0.008 280);
+		border: 1px solid oklch(30% 0.008 280);
+		border-radius: 2px;
+		color: oklch(72% 0.006 280);
+		letter-spacing: 0.02em;
+	}
+	.palette-row {
+		display: inline-flex;
+		gap: 2px;
+		padding: 0.2rem;
+		background: oklch(22% 0.008 280);
+		border: 1px solid oklch(30% 0.008 280);
+		border-radius: 2px;
+	}
+	.ps {
+		width: 10px;
+		height: 10px;
+		border-radius: 1px;
+	}
+
+	.panel-foot {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.5rem 0.7rem;
+		border-top: 1px solid oklch(26% 0.008 280);
+		background: oklch(14% 0.006 280);
+	}
+	.user-line { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 10.5px; color: oklch(80% 0.005 60); }
+	.user-dot {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: oklch(85% 0.06 35);
+		color: oklch(25% 0.05 35);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 9px;
+		font-weight: 500;
+	}
+	.conn { font-size: 9.5px; color: oklch(70% 0.13 145); display: inline-flex; align-items: center; gap: 0.3rem; }
+	.conn-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: oklch(60% 0.16 145);
+	}
+
+	@media (max-width: 720px) {
+		.plugin-stage { aspect-ratio: 4 / 5; }
+		.plugin-panel {
+			right: 12px;
+			top: 12px;
+			bottom: 12px;
+			width: calc(100% - 24px);
+		}
+		.ad { display: none; }
+	}
+</style>

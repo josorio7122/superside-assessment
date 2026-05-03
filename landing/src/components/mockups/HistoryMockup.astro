@@ -1,0 +1,351 @@
+---
+import MockupShell from './MockupShell.astro';
+
+const variants = [
+	'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=240&q=70',
+	'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=240&q=70',
+	'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=240&q=70',
+];
+
+const rows = [
+	{ type: 'image', brand: 'Slack', user: 'jo', when: '2m ago', latency: '4.2s', cost: '$0.12', status: 'done' },
+	{ type: 'translate', brand: 'Slack', user: 'jo', when: '4m ago', latency: '1.4s', cost: '$0.001', status: 'done' },
+	{ type: 'copy_variant', brand: 'Heineken', user: 'maya', when: '11m ago', latency: '1.7s', cost: '$0.002', status: 'done' },
+	{ type: 'image', brand: 'Patagonia', user: 'maya', when: '18m ago', latency: '6.8s', cost: '$0.13', status: 'done' },
+	{ type: 'translate', brand: 'Notion', user: 'arvid', when: '24m ago', latency: '1.9s', cost: '$0.002', status: 'done' },
+	{ type: 'image', brand: 'Loom', user: 'arvid', when: '42m ago', latency: '—', cost: '—', status: 'failed' },
+	{ type: 'copy_variant', brand: 'Slack', user: 'jo', when: '58m ago', latency: '1.6s', cost: '$0.002', status: 'done' },
+	{ type: 'image', brand: 'Linear', user: 'maya', when: '1h ago', latency: '5.1s', cost: '$0.12', status: 'done' },
+	{ type: 'translate', brand: 'Heineken', user: 'jo', when: '2h ago', latency: '1.5s', cost: '$0.001', status: 'done' },
+];
+
+const labels: Record<string, string> = {
+	image: 'Image',
+	translate: 'Translate',
+	copy_variant: 'Copy variant',
+};
+---
+
+<MockupShell active="generations" path="generations" title="Generations" subtitle="142 in last 30 days">
+	<div slot="head-actions" class="head-actions">
+		<button type="button" class="head-btn">Export CSV</button>
+	</div>
+
+	<div class="layout">
+		<table class="hist-table">
+			<thead>
+				<tr>
+					<th>Type</th>
+					<th>Brand</th>
+					<th>User</th>
+					<th class="num">Latency</th>
+					<th class="num">Cost</th>
+					<th>When</th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				{rows.map((r, i) => (
+					<tr data-selected={i === 0 ? '' : null}>
+						<td>
+							<span class="type-cell">
+								<span class={`type-icon type-${r.type}`} aria-hidden="true">
+									{r.type === 'image' && (
+										<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.3">
+											<rect x="1" y="1" width="9" height="9" rx="0.5" />
+											<circle cx="3.5" cy="4" r="1" />
+											<path d="M1 8 L4 5 L7 7.5 L10 5" />
+										</svg>
+									)}
+									{r.type === 'translate' && (
+										<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.3">
+											<path d="M1 2 H6" /><path d="M3.5 2 V3 c0 1.5 -1.5 3 -2.5 3" /><path d="M2 5.5 c1 0 2.5 -1 2.5 -2.5" /><path d="M6 9 L8 4.5 L10 9" /><path d="M6.7 7.5 H9.3" />
+										</svg>
+									)}
+									{r.type === 'copy_variant' && (
+										<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.3">
+											<path d="M2 2.5 H8 M2 5 H8 M2 7.5 H6" />
+										</svg>
+									)}
+								</span>
+								{labels[r.type]}
+							</span>
+						</td>
+						<td>{r.brand}</td>
+						<td>
+							<span class="user-cell">
+								<span class="avatar">{r.user[0]}</span>
+								{r.user}
+							</span>
+						</td>
+						<td class="num mono small">{r.latency}</td>
+						<td class="num mono small">{r.cost}</td>
+						<td class="mono small subtle">{r.when}</td>
+						<td>
+							{r.status === 'done' && <span class="pill pill-done">Done</span>}
+							{r.status === 'failed' && <span class="pill pill-failed">Failed</span>}
+						</td>
+					</tr>
+				))}
+			</tbody>
+		</table>
+
+		<aside class="detail">
+			<header>
+				<span class="card-eyebrow mono">selected · image</span>
+				<button type="button" class="close" aria-label="Close detail">×</button>
+			</header>
+			<div class="detail-body">
+				<p class="detail-prompt">"modern team collaboration, sunlit office"</p>
+				<div class="variants">
+					<div class="variant" data-selected>
+						<img class="variant-img" src={variants[0]} alt="Generated variant 1" loading="lazy" decoding="async" />
+						<span class="variant-tag mono">applied</span>
+					</div>
+					<div class="variant">
+						<img class="variant-img" src={variants[1]} alt="Generated variant 2" loading="lazy" decoding="async" />
+					</div>
+					<div class="variant">
+						<img class="variant-img" src={variants[2]} alt="Generated variant 3" loading="lazy" decoding="async" />
+					</div>
+				</div>
+				<dl class="detail-meta">
+					<div><dt>Model</dt><dd class="mono">gpt-image-2</dd></div>
+					<div><dt>Tokens</dt><dd class="mono">— · image</dd></div>
+					<div><dt>Layer</dt><dd class="mono">hero-image</dd></div>
+					<div><dt>File</dt><dd class="mono">slack-q2-ad.fig</dd></div>
+				</dl>
+			</div>
+		</aside>
+	</div>
+</MockupShell>
+
+<style>
+	.head-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+	.filter-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.32rem 0.65rem;
+		font-size: 0.625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: oklch(40% 0.13 145);
+		background: oklch(94% 0.04 145 / 0.5);
+		border-radius: 999px;
+	}
+	.filter-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: oklch(60% 0.16 145);
+		animation: pulse 1.6s var(--ease-out-quart) infinite;
+	}
+	@keyframes pulse {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.45; }
+	}
+
+	.head-btn {
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		font-weight: 500;
+		padding: 0.4rem 0.7rem;
+		border-radius: 5px;
+		border: 1px solid var(--color-hairline);
+		background: transparent;
+		color: var(--color-charcoal);
+		cursor: pointer;
+	}
+
+	.layout {
+		display: grid;
+		grid-template-columns: 1fr 240px;
+		gap: 1.25rem;
+		height: 100%;
+	}
+
+	.hist-table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.8125rem;
+	}
+	.hist-table th {
+		text-align: left;
+		padding: 0.5rem 0.6rem;
+		font-family: var(--font-mono);
+		font-size: 0.625rem;
+		font-weight: 500;
+		color: var(--color-stone);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		border-bottom: 1px solid var(--color-hairline);
+	}
+	.hist-table th.num { text-align: right; }
+	.hist-table td {
+		padding: 0.5rem 0.6rem;
+		border-bottom: 1px solid var(--color-hairline);
+		color: var(--color-charcoal);
+	}
+	.hist-table td.num { text-align: right; }
+	.hist-table tbody tr[data-selected] td {
+		background: oklch(96% 0.012 35 / 0.45);
+	}
+	.hist-table tbody tr[data-selected] td:first-child {
+		box-shadow: inset 3px 0 0 var(--color-coral);
+	}
+	.hist-table tbody tr:last-child td { border-bottom: none; }
+
+	.type-cell { display: inline-flex; align-items: center; gap: 0.5rem; }
+	.type-icon {
+		width: 22px;
+		height: 22px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 4px;
+		color: var(--color-stone);
+	}
+	.type-image { background: oklch(94% 0.04 250 / 0.5); color: oklch(45% 0.12 250); }
+	.type-translate { background: oklch(94% 0.04 80 / 0.6); color: oklch(45% 0.13 80); }
+	.type-copy_variant { background: oklch(94% 0.04 320 / 0.4); color: oklch(45% 0.12 320); }
+
+	.user-cell { display: inline-flex; align-items: center; gap: 0.45rem; }
+	.avatar {
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		background: oklch(85% 0.06 35);
+		color: oklch(25% 0.05 35);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.625rem;
+		font-weight: 500;
+		text-transform: uppercase;
+	}
+
+	.pill {
+		font-size: 0.625rem;
+		padding: 0.18rem 0.5rem;
+		border-radius: 999px;
+		font-family: var(--font-sans);
+	}
+	.pill-done {
+		background: oklch(94% 0.04 145 / 0.5);
+		color: oklch(40% 0.1 145);
+	}
+	.pill-failed {
+		background: oklch(94% 0.05 25 / 0.5);
+		color: oklch(45% 0.16 25);
+	}
+
+	.small { font-size: 0.75rem; }
+	.subtle { color: var(--color-stone); }
+
+	.detail {
+		background: oklch(98% 0.003 60);
+		border: 1px solid var(--color-hairline);
+		border-radius: 6px;
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+	.detail header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.6rem 0.75rem;
+		border-bottom: 1px solid var(--color-hairline);
+	}
+	.card-eyebrow {
+		font-size: 0.625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-stone);
+	}
+	.close {
+		background: none;
+		border: none;
+		font-size: 1.1rem;
+		color: var(--color-stone);
+		cursor: pointer;
+		padding: 0;
+		line-height: 1;
+	}
+
+	.detail-body { padding: 0.85rem 0.75rem; }
+	.detail-prompt {
+		margin: 0 0 0.85rem;
+		font-style: italic;
+		font-family: var(--font-serif);
+		font-size: 0.8125rem;
+		color: var(--color-charcoal);
+		line-height: 1.4;
+	}
+	.variants {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0.4rem;
+		margin-bottom: 0.95rem;
+	}
+	.variant {
+		position: relative;
+		aspect-ratio: 1;
+		border-radius: 3px;
+		overflow: hidden;
+		border: 1px solid var(--color-hairline);
+	}
+	.variant[data-selected] {
+		border-color: var(--color-coral);
+		box-shadow: 0 0 0 2px var(--color-coral-soft);
+	}
+	.variant-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+	.variant-tag {
+		position: absolute;
+		bottom: 4px;
+		left: 4px;
+		font-size: 0.5625rem;
+		color: var(--color-cream);
+		background: oklch(20% 0.012 50 / 0.7);
+		padding: 0.1rem 0.35rem;
+		border-radius: 2px;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.detail-meta {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.55rem 0.85rem;
+		margin: 0;
+		padding-top: 0.7rem;
+		border-top: 1px solid var(--color-hairline);
+	}
+	.detail-meta dt {
+		font-family: var(--font-mono);
+		font-size: 0.5625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-stone);
+		margin-bottom: 0.15rem;
+	}
+	.detail-meta dd {
+		margin: 0;
+		font-size: 0.6875rem;
+		color: var(--color-charcoal);
+	}
+
+	@media (max-width: 720px) {
+		.layout { grid-template-columns: 1fr; }
+		.detail { display: none; }
+		.hist-table th:nth-child(4),
+		.hist-table td:nth-child(4) { display: none; }
+	}
+</style>
