@@ -25,3 +25,10 @@ export const GenerationInputSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("image"), payload: ImageInputSchema }),
 ]);
 export type GenerationInput = z.infer<typeof GenerationInputSchema>;
+
+export const CreateImageGenerationSchema = z.object({
+  prompt: z.string().trim().min(1, "prompt required").max(200, "prompt must be ≤200 chars"),
+  brandId: z.string().uuid(),
+  layerName: z.string().max(120).optional().default("untitled"),
+});
+export type CreateImageGenerationBody = z.infer<typeof CreateImageGenerationSchema>;
