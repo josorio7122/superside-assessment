@@ -90,8 +90,8 @@ Implementation phase should consult:
 
 - `reference/brand.md` — the lane is editorial-typographic, but identity-preserved. Re-read the reflex-reject aesthetic lanes section before final type and headline composition.
 - `DESIGN.md` (this project) — every token, rule, and Don't.
-- `.context/aesthetic-anchor.md` — concrete signals from the chosen visual probe.
-- `.context/source-docs.md` — section-to-source-doc map.
+- `design-process/aesthetic-anchor.md` — concrete signals from the chosen visual probe.
+- `design-process/source-docs.md` — section-to-source-doc map.
 - `architecture.md`, `roadmap.md`, `assessment.md`, `features.md`, `data-flow.md`, `tooling.md` — content source-of-truth.
 - For Astro + React island wiring inside Astro 6: pull `@astrojs/react` integration and load mockup components via `client:visible` to defer hydration.
 - For SVG system diagram: hand-author. Reference the mermaid in `architecture.md` only as topology, not as visual style.

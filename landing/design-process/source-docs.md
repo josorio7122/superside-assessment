@@ -2,22 +2,22 @@
 
 This landing page presents an architecture-case-assessment deliverable for a platform that lets designers work with AI-generated, brand-true creative directly inside Figma.
 
-All authoritative content for the landing comes from the markdown docs at the **repo root** (`../`) and `../designs/`.
+All authoritative content for the landing comes from the markdown docs in `../../docs/` and `../../docs/designs/`.
 
 ## Map of source docs
 
 | Source | Use for landing section |
 |---|---|
-| `../assessment.md` | Section 1 — Problem statement |
-| `../features.md` | Section 2.1 — Features (Figma plugin, admin web, platform capabilities) |
-| `../architecture.md` | Section 2.3 — System diagram + how it balances UX / dev effort / short-term / long-term |
-| `../data-flow.md` | Section 2.3 supporting — narrative for "localise copy + replace images" |
-| `../tooling.md` | "Tech choices + trade-offs" — single OpenAI provider stack |
-| `../engineering.md` | Optional callout — codebase conventions |
-| `../data-model.md` | Optional callout — multi-tenant schema |
-| `../roadmap.md` | Section 3 (dev effort + MVP scope), Section 4 (short-term), Section 5 (long-term), risks + mitigations |
-| `../research/figma-plugin.md` | Background only — plugin runtime constraints that shaped the API |
-| `../designs/*.md` | Per-feature reference — only deepen if a section needs it |
+| `../../docs/assessment.md` | Section 1 — Problem statement |
+| `../../docs/features.md` | Section 2.1 — Features (Figma plugin, admin web, platform capabilities) |
+| `../../docs/architecture.md` | Section 2.3 — System diagram + how it balances UX / dev effort / short-term / long-term |
+| `../../docs/data-flow.md` | Section 2.3 supporting — narrative for "localise copy + replace images" |
+| `../../docs/tooling.md` | "Tech choices + trade-offs" — single OpenAI provider stack |
+| `../../docs/engineering.md` | Optional callout — codebase conventions |
+| `../../docs/data-model.md` | Optional callout — multi-tenant schema |
+| `../../docs/roadmap.md` | Section 3 (dev effort + MVP scope), Section 4 (short-term), Section 5 (long-term), risks + mitigations |
+| `../../docs/research/figma-plugin.md` | Background only — plugin runtime constraints that shaped the API |
+| `../../docs/designs/*.md` | Per-feature reference — only deepen if a section needs it |
 
 ## Landing page sections (the user-requested outline)
 

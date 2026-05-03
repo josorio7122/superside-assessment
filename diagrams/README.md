@@ -73,15 +73,15 @@ Path-overlay colors (data flows):
 
 ## Cross-references
 
-Source documents in repo root:
+Source documents in `../docs/`:
 
-- `architecture.md` — overall arch + components + data stores + multi-tenant
-- `roadmap.md` — phased plan, MVP / Beta / Final Rollout, risks
-- `data-flow.md` — E2E walkthrough
-- `data-model.md` — Postgres schema, indexes
-- `engineering.md` — coding conventions, monorepo layout
-- `tooling.md` — locked stack
-- `features.md` — user-facing capabilities by surface
-- `designs/` — per-feature designs
-- `research/figma-plugin.md` — plugin runtime constraints
-- `landing/` — Astro landing site (see https://josorio7122.github.io/superside-assessment/)
+- `../docs/architecture.md` — overall arch + components + data stores + multi-tenant
+- `../docs/roadmap.md` — phased plan, MVP / Beta / Final Rollout, risks
+- `../docs/data-flow.md` — E2E walkthrough
+- `../docs/data-model.md` — Postgres schema, indexes
+- `../docs/engineering.md` — coding conventions, monorepo layout
+- `../docs/tooling.md` — locked stack
+- `../docs/features.md` — user-facing capabilities by surface
+- `../docs/designs/` — per-feature designs
+- `../docs/research/figma-plugin.md` — plugin runtime constraints
+- `../landing/` — Astro landing site (live at https://josorio7122.github.io/superside-assessment/)

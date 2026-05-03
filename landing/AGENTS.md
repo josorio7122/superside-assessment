@@ -37,9 +37,9 @@ Authoritative design context lives in **`PRODUCT.md`** (strategic) and **`DESIGN
 |---|---|
 | `PRODUCT.md` | Strategic context (users, purpose, principles, anti-refs). |
 | `DESIGN.md` | Visual system (colors, type, components). Generate via `/impeccable document`. |
-| `.context/aesthetic-anchor.md` | Selected visual direction + rationale (Probe 01 Editorial). |
-| `.context/source-docs.md` | Map of repo-root markdown to landing sections. |
-| `../assessment.md` → `../roadmap.md` | Authoritative content. Every claim traces here. |
+| `design-process/aesthetic-anchor.md` | Selected visual direction + rationale (Probe 01 Editorial). |
+| `design-process/source-docs.md` | Map of source markdown to landing sections. |
+| `../docs/assessment.md` → `../docs/roadmap.md` | Authoritative content. Every claim traces here. |
 
 ### Commands
 
