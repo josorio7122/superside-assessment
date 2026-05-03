@@ -156,6 +156,9 @@ pnpm test:a11y
 # curl every API endpoint (14 routes), fail-fast on non-200 or schema mismatch
 pnpm test:smoke
 
+# Plugin smoke test — end-to-end against running stack (consumes OpenAI tokens ~$0.12/run)
+pnpm smoke:plugin
+
 # Live extraction against OpenRouter (consumes tokens — opt-in only).
 # Requires the worker to be running on the side: `pnpm --filter @studio/worker dev`.
 RUN_LIVE=1 pnpm test:e2e
@@ -168,6 +171,22 @@ RUN_LIVE=1 pnpm test:e2e
 Visual snapshots live in `e2e/tests/visual.spec.ts-snapshots/` (committed,
 asserted) and `e2e/baselines/` (landing-app mockups, human comparison only).
 Update with `pnpm --filter @studio/e2e test visual -- --update-snapshots`.
+
+### Plugin smoke test
+
+End-to-end smoke against a running stack (api + worker + redis + postgres + s3 + at least one brand with a `ready` profile). Hits real OpenAI — costs ~$0.12/run.
+
+```bash
+pnpm dev   # in another terminal
+pnpm smoke:plugin
+```
+
+Override prompt or API URL with env vars:
+
+```bash
+PROMPT="warm autumn forest" pnpm smoke:plugin
+API=http://staging.example.com pnpm smoke:plugin
+```
 
 ---
 

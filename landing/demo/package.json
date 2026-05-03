@@ -23,6 +23,7 @@
     "test:visual": "pnpm --filter @studio/e2e test --grep visual",
     "test:a11y": "pnpm --filter @studio/e2e test --grep a11y",
     "test:smoke": "bash scripts/smoke.sh",
+    "smoke:plugin": "bash scripts/smoke-plugin.sh",
     "fetch:pdfs": "bash scripts/fetch-seed-pdfs.sh"
   },
   "dependencies": {
