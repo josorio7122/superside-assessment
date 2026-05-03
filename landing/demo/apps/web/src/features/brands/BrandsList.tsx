@@ -3,7 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { api, type BrandWithStats } from "../../lib/api";
 import { NewBrandDialog } from "./NewBrandDialog";
+import { RenameBrandDialog } from "./RenameBrandDialog";
+import { DeleteBrandDialog } from "./DeleteBrandDialog";
 import { Skeleton } from "../../components/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
 import "./brands.css";
 
 const HUES = [320, 130, 30, 0, 270, 200, 250, 60, 180];
@@ -32,6 +40,8 @@ export function BrandsList() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const filtered = useMemo(() => {
     const list = q.data ?? [];
@@ -174,23 +184,63 @@ export function BrandsList() {
                   <td className="num mono">{b.genCount30d.toLocaleString()}</td>
                   <td className="mono small subtle">{relativeTime(b.lastActivityAt)}</td>
                   <td className="row-action" onClick={(e) => e.stopPropagation()}>
-                    <svg
-                      width="14"
-                      height="3"
-                      viewBox="0 0 14 3"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <circle cx="2" cy="1.5" r="1" />
-                      <circle cx="7" cy="1.5" r="1" />
-                      <circle cx="12" cy="1.5" r="1" />
-                    </svg>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="row-menu-btn"
+                          aria-label={`Actions for ${b.name}`}
+                        >
+                          <svg
+                            width="14"
+                            height="3"
+                            viewBox="0 0 14 3"
+                            fill="currentColor"
+                            aria-hidden="true"
+                          >
+                            <circle cx="2" cy="1.5" r="1" />
+                            <circle cx="7" cy="1.5" r="1" />
+                            <circle cx="12" cy="1.5" r="1" />
+                          </svg>
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onSelect={() => setRenameTarget({ id: b.id, name: b.name })}
+                        >
+                          Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="row-menu-danger"
+                          onSelect={() => setDeleteTarget({ id: b.id, name: b.name })}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+      )}
+
+      {renameTarget && (
+        <RenameBrandDialog
+          brandId={renameTarget.id}
+          currentName={renameTarget.name}
+          open
+          onOpenChange={(o) => !o && setRenameTarget(null)}
+        />
+      )}
+      {deleteTarget && (
+        <DeleteBrandDialog
+          brandId={deleteTarget.id}
+          brandName={deleteTarget.name}
+          open
+          onOpenChange={(o) => !o && setDeleteTarget(null)}
+        />
       )}
     </>
   );

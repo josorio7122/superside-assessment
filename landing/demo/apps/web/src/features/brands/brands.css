@@ -135,6 +135,23 @@
 .subtle { color: var(--color-stone); }
 .row-action { text-align: right; color: var(--color-stone); }
 
+.row-menu-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-stone);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 0;
+}
+.row-menu-btn:hover {
+  background: var(--color-sunken);
+  color: var(--color-charcoal);
+}
+.row-menu-danger {
+  color: oklch(50% 0.16 25);
+}
+
 @media (max-width: 720px) {
   .brands-table th:nth-child(4),
   .brands-table td:nth-child(4) { display: none; }
