@@ -18,3 +18,21 @@ export const extractProfileQueue = new Queue<ExtractProfileJob>("extract-profile
     removeOnFail: 100,
   },
 });
+
+export type GenerateImageJob = {
+  generationId: string;
+  orgId: string;
+  brandId: string;
+  userId: string;
+  groundedPrompt: string;
+};
+
+export const generateImageQueue = new Queue<GenerateImageJob>("generate-image", {
+  connection: redisQueue,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: { type: "exponential", delay: 2000 },
+    removeOnComplete: 100,
+    removeOnFail: 100,
+  },
+});
