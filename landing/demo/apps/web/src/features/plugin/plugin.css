@@ -1,0 +1,349 @@
+/* Static port of landing/src/components/mockups/PluginMockup.astro outer shell.
+ * The designer surface itself is out of demo scope; this is a captioned visual.
+ */
+
+.plugin-caption {
+  max-width: 60ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-reading);
+  margin: 0 0 1.5rem;
+}
+
+.plugin-footnote {
+  margin: 1rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-stone);
+  letter-spacing: 0.02em;
+}
+
+.plugin-stage {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: oklch(22% 0.008 280);
+  box-shadow: var(--shadow-mockup);
+  min-height: 480px;
+  max-width: 1100px;
+}
+.plugin-canvas {
+  position: absolute;
+  inset: 0;
+  background: oklch(22% 0.008 280);
+  overflow: hidden;
+}
+.canvas-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(oklch(28% 0.008 280) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(28% 0.008 280) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.4;
+}
+.canvas-label {
+  position: absolute;
+  left: 14px;
+  top: 12px;
+  color: oklch(72% 0.006 280);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.ad {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: #4A154B;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 oklch(0% 0 0 / 0.4), 0 18px 40px oklch(0% 0 0 / 0.45);
+  font-family: var(--font-sans);
+}
+.ad-frame-label {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  font-size: 9.5px;
+  color: oklch(64% 0.006 280);
+  letter-spacing: 0.04em;
+}
+.ad-square {
+  left: 7%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38%;
+  aspect-ratio: 1;
+}
+.ad-square .ad-image {
+  flex: 1.4;
+  background: linear-gradient(135deg, oklch(45% 0.05 50), oklch(40% 0.04 60));
+  position: relative;
+}
+.ad-band {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.85rem 0.95rem;
+  background: #4A154B;
+  color: #F8F4F0;
+}
+.ad-eyebrow {
+  font-size: 8.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ECB22E;
+  margin: 0;
+}
+.ad-headline {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(13px, 1.4vw, 17px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: #F8F4F0;
+}
+.ad-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  align-self: flex-start;
+  padding: 0.35rem 0.7rem;
+  background: #ECB22E;
+  color: #1D1C1D;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  margin-top: 0.2rem;
+}
+
+.plugin-panel {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  bottom: 16px;
+  width: clamp(300px, 38%, 360px);
+  background: oklch(16% 0.006 280);
+  border: 1px solid oklch(28% 0.008 280);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.2), 0 16px 36px oklch(0% 0 0 / 0.4);
+  display: flex;
+  flex-direction: column;
+  color: oklch(92% 0.005 60);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  overflow: hidden;
+  z-index: 2;
+}
+.panel-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid oklch(26% 0.008 280);
+}
+.panel-mark { display: inline-flex; align-items: center; gap: 0.4rem; }
+.plugin-panel .ws-mark {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, oklch(64% 0.16 35) 0%, oklch(50% 0.16 25) 100%);
+}
+.panel-title {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: oklch(96% 0.005 60);
+}
+.brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  background: oklch(22% 0.008 280);
+  border: 1px solid oklch(30% 0.008 280);
+  border-radius: 999px;
+  font-size: 11px;
+  color: oklch(92% 0.005 60);
+  font-family: var(--font-sans);
+  justify-self: end;
+  cursor: pointer;
+}
+.brand-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.panel-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid oklch(26% 0.008 280);
+}
+.panel-tabs button {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: oklch(60% 0.006 280);
+  background: none;
+  border: none;
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  border-bottom: 1.5px solid transparent;
+  margin-bottom: -1px;
+}
+.panel-tabs button[data-active] {
+  color: oklch(96% 0.005 60);
+  border-bottom-color: var(--color-coral);
+}
+
+.panel-body {
+  flex: 1;
+  padding: 0.85rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  overflow: hidden;
+}
+.field-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: oklch(60% 0.006 280);
+}
+
+.layer-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.6rem;
+  background: oklch(22% 0.008 280);
+  border: 1px solid oklch(30% 0.008 280);
+  border-radius: 4px;
+}
+.layer-thumb {
+  width: 30px;
+  height: 30px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, oklch(45% 0.05 50), oklch(40% 0.04 60));
+}
+.layer-meta { min-width: 0; }
+.layer-name { margin: 0; font-size: 11.5px; font-weight: 500; color: oklch(96% 0.005 60); }
+.layer-sub {
+  margin: 0.1rem 0 0;
+  font-size: 9.5px;
+  color: oklch(60% 0.006 280);
+  letter-spacing: 0.02em;
+}
+.layer-tag {
+  font-size: 9px;
+  padding: 0.15rem 0.4rem;
+  background: var(--color-coral-soft);
+  color: var(--color-coral);
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.prompt-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.prompt-box {
+  background: oklch(22% 0.008 280);
+  border: 1px solid oklch(30% 0.008 280);
+  border-radius: 4px;
+  padding: 0.5rem 0.6rem 0.4rem;
+}
+.prompt-box p {
+  margin: 0 0 0.5rem;
+  font-size: 11.5px;
+  color: oklch(94% 0.005 60);
+  font-style: italic;
+  font-family: var(--font-serif);
+  line-height: 1.4;
+}
+.prompt-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.35rem;
+  border-top: 1px solid oklch(28% 0.008 280);
+}
+.prompt-foot .mono { font-size: 9.5px; color: oklch(55% 0.006 280); }
+.prompt-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: none;
+  color: var(--color-coral);
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+
+.brand-context { display: flex; flex-direction: column; gap: 0.4rem; }
+.ctx-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+.ctx-pill {
+  font-size: 9.5px;
+  padding: 0.2rem 0.45rem;
+  background: oklch(22% 0.008 280);
+  border: 1px solid oklch(30% 0.008 280);
+  border-radius: 2px;
+  color: oklch(72% 0.006 280);
+  letter-spacing: 0.02em;
+}
+.palette-row {
+  display: inline-flex;
+  gap: 2px;
+  padding: 0.2rem;
+  background: oklch(22% 0.008 280);
+  border: 1px solid oklch(30% 0.008 280);
+  border-radius: 2px;
+}
+.ps { width: 10px; height: 10px; border-radius: 1px; }
+
+.panel-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.7rem;
+  border-top: 1px solid oklch(26% 0.008 280);
+  background: oklch(14% 0.006 280);
+}
+.user-line { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 10.5px; color: oklch(80% 0.005 60); }
+.user-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: oklch(85% 0.06 35);
+  color: oklch(25% 0.05 35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 500;
+}
+.conn { font-size: 9.5px; color: oklch(70% 0.13 145); display: inline-flex; align-items: center; gap: 0.3rem; }
+.conn-dot { width: 6px; height: 6px; border-radius: 50%; background: oklch(60% 0.16 145); }
+
+@media (max-width: 720px) {
+  .plugin-stage { aspect-ratio: 4 / 5; min-height: 600px; }
+  .plugin-panel {
+    right: 12px;
+    top: 12px;
+    bottom: 12px;
+    width: calc(100% - 24px);
+  }
+  .ad { display: none; }
+}

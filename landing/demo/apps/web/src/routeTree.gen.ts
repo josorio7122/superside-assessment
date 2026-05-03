@@ -9,38 +9,92 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsageRouteImport } from './routes/usage'
+import { Route as PluginRouteImport } from './routes/plugin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GenerationsIndexRouteImport } from './routes/generations.index'
+import { Route as BrandsIndexRouteImport } from './routes/brands.index'
 
+const UsageRoute = UsageRouteImport.update({
+  id: '/usage',
+  path: '/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PluginRoute = PluginRouteImport.update({
+  id: '/plugin',
+  path: '/plugin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GenerationsIndexRoute = GenerationsIndexRouteImport.update({
+  id: '/generations/',
+  path: '/generations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrandsIndexRoute = BrandsIndexRouteImport.update({
+  id: '/brands/',
+  path: '/brands/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/plugin': typeof PluginRoute
+  '/usage': typeof UsageRoute
+  '/brands/': typeof BrandsIndexRoute
+  '/generations/': typeof GenerationsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/plugin': typeof PluginRoute
+  '/usage': typeof UsageRoute
+  '/brands': typeof BrandsIndexRoute
+  '/generations': typeof GenerationsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/plugin': typeof PluginRoute
+  '/usage': typeof UsageRoute
+  '/brands/': typeof BrandsIndexRoute
+  '/generations/': typeof GenerationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/plugin' | '/usage' | '/brands/' | '/generations/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/plugin' | '/usage' | '/brands' | '/generations'
+  id: '__root__' | '/' | '/plugin' | '/usage' | '/brands/' | '/generations/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PluginRoute: typeof PluginRoute
+  UsageRoute: typeof UsageRoute
+  BrandsIndexRoute: typeof BrandsIndexRoute
+  GenerationsIndexRoute: typeof GenerationsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/usage': {
+      id: '/usage'
+      path: '/usage'
+      fullPath: '/usage'
+      preLoaderRoute: typeof UsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plugin': {
+      id: '/plugin'
+      path: '/plugin'
+      fullPath: '/plugin'
+      preLoaderRoute: typeof PluginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +102,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/generations/': {
+      id: '/generations/'
+      path: '/generations'
+      fullPath: '/generations/'
+      preLoaderRoute: typeof GenerationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brands/': {
+      id: '/brands/'
+      path: '/brands'
+      fullPath: '/brands/'
+      preLoaderRoute: typeof BrandsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PluginRoute: PluginRoute,
+  UsageRoute: UsageRoute,
+  BrandsIndexRoute: BrandsIndexRoute,
+  GenerationsIndexRoute: GenerationsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
