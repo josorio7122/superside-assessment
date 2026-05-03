@@ -1,0 +1,157 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: studio_demo
+    ports: ["5433:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d studio_demo"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports: ["6380:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  ministack:
+    image: ministackorg/ministack:latest
+    restart: unless-stopped
+    environment:
+      S3_PERSIST: "1"
+      S3_DATA_DIR: /tmp/ministack-data/s3
+      AWS_DEFAULT_REGION: us-east-1
+    ports: ["4566:4566"]
+    volumes:
+      - "./infra/ministack/init:/etc/localstack/init/ready.d"
+      - "ministack-data:/tmp/ministack-data"
+    healthcheck:
+      test:
+        ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4566/_ministack/health')"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: studio-demo-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://demo:demo@postgres:5432/studio_demo
+    working_dir: /app/packages/db
+    command: ["pnpm", "migrate"]
+    restart: "no"
+
+  seed:
+    image: studio-demo-app
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      ministack:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgres://demo:demo@postgres:5432/studio_demo
+      REDIS_URL: redis://redis:6379
+      STORAGE_MODE: s3
+      S3_ENDPOINT: http://ministack:4566
+      S3_REGION: us-east-1
+      S3_BUCKET: studio-demo
+      S3_ACCESS_KEY: test
+      S3_SECRET_KEY: test
+      S3_FORCE_PATH_STYLE: "true"
+    working_dir: /app
+    command: ["pnpm", "db:seed"]
+    restart: "no"
+
+  api:
+    image: studio-demo-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      ministack:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      API_PORT: "3001"
+      DATABASE_URL: postgres://demo:demo@postgres:5432/studio_demo
+      REDIS_URL: redis://redis:6379
+      STORAGE_MODE: s3
+      S3_ENDPOINT: http://ministack:4566
+      S3_REGION: us-east-1
+      S3_BUCKET: studio-demo
+      S3_ACCESS_KEY: test
+      S3_SECRET_KEY: test
+      S3_FORCE_PATH_STYLE: "true"
+      WEB_ORIGIN: http://localhost:5173
+      LOG_LEVEL: info
+    ports: ["3001:3001"]
+    working_dir: /app/apps/api
+    command: ["pnpm", "dev"]
+    restart: unless-stopped
+
+  worker:
+    image: studio-demo-app
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      ministack:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgres://demo:demo@postgres:5432/studio_demo
+      REDIS_URL: redis://redis:6379
+      STORAGE_MODE: s3
+      S3_ENDPOINT: http://ministack:4566
+      S3_REGION: us-east-1
+      S3_BUCKET: studio-demo
+      S3_ACCESS_KEY: test
+      S3_SECRET_KEY: test
+      S3_FORCE_PATH_STYLE: "true"
+      LOG_LEVEL: info
+    working_dir: /app/apps/worker
+    command: ["pnpm", "dev"]
+    restart: unless-stopped
+
+  web:
+    image: studio-demo-app
+    depends_on:
+      - api
+    environment:
+      VITE_HOST: 0.0.0.0
+      VITE_API_PROXY_TARGET: http://api:3001
+    ports: ["5173:5173"]
+    working_dir: /app/apps/web
+    command: ["pnpm", "dev"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  ministack-data:

@@ -13,13 +13,29 @@ profile editing with versioning, and a full Playwright + axe-core test layer.
 
 ## Quick start
 
+### Option 1 — Docker compose (zero-deps)
+
+Everything (postgres, redis, ministack, api, worker, web) runs in containers.
+You only need Docker.
+
+```bash
+cp .env.example .env          # paste OPENROUTER_API_KEY + OPENAI_API_KEY
+pnpm docker:up                # build + start all services (first run ~3 min)
+```
+
+Open <http://localhost:5173>. Stop with `Ctrl+C`, tear down with `pnpm docker:down`.
+
+Logs: `pnpm docker:logs`. Migrations + seed run automatically on first boot.
+
+### Option 2 — Local node (faster iteration)
+
 You need Node 24 (`.nvmrc` pins it), pnpm, and a running Postgres + Redis
-(see [Infrastructure](#infrastructure) — on this machine the demo points at
-the existing pg16 + redis5 already running on `:5432` / `:6379`).
+(see [Infrastructure](#infrastructure)).
 
 ```bash
 pnpm install
-cp .env.example .env          # then paste your OPENROUTER_API_KEY
+cp .env.example .env          # paste OPENROUTER_API_KEY + OPENAI_API_KEY
+pnpm infra:up                 # postgres + redis + ministack only
 pnpm db:migrate
 pnpm db:seed                  # creates org/users/brands + ~200 gens + ~264 usage rows
 pnpm dev                      # api :3001, web :5173, worker (no port)
