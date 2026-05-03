@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { api, type BrandWithStats } from "../../lib/api";
 import { NewBrandDialog } from "./NewBrandDialog";
 import { Skeleton } from "../../components/ui/skeleton";
@@ -138,18 +138,29 @@ export function BrandsList() {
               const hue = HUES[i % HUES.length];
               const glyph = b.name.charAt(0).toUpperCase();
               return (
-                <tr key={b.id}>
+                <tr
+                  key={b.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Open ${b.name}`}
+                  onClick={() => navigate({ to: "/brands/$brandId", params: { brandId: b.id } })}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      navigate({ to: "/brands/$brandId", params: { brandId: b.id } });
+                    }
+                  }}
+                >
                   <td>
-                    <Link
-                      to="/brands/$brandId"
-                      params={{ brandId: b.id }}
-                      className="brand-link"
-                    >
-                      <span className="brand-glyph" style={{ background: `oklch(85% 0.06 ${hue})` }}>
+                    <span className="brand-link">
+                      <span
+                        className="brand-glyph"
+                        style={{ background: `oklch(85% 0.06 ${hue})` }}
+                      >
                         {glyph}
                       </span>
                       <span className="brand-name">{b.name}</span>
-                    </Link>
+                    </span>
                   </td>
                   <td>
                     <span className={`status status-${status}`}>
@@ -162,7 +173,7 @@ export function BrandsList() {
                   </td>
                   <td className="num mono">{b.genCount30d.toLocaleString()}</td>
                   <td className="mono small subtle">{relativeTime(b.lastActivityAt)}</td>
-                  <td className="row-action">
+                  <td className="row-action" onClick={(e) => e.stopPropagation()}>
                     <svg
                       width="14"
                       height="3"

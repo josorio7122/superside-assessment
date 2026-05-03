@@ -57,7 +57,18 @@
 }
 .brands-table td.num { text-align: right; }
 .brands-table tbody tr:last-child td { border-bottom: none; }
-.brands-table tbody tr:hover td { background: oklch(98% 0.005 60); cursor: pointer; }
+.brands-table tbody tr {
+  cursor: pointer;
+  transition: background-color 120ms var(--ease-out-quart);
+}
+.brands-table tbody tr:hover,
+.brands-table tbody tr:focus-visible {
+  background: var(--color-sunken);
+}
+.brands-table tbody tr:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
 
 .col-name { display: inline-flex; align-items: center; gap: 0.6rem; }
 .brand-glyph {
