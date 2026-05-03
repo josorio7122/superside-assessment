@@ -10,7 +10,7 @@ test("brands table — dropdown rename + delete", async ({ page, request }) => {
 
   await page.goto("/brands");
 
-  const row = page.getByRole("button", { name: new RegExp(`Open ${created.name}`) });
+  const row = page.getByRole("link", { name: new RegExp(`Open ${created.name}`) });
   await expect(row).toBeVisible();
 
   await page.getByRole("button", { name: `Actions for ${created.name}` }).click();
@@ -20,7 +20,7 @@ test("brands table — dropdown rename + delete", async ({ page, request }) => {
   await page.getByRole("button", { name: "Save" }).click();
 
   await expect(
-    page.getByRole("button", { name: new RegExp(`Open ${newName}`) }),
+    page.getByRole("link", { name: new RegExp(`Open ${newName}`) }),
   ).toBeVisible();
 
   await page.getByRole("button", { name: `Actions for ${newName}` }).click();
@@ -28,7 +28,7 @@ test("brands table — dropdown rename + delete", async ({ page, request }) => {
   await page.getByRole("button", { name: "Delete" }).click();
 
   await expect(
-    page.getByRole("button", { name: new RegExp(`Open ${newName}`) }),
+    page.getByRole("link", { name: new RegExp(`Open ${newName}`) }),
   ).toHaveCount(0);
 });
 
@@ -57,8 +57,10 @@ test("smoke: brand list -> detail -> edit -> save -> rollback", async ({ page, r
   await page.goto("/brands");
   await expect(page.getByRole("heading", { name: "Brands", level: 1 })).toBeVisible();
 
-  // 2. Open Slack detail (row is role=button now that the entire row is clickable)
-  await page.getByRole("button", { name: /Open Slack/ }).first().click();
+  // 2. Open Slack detail. The brand-name cell is a Link (a11y: no nested
+  //    interactives in the row). The whole row also handles onClick as a
+  //    UX nicety, but tests target the focusable link directly.
+  await page.getByRole("link", { name: /Open Slack/ }).first().click();
   await expect(page.getByRole("heading", { name: "Slack", level: 1 })).toBeVisible();
 
   // 3. Ready profile editor visible (Voice tab default)

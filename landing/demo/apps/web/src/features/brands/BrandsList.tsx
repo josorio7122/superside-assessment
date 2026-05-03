@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { api, type BrandWithStats } from "../../lib/api";
 import { NewBrandDialog } from "./NewBrandDialog";
 import { RenameBrandDialog } from "./RenameBrandDialog";
@@ -150,19 +150,24 @@ export function BrandsList() {
               return (
                 <tr
                   key={b.id}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Open ${b.name}`}
-                  onClick={() => navigate({ to: "/brands/$brandId", params: { brandId: b.id } })}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      navigate({ to: "/brands/$brandId", params: { brandId: b.id } });
-                    }
+                  data-brand-id={b.id}
+                  onClick={(e) => {
+                    // Whole-row click is a UX nicety; ignore clicks that
+                    // originated inside an interactive child (link, button,
+                    // menu) so the dropdown trigger and the brand-name link
+                    // handle their own activation.
+                    const target = e.target as HTMLElement;
+                    if (target.closest("a, button, [role='menuitem'], [role='menu']")) return;
+                    navigate({ to: "/brands/$brandId", params: { brandId: b.id } });
                   }}
                 >
                   <td>
-                    <span className="brand-link">
+                    <Link
+                      to="/brands/$brandId"
+                      params={{ brandId: b.id }}
+                      className="brand-link"
+                      aria-label={`Open ${b.name}`}
+                    >
                       <span
                         className="brand-glyph"
                         style={{ background: `oklch(85% 0.06 ${hue})` }}
@@ -170,7 +175,7 @@ export function BrandsList() {
                         {glyph}
                       </span>
                       <span className="brand-name">{b.name}</span>
-                    </span>
+                    </Link>
                   </td>
                   <td>
                     <span className={`status status-${status}`}>
