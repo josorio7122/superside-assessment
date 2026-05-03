@@ -16,7 +16,7 @@ Backend design for the image-placeholder feature the Figma plugin invokes via `P
 
 - **Image-to-image at MVP.** Moves to Beta with the fal.ai integration. Plugin UI exposes the mode but the action shows "available in Beta" until fal.ai ships.
 - **Cross-provider fallback at MVP.** Beta lights up fal.ai as the image fallback in addition to image-to-image.
-- **Aspect ratios other than 1024×1024** — locked for MVP (`gpt-image-2` supports more, but we don't expose it).
+- **Aspect ratios other than 1024×1024 at MVP** — locked to the assessment brief's specified size. The `dimensions` field on the request already accepts arbitrary shape; the validator rejects anything other than 1024×1024 with `422` until Beta. **Beta unlocks the full size set** (1024×1024 square, 1024×1536 portrait, 1536×1024 landscape, 2048×2048 hi-res) as part of the fal.ai integration. API contract doesn't change; only the validator's allowed-size list.
 - **Content moderation server-side** — trust the provider.
 - **Hard spend caps** — deferred.
 - **Plugin "recent generations" panel** — backend already supports it via `GET /api/generations`; UX lives in the plugin design pass.
@@ -118,7 +118,7 @@ Multipart is used because image mode includes binary bytes and we want a single 
 | `figmaNodeId` | yes | — | Stored on `generation`; participates in per-node lock |
 | `mode` | yes | — | `text` or `image` |
 | `prompt` | yes | — | Free-text designer instruction |
-| `dimensions` | no | `1024×1024` | Future-flexibility field; `422` if not exactly `1024×1024` in MVP |
+| `dimensions` | no | `1024×1024` | MVP allows only 1024×1024 (`422` otherwise). Beta widens the allowed-size list to include 1024×1536, 1536×1024, 2048×2048. |
 | `variantCount` | no | `3` | Locked at `3` in MVP; `400` if other |
 
 When `mode = 'image'`, `inputImage` is required. When `mode = 'text'`, `inputImage` must be absent.
@@ -191,7 +191,7 @@ data: { "generationId": "uuid", "error": "string" }
 | `409` | `PER_NODE_LOCK` — image generation already in flight for this `(figmaFileKey, figmaNodeId)`. Body includes `{ conflictingGenerationId }`. |
 | `413` | `inputImage` part larger than the 5MB cap |
 | `415` | `inputImage` is not a PNG |
-| `422` | `dimensions` other than `1024×1024` |
+| `422` | `dimensions` outside the validator's allowed list (MVP: `1024×1024` only; Beta: 1024×1024, 1024×1536, 1536×1024, 2048×2048) |
 | `502` | Upstream provider error after BullMQ retries |
 | `504` | Upstream provider timed out |
 
@@ -347,13 +347,13 @@ p95 closer to 10s. Plugin shows a progress indicator while SSE is open.
 | Content moderation | Trust the provider. Refusals surface as `failed`. |
 | Concurrency / abuse | Per-node lock via partial unique index. One in-flight image gen per `(file, node)`, regardless of mode. |
 | Plugin reconnect UX | Plugin reads from `GET /api/generations`. Designed in plugin pass. |
-| Dimensions | API accepts `dimensions` for future flexibility; rejects anything other than `1024×1024` with `422`. |
+| Dimensions | API accepts `dimensions` for future flexibility; MVP validator rejects anything other than `1024×1024` with `422`. Beta widens the allowed-size list to 1024×1024, 1024×1536, 1536×1024, 2048×2048. |
 | Auth | Bearer token (`Authorization` header). |
 
 ## Out of scope
 
-- Provider fallback to alternative image providers (Claude / fal.ai)
-- Aspect ratios other than 1024×1024
+- Provider fallback to alternative image providers (lands in Beta via fal.ai)
+- Aspect ratios beyond 1024×1024 (lands in Beta)
 - Hard spend caps / per-user concurrency limits beyond the per-node lock
 - Server-side content moderation
 - Plugin "recent generations" panel UX

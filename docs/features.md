@@ -9,7 +9,7 @@ User-facing capabilities grouped by surface. Eight-week target inside a ten-week
 | A1 | Sign in via SSO; pick brand context | Auth |
 | A2 | Select text layer(s) → "Generate copy variants" → see N options → pick one → applies to layer | Copy |
 | A3 | Select text layer(s) → "Translate to locale" → pick from 8 → apply | Translation |
-| A4 | Select frame/fill layer → "Generate image" (text-to-image at MVP; image-to-image lights up in Beta via fal.ai) → see options → apply as image fill | Image |
+| A4 | Select frame/fill layer → "Generate image" — MVP: text-to-image at 1024×1024. Beta: + image-to-image via fal.ai, + size set (1024×1024, 1024×1536, 1536×1024, 2048×2048). Apply as image fill. | Image |
 | A5 | Batch: run A2/A3 across multiple layers in one click | Productivity |
 | A6 | Brand context indicator (which brand active, swap) | Grounding |
 | A7 | History panel: recent generations on this file, re-apply, undo | UX |

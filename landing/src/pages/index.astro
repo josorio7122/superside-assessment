@@ -24,7 +24,7 @@ const features = [
 		n: '03',
 		title: 'Generate images, on-brand.',
 		body:
-			'Text-to-image at MVP via OpenAI gpt-image-2 — three variants per request, applied as an image fill via figma.createImageAsync(signedUrl) and then setting node.fills with the returned imageHash. Image-to-image lights up in Beta via fal.ai. Async with SSE so the plugin never blocks.',
+			'Text-to-image at MVP via OpenAI gpt-image-2, locked to 1024×1024. Three variants per request, applied as an image fill via figma.createImageAsync(signedUrl) and then setting node.fills with the returned imageHash. Beta unlocks image-to-image (via fal.ai) and the full size set (1024×1536, 1536×1024, 2048×2048). Async with SSE so the plugin never blocks.',
 	},
 	{
 		n: '04',

@@ -83,10 +83,10 @@ Add access controls, observability, evals, multi-tenant onboarding, multi-provid
 - PostHog session replays + product analytics + LLM trace data inform which surfaces are friction.
 - Per-feature eval thresholds calibrated against MVP run data.
 
-**Image-to-image + multi-provider routing (week 3–4):**
-- **fal.ai integration.** Adds two capabilities at once: (a) image-to-image edit via fal.ai's `gpt-image-2/edit` endpoint — the path OpenAI's native `images.edit` does not currently support for `gpt-image-2`, (b) Flux family as image fallback if OpenAI image throttles. Same `packages/ai` call site; provider chosen per request.
+**Image-to-image + multi-size + multi-provider routing (week 3–4):**
+- **fal.ai integration.** Adds three capabilities at once: (a) image-to-image edit via fal.ai's `gpt-image-2/edit` endpoint — the path OpenAI's native `images.edit` does not currently support for `gpt-image-2`, (b) Flux family as image fallback if OpenAI image throttles, (c) **widened size set** — the validator's allowed-size list expands from `1024×1024` only (MVP) to include `1024×1536` (portrait), `1536×1024` (landscape), and `2048×2048` (hi-res). Same `packages/ai` call site; provider chosen per request.
 - **Per-feature text routing via OpenRouter.** MVP-eval data informs which features benefit from a different model (e.g. translation → Claude variant if eval shows better tone preservation). Routing rules live in OpenRouter config + PostHog feature flags. No new gateway, no new key — just routing rules on top of the gateway already in place.
-- **Plugin: image-to-image action lights up in the panel.** Designers can now seed image gen from a selected layer.
+- **Plugin: image-to-image action + size picker light up in the panel.** Designers can now seed image gen from a selected layer and pick the output size.
 
 **RBAC (week 3–4):**
 - Three roles defined in the WorkOS dashboard: `admin`, `brand_manager`, `designer`. Role flows into the session and onto `user.role`, mirrored locally.
