@@ -22,33 +22,6 @@ export function Shell() {
 
   return (
     <div className="studio-shell">
-      <div className="chrome">
-        <div className="chrome-dots" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        <div className="chrome-url">
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 10 10"
-            aria-hidden="true"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.2"
-          >
-            <rect x="2" y="4.5" width="6" height="4.5" rx="0.5" />
-            <path d="M3.5 4.5 V3 a1.5 1.5 0 0 1 3 0 V4.5" />
-          </svg>
-          <span>studio.superside.app{path === "/" ? "/brands" : path}</span>
-        </div>
-        <div className="chrome-actions" aria-hidden="true">
-          <span className="chrome-btn"></span>
-          <span className="chrome-btn"></span>
-        </div>
-      </div>
-
       <div className="app">
         <aside className="sidebar" aria-label="Studio navigation">
           <button type="button" className="sidebar-workspace" aria-label="Switch workspace">

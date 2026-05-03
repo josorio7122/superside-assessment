@@ -13,47 +13,6 @@
   min-height: 100vh;
 }
 
-.chrome {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.55rem 0.85rem;
-  background: oklch(95% 0.005 60);
-  border-bottom: 1px solid var(--color-hairline);
-}
-.chrome-dots { display: flex; gap: 6px; }
-.chrome-dots span {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: oklch(85% 0.005 50);
-}
-.chrome-dots span:first-child { background: oklch(72% 0.13 25); }
-.chrome-dots span:nth-child(2) { background: oklch(82% 0.12 80); }
-.chrome-dots span:nth-child(3) { background: oklch(74% 0.13 145); }
-
-.chrome-url {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.7rem;
-  background: oklch(99% 0.003 60);
-  border-radius: 6px;
-  color: var(--color-stone);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.01em;
-  max-width: 480px;
-}
-.chrome-actions { display: flex; gap: 4px; }
-.chrome-btn {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  background: oklch(88% 0.005 50);
-}
-
 .app {
   display: grid;
   grid-template-columns: 220px 1fr;
@@ -64,7 +23,7 @@
 .sidebar {
   background: oklch(96.5% 0.005 60);
   border-right: 1px solid var(--color-hairline);
-  padding: 1rem 0.85rem;
+  padding: 1.5rem 0.85rem;
   display: flex;
   flex-direction: column;
   font-size: 0.8125rem;
