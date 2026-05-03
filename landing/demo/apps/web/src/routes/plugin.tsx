@@ -110,16 +110,9 @@ function PluginPage() {
           <span className="canvas-label mono">slack-q2-ad.fig · page 1 · 100%</span>
 
           <article className="ad ad-square">
-            <div className="ad-frame-label mono">hero-image · 1080 × 1080</div>
+            <div className="ad-frame-label mono">hero-image · 1024 × 1024</div>
             <div className="ad-image" style={emptyStyle}>
               {heroSrc && <img src={heroSrc} alt="" />}
-            </div>
-            <div className="ad-band">
-              <p className="ad-eyebrow mono">slack · q2 · en-US</p>
-              <h4 className="ad-headline">Where work happens.</h4>
-              <span className="ad-cta">
-                <span>Try Slack</span>
-              </span>
             </div>
           </article>
         </div>

@@ -80,49 +80,9 @@
   aspect-ratio: 1;
 }
 .ad-square .ad-image {
-  flex: 1.4;
+  flex: 1;
   background: linear-gradient(135deg, oklch(45% 0.05 50), oklch(40% 0.04 60));
   position: relative;
-}
-.ad-band {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 0.85rem 0.95rem;
-  background: #4a154b;
-  color: #f8f4f0;
-}
-.ad-eyebrow {
-  font-size: 8.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #ecb22e;
-  margin: 0;
-}
-.ad-headline {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(13px, 1.4vw, 17px);
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: -0.015em;
-  color: #f8f4f0;
-}
-.ad-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  align-self: flex-start;
-  padding: 0.35rem 0.7rem;
-  background: #ecb22e;
-  color: #1d1c1d;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  margin-top: 0.2rem;
 }
 
 .plugin-panel {
