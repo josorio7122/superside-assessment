@@ -72,3 +72,22 @@ export async function putPdfBytes(key: string, body: Buffer): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, body);
 }
+
+export async function putBytes(key: string, body: Buffer, contentType: string): Promise<void> {
+  if (s3) {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: env.S3_BUCKET,
+        Key: key,
+        Body: body,
+        ContentType: contentType,
+      }),
+    );
+    return;
+  }
+  const path = join(localRoot, key);
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, body);
+}
+
+export const GENERATION_EVENTS_CHANNEL = "generation:events";
