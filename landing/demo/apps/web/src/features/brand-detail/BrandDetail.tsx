@@ -24,7 +24,15 @@ export function BrandDetail({ brandId }: Props) {
     queryFn: () => api.profiles.listForBrand(brandId),
   });
 
-  const current = detail.data?.currentProfile ?? null;
+  const currentProfile = detail.data?.currentProfile ?? null;
+  // When a brand has no current profile yet (fresh brand mid-extraction, or
+  // every prior attempt failed), surface the latest in-flight or failed row so
+  // the user sees a banner instead of the upload card disappearing without
+  // explanation.
+  const inflight = currentProfile
+    ? null
+    : (versions.data ?? []).find((v) => v.status === "processing" || v.status === "failed") ?? null;
+  const current = currentProfile ?? inflight;
 
   useProfileEvents(current?.status === "processing" ? current.id : undefined, {
     onReady: () => {
