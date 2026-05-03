@@ -158,6 +158,12 @@ export const api = {
       return req<{ items: GenerationRow[]; nextCursor: string | null }>(`/generations?${usp}`);
     },
     get: (id: string) => req<GenerationRow>(`/generations/${id}`),
+    createImage: (body: { prompt: string; brandId: string; layerName?: string }) =>
+      req<{ id: string; status: "running" }>("/generations/image", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    eventsUrl: (id: string) => `/api/generations/${id}/events`,
   },
 
   usage: {

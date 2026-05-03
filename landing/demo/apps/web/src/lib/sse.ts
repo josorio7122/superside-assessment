@@ -37,3 +37,56 @@ export function useProfileEvents(profileId: string | undefined, opts: ProfileEve
     };
   }, [profileId]);
 }
+
+export type GenerationVariant = { index: number; s3Key: string; size: string };
+
+interface GenerationEventOpts {
+  onVariantReady?: (v: GenerationVariant) => void;
+  onDone?: (output: { variants: GenerationVariant[] }) => void;
+  onFailed?: (msg: string) => void;
+}
+
+export function useGenerationEvents(
+  generationId: string | undefined,
+  opts: GenerationEventOpts,
+) {
+  const optsRef = useRef(opts);
+  optsRef.current = opts;
+
+  useEffect(() => {
+    if (!generationId) return;
+    const es = new EventSource(`/api/generations/${generationId}/events`);
+
+    const handleVariant = (e: MessageEvent) => {
+      try {
+        const parsed = JSON.parse(e.data) as { index: number; s3Key: string; size: string };
+        optsRef.current.onVariantReady?.(parsed);
+      } catch {}
+    };
+    const handleDone = (e: MessageEvent) => {
+      try {
+        const parsed = JSON.parse(e.data) as { output: { variants: GenerationVariant[] } };
+        optsRef.current.onDone?.(parsed.output);
+      } catch {}
+    };
+    const handleFailed = (e: MessageEvent) => {
+      try {
+        const parsed = JSON.parse(e.data) as { error?: string };
+        optsRef.current.onFailed?.(parsed.error ?? "generation failed");
+      } catch {
+        optsRef.current.onFailed?.("generation failed");
+      }
+    };
+
+    es.addEventListener("variant_ready", handleVariant as EventListener);
+    es.addEventListener("done", handleDone as EventListener);
+    es.addEventListener("failed", handleFailed as EventListener);
+
+    return () => {
+      es.removeEventListener("variant_ready", handleVariant as EventListener);
+      es.removeEventListener("done", handleDone as EventListener);
+      es.removeEventListener("failed", handleFailed as EventListener);
+      es.close();
+    };
+  }, [generationId]);
+}
