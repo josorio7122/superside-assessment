@@ -304,8 +304,9 @@
   min-width: 22px;
 }
 .versions li[data-current] .v-num {
-  color: var(--color-coral);
-  font-weight: 500;
+  /* Bumped from --color-coral to a darker variant for AA contrast at 11px */
+  color: oklch(48% 0.17 35);
+  font-weight: 600;
 }
 .versions p {
   margin: 0;
@@ -327,7 +328,10 @@
   letter-spacing: 0.06em;
   background: none;
   border: none;
-  color: var(--color-coral);
+  /* Bumped from --color-coral to a darker coral for WCAG 2 AA contrast on
+   * cream backgrounds at this small font size. */
+  color: oklch(48% 0.17 35);
+  font-weight: 600;
   cursor: pointer;
   padding: 0.15rem 0;
   margin-top: 0.2rem;

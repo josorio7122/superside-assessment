@@ -21,9 +21,14 @@ const PAGES: Array<{ id: string; build: () => Promise<string> }> = [
     build: async () => {
       const r = await fetch(`${API}/api/brands`);
       const list = (await r.json()) as Array<{ id: string; name: string }>;
-      const slack = list.find((b) => b.name === "Slack") ?? list[0];
-      if (!slack) throw new Error("no brands seeded — run pnpm db:seed");
-      return `/brands/${slack.id}`;
+      // Heineken's profile is not touched by smoke.spec.ts (which mutates
+      // Slack), so the brand-detail snapshot stays stable across full runs.
+      const stable =
+        list.find((b) => b.name === "Heineken") ??
+        list.find((b) => b.name === "Slack") ??
+        list[0];
+      if (!stable) throw new Error("no brands seeded — run pnpm db:seed");
+      return `/brands/${stable.id}`;
     },
   },
   { id: "generations", build: async () => "/generations" },

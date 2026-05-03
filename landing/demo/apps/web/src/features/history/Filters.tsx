@@ -39,7 +39,7 @@ export function Filters({ value, onChange }: Props) {
         value={value.brandId ?? ANY}
         onValueChange={(v) => set("brandId", v === ANY ? undefined : v)}
       >
-        <SelectTrigger style={{ minWidth: "9rem" }}>
+        <SelectTrigger aria-label="Brand filter" style={{ minWidth: "9rem" }}>
           <SelectValue placeholder="Brand" />
         </SelectTrigger>
         <SelectContent>
@@ -58,7 +58,7 @@ export function Filters({ value, onChange }: Props) {
           set("type", v === ANY ? undefined : (v as HistoryFilters["type"]))
         }
       >
-        <SelectTrigger style={{ minWidth: "9rem" }}>
+        <SelectTrigger aria-label="Type filter" style={{ minWidth: "9rem" }}>
           <SelectValue placeholder="Type" />
         </SelectTrigger>
         <SelectContent>
@@ -75,7 +75,7 @@ export function Filters({ value, onChange }: Props) {
           set("status", v === ANY ? undefined : (v as HistoryFilters["status"]))
         }
       >
-        <SelectTrigger style={{ minWidth: "9rem" }}>
+        <SelectTrigger aria-label="Status filter" style={{ minWidth: "9rem" }}>
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
@@ -91,7 +91,7 @@ export function Filters({ value, onChange }: Props) {
         value={value.userId ?? ANY}
         onValueChange={(v) => set("userId", v === ANY ? undefined : v)}
       >
-        <SelectTrigger style={{ minWidth: "9rem" }}>
+        <SelectTrigger aria-label="User filter" style={{ minWidth: "9rem" }}>
           <SelectValue placeholder="User" />
         </SelectTrigger>
         <SelectContent>

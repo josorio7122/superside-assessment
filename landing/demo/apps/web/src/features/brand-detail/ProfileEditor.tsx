@@ -226,6 +226,7 @@ function ToneChipsField({ value, onChange }: { value: string[]; onChange: (v: st
             <input
               className="chip-input"
               placeholder="+ add"
+              aria-label="Add tone descriptor"
               value={adding}
               onChange={(e) => setAdding(e.target.value)}
             />
@@ -247,6 +248,7 @@ function PrinciplesField({ value, onChange }: { value: string[]; onChange: (v: s
         <div key={i} className="principle-row">
           <textarea
             className="principle-input"
+            aria-label={`Voice principle ${i + 1}`}
             value={v}
             rows={2}
             onChange={(e) =>
@@ -349,6 +351,7 @@ function BannedTermsField({ value, onChange }: { value: string[]; onChange: (v: 
         <input
           className="chip-input"
           placeholder="+ add banned term"
+          aria-label="Add banned term"
           value={adding}
           onChange={(e) => setAdding(e.target.value)}
         />

@@ -25,7 +25,11 @@ function PluginPage() {
         not part of this demo.
       </p>
 
-      <div className="plugin-stage" role="img" aria-label="Studio Figma plugin mockup">
+      <section
+        className="plugin-stage"
+        role="group"
+        aria-label="Studio Figma plugin mockup"
+      >
         <div className="plugin-canvas" aria-hidden="true">
           <div className="canvas-grid"></div>
           <span className="canvas-label mono">slack-q2-ad.fig · page 1 · 100%</span>
@@ -111,7 +115,7 @@ function PluginPage() {
             </span>
           </footer>
         </div>
-      </div>
+      </section>
 
       <p className="plugin-footnote">
         Designer surface — Figma plugin (out of demo scope).

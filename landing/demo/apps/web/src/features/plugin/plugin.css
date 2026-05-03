@@ -237,14 +237,19 @@
 .layer-sub {
   margin: 0.1rem 0 0;
   font-size: 9.5px;
-  color: oklch(60% 0.006 280);
+  /* Bumped from oklch(60%) to oklch(75%) for WCAG 2 AA contrast on the
+   * dark plugin panel background. */
+  color: oklch(75% 0.006 280);
   letter-spacing: 0.02em;
 }
 .layer-tag {
   font-size: 9px;
+  font-weight: 600;
   padding: 0.15rem 0.4rem;
   background: var(--color-coral-soft);
-  color: var(--color-coral);
+  /* Lifted from --color-coral to a lighter coral for AA contrast on the
+   * dark panel; this tag floats over a dark background, not cream. */
+  color: oklch(78% 0.13 35);
   border-radius: 2px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -272,7 +277,7 @@
   padding-top: 0.35rem;
   border-top: 1px solid oklch(28% 0.008 280);
 }
-.prompt-foot .mono { font-size: 9.5px; color: oklch(55% 0.006 280); }
+.prompt-foot .mono { font-size: 9.5px; color: oklch(75% 0.006 280); }
 .prompt-cta {
   display: inline-flex;
   align-items: center;

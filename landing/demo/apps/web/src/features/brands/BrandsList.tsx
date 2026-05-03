@@ -52,7 +52,13 @@ export function BrandsList() {
               <circle cx="4.5" cy="4.5" r="3" />
               <path d="M7 7 L9.5 9.5" />
             </svg>
-            <input type="text" placeholder="Search brands" tabIndex={-1} readOnly />
+            <input
+              type="text"
+              placeholder="Search brands"
+              aria-label="Search brands"
+              tabIndex={-1}
+              readOnly
+            />
             <span className="kbd mono">⌘K</span>
           </div>
           <NewBrandDialog />
