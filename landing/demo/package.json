@@ -15,7 +15,7 @@
     "infra:down": "docker compose -f infra/docker-compose.yml down -v",
     "infra:wait": "node scripts/wait-for-infra.mjs",
     "db:migrate": "pnpm --filter @studio/db migrate",
-    "db:seed": "pnpm --filter @studio/db seed",
+    "db:seed": "tsx scripts/seed.ts",
     "db:reset": "pnpm --filter @studio/db reset",
     "test:e2e": "pnpm --filter @studio/e2e test",
     "test:visual": "pnpm --filter @studio/e2e test --grep visual",
@@ -23,10 +23,18 @@
     "test:smoke": "bash scripts/smoke.sh",
     "fetch:pdfs": "bash scripts/fetch-seed-pdfs.sh"
   },
+  "dependencies": {
+    "@studio/db": "workspace:*",
+    "@studio/ai": "workspace:*",
+    "@studio/schemas": "workspace:*",
+    "dotenv": "^16.4.5"
+  },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "turbo": "^2.3.0",
-    "typescript": "^5.6.0"
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
   },
   "pnpm": {
     "overrides": {
