@@ -2,22 +2,22 @@
 
 Backend design for the two text features the Figma plugin invokes:
 
-- **F1 — Copy variants.** `POST /api/generations/copy-variants` — generate N coordinated copy variants across the selected text layers.
-- **F2 — Translation.** `POST /api/generations/translations` — translate the selected text layers into one target locale, preserving brand voice.
+- **Copy variants.** `POST /api/generations/copy-variants` — generate N coordinated copy variants across the selected text layers.
+- **Translation.** `POST /api/generations/translations` — translate the selected text layers into one target locale, preserving brand voice.
 
 These two features share most of their backend pipeline. They are documented together because the only meaningful differences are the prompt template and the response shape.
 
 ## Goals
 
-- Sub-2-second median latency (N1).
-- Brand-voice fidelity via the active `brand_profile` (F1, F3).
+- Sub-2-second median latency.
+- Brand-voice fidelity via the active `brand_profile`.
 - Coordinated multi-layer output (a single variant fills the headline, subhead, and CTA together).
 - Accept rich layer metadata from the plugin (role hint via `name`, length budget via `charLimit`).
 
 ## Non-goals (this design)
 
 - Plugin implementation details — designed in a later pass.
-- Image generation (F4) — separate design.
+- Image generation — separate design.
 - Streaming partial results — sync round-trip is sufficient at the latency budget.
 - Multi-locale translations in a single call — plugin loops per locale.
 
@@ -26,7 +26,7 @@ These two features share most of their backend pipeline. They are documented tog
 The pipeline is identical except for the system prompt and the response schema:
 
 ```
-plugin POST → load brand_profile (current) → assemble prompt → call Claude Sonnet 4.6
+plugin POST → load brand_profile (current) → assemble prompt → call GPT-5.1 via OpenRouter
             → parse structured output → persist generation + usage_event → respond
 ```
 
@@ -266,7 +266,7 @@ Both prompts use OpenAI's structured outputs (JSON mode with a JSON Schema). Res
 
 The `output` jsonb on `generation` matches the response shape exactly. For copy-variants, this is the `variants` array. For translations, it is the per-locale `layers` array. The `selected: bool` flag (per `generations-history.md`) is added by the plugin via a separate PATCH endpoint when the designer accepts a variant.
 
-## Latency budget (N1 ≤ 2s)
+## Latency budget (≤ 2s p50)
 
 | Phase | Budget |
 |-------|--------|
@@ -290,7 +290,7 @@ A single LLM call returning all variants in one structured payload is critical t
 
 ## Concurrency / rate limiting
 
-Out of scope for MVP. Anthropic's per-org rate limits will eventually bite at scale (N3); a future LLM-proxy design will add server-side queuing and per-tenant caps.
+Out of scope for MVP. OpenRouter passes through upstream provider rate limits (OpenAI's per-org caps for GPT-5.1); a future server-side queuing layer in `packages/ai` will add per-tenant caps once usage demands it.
 
 ## Decisions locked
 
@@ -313,7 +313,7 @@ Out of scope for MVP. Anthropic's per-org rate limits will eventually bite at sc
 ## Out of scope
 
 - Plugin implementation
-- Image generation (F4)
+- Image generation
 - Real-time streaming of partial output
 - Per-locale rate limits, hard spend caps
 - Custom per-locale models (e.g. routing CJK to a stronger model if one beats GPT-5.1 on those scripts)

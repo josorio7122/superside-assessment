@@ -27,26 +27,31 @@ Two-week buffer to the 10-week ceiling preserved for Figma plugin review queue o
 - Mandatory human review before any extracted profile becomes current.
 
 **Generation paths (week 2):**
-- Sync text + translation: single OpenAI round-trip with structured output, ≤2s p50.
-- Async image generation: BullMQ job, worker calls `gpt-image-2`, S3 upload, Redis pub/sub completion event, SSE forward to client.
+- Sync text + translation: single OpenRouter round-trip (GPT-5.1 pinned by env) with structured output, ≤2s p50.
+- Async image generation (text-to-image only at MVP): BullMQ job, worker calls OpenAI `gpt-image-2` directly, S3 upload, Redis pub/sub completion event, SSE forward to client. Image-to-image moves to Beta via fal.ai.
 
 **Admin web (week 2–3):**
 - Brand management (CRUD + soft delete).
 - Brand-guideline editor (the lifecycle UI).
 - Generations history (list + detail + live SSE updates).
 - Per-user usage dashboard (sums from `usage_event`, daily cost chart, by-user table).
-- WorkOS Admin Portal embed for org user management.
+- WorkOS User Management widget (`<UsersManagement />` from `@workos-inc/widgets`) for in-app team admin.
 
 **Figma plugin (week 1–3, parallel track):**
 - Manifest with domain whitelist for our API and S3 bucket.
 - Two-thread runtime: main thread reads/writes Figma layers via `figma` global; UI iframe handles network and SSE.
 - OAuth flow inside the iframe, token in `figma.clientStorage`.
 - Brand picker pulls from `/api/brands`.
-- Three action panels: Copy variants · Translate · Image (text-to-image and image-to-image, three variants).
-- Apply variant: text via `node.characters = ...`, image via `figma.createImageAsync(signedUrl)`.
+- Three action panels: Copy variants · Translate · Image (text-to-image, three variants per request — image-to-image lights up in Beta via fal.ai).
+- Apply variant: **text** via `await figma.loadFontAsync(node.fontName)` then `node.characters = "..."` (mixed-font nodes walk ranges via `getRangeFontName(start, end)` and load each before assignment). **Image** via `const img = await figma.createImageAsync(signedUrl)` then `node.fills = [{ type: 'IMAGE', imageHash: img.hash, scaleMode: 'FILL' }]`. The bytes-based `figma.createImage(bytes)` is the alternate path for client-side bytes; we use the URL-based async variant so Figma's CORS proxy fetches our signed S3 URLs.
 - **Submitted to Figma Community at end of week 3.** DesignTechCo runs on a private install during the 5–10 business-day review.
 
-**Models — OpenAI only at MVP.** GPT-5.1 (text + translation + multimodal PDF extraction), gpt-image-2 (image). One vendor, one key, one billing surface, one rate-limit pool ships fastest. The LLM proxy abstracts every call site so Beta can light up multi-provider without a rewrite.
+**Models — OpenRouter for text, OpenAI direct for image.**
+
+- **Text + translation + PDF extraction:** OpenRouter from day one, hardcoded to GPT-5.1 (env-config). Single gateway, single key. Pinning by env var means flipping to GPT-5.4 (or any future model on OpenRouter's catalog) is a one-line change. ~5% gateway markup is bought outright by skipping the multi-provider integration work later.
+- **Image generation:** OpenAI direct, `gpt-image-2`, **text-to-image only at MVP**. OpenAI's `images.edit` does not currently accept `gpt-image-2` (only `gpt-image-1` / 1.5 / dall-e-2 today), so image-to-image moves to Beta via fal.ai's `gpt-image-2/edit` endpoint.
+
+All call sites go through `packages/ai`, which wraps the Vercel AI SDK over both gateways — provider selection per call.
 
 ### Exit criteria
 
@@ -78,18 +83,16 @@ Add access controls, observability, evals, multi-tenant onboarding, multi-provid
 - PostHog session replays + product analytics + LLM trace data inform which surfaces are friction.
 - Per-feature eval thresholds calibrated against MVP run data.
 
-**Multi-provider routing via the LLM proxy (week 3–4):**
-- All MVP call sites already go through `packages/ai`. Beta lights up cross-provider config without touching call sites.
-- **Anthropic Claude** added as fallback or per-feature pick for text generation and translation.
-- **fal.ai** added as fallback or per-feature pick for image generation.
-- Routing controlled per-feature via PostHog feature flags. Fallback triggers on transient OpenAI errors after the same-provider retry budget is exhausted.
-- No vendor lock-in beyond the SDK abstraction; same prompt assembly, same structured-output contract.
+**Image-to-image + multi-provider routing (week 3–4):**
+- **fal.ai integration.** Adds two capabilities at once: (a) image-to-image edit via fal.ai's `gpt-image-2/edit` endpoint — the path OpenAI's native `images.edit` does not currently support for `gpt-image-2`, (b) Flux family as image fallback if OpenAI image throttles. Same `packages/ai` call site; provider chosen per request.
+- **Per-feature text routing via OpenRouter.** MVP-eval data informs which features benefit from a different model (e.g. translation → Claude variant if eval shows better tone preservation). Routing rules live in OpenRouter config + PostHog feature flags. No new gateway, no new key — just routing rules on top of the gateway already in place.
+- **Plugin: image-to-image action lights up in the panel.** Designers can now seed image gen from a selected layer.
 
 **RBAC (week 3–4):**
 - Three roles defined in the WorkOS dashboard: `admin`, `brand_manager`, `designer`. Role flows into the session and onto `user.role`, mirrored locally.
 - Per-brand access via a `user_brand` mapping table in our Postgres. Designers see only the brands they're assigned to.
 - Every router scope-checks `(org_id, user_id, role, brand_id)` before any read or write.
-- Role assignment surface in the admin web, backed by WorkOS Admin Portal widgets.
+- Role assignment surface in the admin web, backed by the WorkOS User Management widget.
 
 **Observability (week 3–4):**
 - PostHog as the single observability platform. Wire-up across API, worker, admin web, and plugin.
@@ -105,7 +108,7 @@ Add access controls, observability, evals, multi-tenant onboarding, multi-provid
 - Runs nightly. Regressions surface in the admin web; brand managers see which feature × which profile failed.
 
 **Multi-tenant onboarding (week 4–5):**
-- WorkOS Admin Portal flow for self-serve org creation.
+- WorkOS hosted sign-up flow for self-serve org creation.
 - Org logo, display name, default locale per tenant.
 - Org switcher in admin web.
 - Tenant-scoped brand isolation enforced by the RBAC middleware.
@@ -124,7 +127,7 @@ Add access controls, observability, evals, multi-tenant onboarding, multi-provid
 
 ### Exit criteria
 
-- 2–3 additional client orgs onboarded without manual engineering intervention.
+- 1–2 additional client orgs onboarded without manual engineering intervention.
 - Public plugin listing live in Figma Community.
 - 99.5% availability on a 30-day rolling window.
 - p95 image-gen end-to-end under 20s.
@@ -138,8 +141,8 @@ Add access controls, observability, evals, multi-tenant onboarding, multi-provid
 | Cross-tenant or cross-brand data leak under concurrent load | Low | Critical | Automated suite asserts every endpoint scopes by `org_id` and `user_brand`. Partial unique indexes as a backstop. RBAC test fixtures cover every role × every endpoint × every owned-vs-foreign brand. |
 | Figma Community plugin review exceeds the 10 business-day target | Medium | Medium | Plugin submitted at end of MVP (week 3). Beta tenants stay on private install through the review window. Public listing is additive, not blocking. |
 | WorkOS Roles primitive too coarse for RBAC needs | Low | Medium | Three roles are intentional: WorkOS handles role assignment (the coarse axis); our `user_brand` mapping handles per-resource scope (the fine axis). Hybrid pattern is standard across SaaS. |
-| OpenAI sustained throttling at 3-org scale | Medium | Medium | Same-provider retries with circuit breaker. Multi-provider routing in the LLM proxy lights up in Beta — Claude and fal.ai as fallback. Quota-utilisation alerts via PostHog. Per-tenant caps remain a future option if needed; not in scope. |
-| Cross-provider parity drift (Claude / fal.ai outputs differ from OpenAI on the same prompt) | Medium | Medium | Eval suite runs per-provider. Brand-tone judge scores compared across providers; provider choice per feature gated on eval parity. Safe default stays OpenAI; fallback only triggers on transient errors. |
+| OpenAI sustained throttling at 3-org scale | Medium | Medium | Same-provider retries with circuit breaker. Beta lights up fal.ai as the image fallback and OpenRouter routing rules for per-feature text picks. Quota-utilisation alerts via PostHog. Per-tenant caps remain a future option if needed; not in scope. |
+| Cross-provider parity drift (different model outputs differ on the same prompt) | Medium | Medium | Eval suite runs per-provider. Brand-tone judge scores compared across providers; provider choice per feature gated on eval parity. Safe defaults stay (GPT-5.1 for text via OpenRouter, OpenAI for image); per-feature changes only after eval signal. |
 | Eval false positives blocking publishes | Medium | Medium | Per-feature thresholds (not global). Permissive thresholds at week 4, tightened with run data through week 6. Audited manual override available to brand managers. |
 
 ## Phase 3 — Final Rollout (Weeks 6–8)
@@ -164,14 +167,14 @@ Audit Beta-period numbers at week 6 day 1:
 
 Decision tree:
 - **Volume < 50k/day, p95 < 200ms on raw → skip rollups entirely.** Postgres direct queries handle the next 6 months. Revisit at month 3.
-- **Volume 50k–500k/day, p95 200ms–1s → build daily rollups.** `usage_daily` table: one row per `(org_id, user_id, brand_id, feature, date)` with aggregates (call count, cost sum, latency p50/p95). Refreshed nightly via `MATERIALIZED VIEW REFRESH CONCURRENTLY` or a scheduled cron. Dashboard reads rollups for trend lines; drill-downs continue to read `usage_event` directly.
-- **Volume > 500k/day sustained, or p95 > 1s on rollups, or customer-facing analytics enters scope → ClickHouse migration into Final Rollout backlog.** Rollups would be band-aid at that volume; commit to columnar storage.
+- **Volume 50k–500k/day, p95 200ms–1s → build daily rollups.** Daily aggregate table per `(org_id, user_id, brand_id, feature, date)` with call count, cost sum, latency p50/p95. Refreshed nightly. Dashboard reads aggregates for trend lines; drill-downs continue to read `usage_event` directly. Implementation specifics deferred until the audit picks this branch.
+- **Volume > 500k/day sustained, or p95 > 1s on aggregates, or customer-facing analytics enters scope → ClickHouse migration into Final Rollout backlog.** Aggregates would be a band-aid at that volume; commit to columnar storage.
 
 What ships in week 6–8 depends on which branch the audit picks. The 2-week buffer to the 10-week ceiling exists for the migration branch.
 
 **Security review (week 6–7):**
 - Pen-test the auth + brand boundary. RBAC adversarial tests: every role × every endpoint × every owned-vs-foreign resource.
-- WorkOS Admin Portal hardening review.
+- WorkOS session + widget hardening review.
 - Token rotation cadence locked. Plugin manifest domain whitelist final review.
 - OAuth app registration with Figma (required since November 2025 for any app touching the Figma REST API).
 
@@ -233,7 +236,7 @@ gantt
     Pilot launch (private install)              :milestone, after a3, 0d
 
     section Beta (3–6w · more users)
-    RBAC + WorkOS Admin Portal embed            :b1, after a3, 1w
+    RBAC + WorkOS User Management widget        :b1, after a3, 1w
     PostHog observability stack                 :b2, after a3, 1w
     LLM evals per feature                       :b3, after b1, 2w
     Multi-org onboarding                        :b4, after b1, 2w
@@ -258,7 +261,7 @@ The Gantt is illustrative — exact week boundaries depend on velocity discovere
 | Customer trust in extraction quality | Mandatory human review at brand-profile publish. Rollback always available. PostHog LLM trace per extraction visible to brand managers. |
 | Two-engineer capacity (with AI coding agents) | Scope discipline (this roadmap). No new tooling adoption mid-phase. Lean on managed services. AI agents accelerate boilerplate and tests; integration-heavy work (plugin SDK quirks, OAuth edge cases, observability tuning) stays human-driven. |
 | Cost projections wrong | `usage_event` per call gives accurate forecasting from week 1. PostHog LLM cost dashboards from week 4. |
-| OpenAI availability dropping below committed SLA | MVP: same-provider retry-with-backoff, single-vendor dependency. Beta: cross-provider fallback live in the LLM proxy — Claude for text, fal.ai for image, fallback or per-feature pick. The AI-SDK abstraction makes the upgrade a config change, not a rewrite. |
+| OpenAI availability dropping below committed SLA | MVP: same-provider retry-with-backoff, single image-vendor dependency (text already routes through OpenRouter so failover to a different model is a config flip). Beta: fal.ai live as image fallback and image-to-image surface; per-feature text routing rules in OpenRouter. |
 
 ## Figma plugin: special-case risk surface
 
@@ -266,15 +269,15 @@ The plugin is the only piece of the architecture distributed through a third-par
 
 | Concern | What we know | Plan |
 |---------|--------------|------|
-| Build complexity | Two-thread runtime (main + UI iframe), async-only `clientStorage`, no fetch on main thread, plugin termination on close. Documented in `research/figma-plugin.md`. | Architecture chosen against these constraints. SSE for async, bearer-token auth in iframe + clientStorage for token, `figma.createImageAsync` for fills. Plugin work starts week 1 in parallel with backend, finishes by week 3. |
+| Build complexity | Two-thread runtime (main + UI iframe), async-only `clientStorage` (stability not security), Figma Fetch API on main thread (manifest-gated), plugin JS context tears down on close. Documented in `research/figma-plugin.md`. | Architecture chosen against these constraints. SSE for async, bearer-token auth in iframe + clientStorage for token, `figma.createImageAsync` for fills. Plugin work starts week 1 in parallel with backend, finishes by week 3. |
 | Private distribution (MVP bridge) | Org / Enterprise plans can distribute privately. **No Figma review.** | DesignTechCo installs from their org during the public-review window. |
-| Public Community listing | Required for unrestricted public install. **5–10 business days target review window.** Forum reports show occasional longer queues. Security disclosure form review can extend up to 2 weeks. | Submitted day one of Beta (week 3 end). Existing tenants stay on private install during the review. Public listing is additive. |
-| Figma REST API + OAuth app review | Since November 2025, OAuth apps using REST API need review even for private use. Public listing also reviewed. | Register the OAuth app in the Figma developer portal during MVP. Submit for review at end of MVP alongside the plugin. |
+| Public Community listing | Required for unrestricted public install. Figma staff state a 5–10 business-day target on the forum (no published SLA); current backlog routinely pushes review past 3 weeks. | Submitted day one of Beta (week 3 end). Existing tenants stay on private install during the review. Public listing is additive, not blocking. |
+| Figma REST API + OAuth app review | Figma's developer-platform update (Sept 2025; re-publish deadline Nov 17 2025) introduced granular scopes (`file_content:read`, `file_metadata:read`) replacing legacy `file_read`. **Public OAuth apps require Figma review; private/internal-only OAuth apps do not.** | Register the OAuth app in Figma's developer portal during MVP. We can ship private (no review) for the pilot; submit for public review alongside the plugin if we want broader distribution. |
 | Plugin manifest domain whitelist | Single fixed API domain baked into manifest. No dynamic per-tenant hostnames. | Multi-tenant resolves from the auth token, not from URL. Pattern fits architecture by design. |
 | Frozen plugin / multiplayer edits | Plugin docs flag edge cases (deleted nodes mid-operation, concurrent multiplayer changes). | Tested during MVP week 3. Defensive defaults: re-resolve node by ID before write, error gracefully if node is gone. |
 
 ## What gets built when (one-line summary)
 
-- **MVP** = foundations + lifecycle + sync/async generation + admin web + plugin built and submitted, behind WorkOS auth and Admin Portal embed, single tenant. **OpenAI only.**
-- **Beta** = MVP-pilot feedback + multi-provider routing (Claude + fal.ai) + RBAC (WorkOS Roles + `user_brand` Postgres mapping) + WorkOS Admin Portal widget for tenant team management + PostHog full stack + per-feature evals + multi-org onboarding + plugin live publicly.
-- **Final Rollout** = Beta-tenant feedback + analytics scaling decision (skip rollups / build rollups / migrate to ClickHouse, gated on Beta metrics) + security signed off + performance verified + QoL filters/search + on-call defined.
+- **MVP** = foundations + lifecycle + sync/async generation (text-to-image only) + admin web + plugin built and submitted, behind WorkOS auth + User Management widget, single tenant. **Text via OpenRouter (GPT-5.1 pinned); image via OpenAI direct (`gpt-image-2`).**
+- **Beta** = MVP-pilot feedback + fal.ai integration (image-to-image + image fallback) + per-feature text routing in OpenRouter + RBAC (WorkOS Roles + `user_brand` Postgres mapping) + PostHog full stack + per-feature evals + multi-org onboarding + plugin live publicly.
+- **Final Rollout** = Beta-tenant feedback + analytics scaling decision (skip / build daily rollups / migrate to ClickHouse, gated on Beta metrics) + security signed off + performance verified + QoL filters/search + on-call defined.

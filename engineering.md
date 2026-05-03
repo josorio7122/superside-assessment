@@ -55,9 +55,10 @@ How the codebase is organized, what libraries we use, and the rules we follow wh
 
 | Concern | Choice |
 |---------|--------|
-| Text + translation | OpenAI GPT-5.1. No fallback. |
-| Image generation | OpenAI `gpt-image-2`. No fallback. |
-| PDF extraction | OpenAI GPT-5.1 multimodal |
+| Text + translation | GPT-5.1 via OpenRouter (pinned by env config). MVP same-provider retries; Beta opens per-feature routing rules. |
+| Image generation (MVP) | OpenAI `gpt-image-2` direct, text-to-image only. |
+| Image generation (Beta) | fal.ai joins for image-to-image (`gpt-image-2/edit`) and image fallback. |
+| PDF extraction | GPT-5.1 multimodal via OpenRouter. |
 
 ## Monorepo layout
 
@@ -66,7 +67,7 @@ apps/
   api/             Hono backend
   web/             Admin web (React + Vite + TanStack)
   worker/          BullMQ workers (image gen, profile extraction, cleanup)
-  plugin/          Figma plugin (folder reserved; design deferred)
+  plugin/          Figma plugin (built in MVP weeks 1–3, parallel with backend)
 
 packages/
   db/              Drizzle schema + client + migrations

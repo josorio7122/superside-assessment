@@ -24,7 +24,7 @@ const features = [
 		n: '03',
 		title: 'Generate images, on-brand.',
 		body:
-			'Text-to-image and image-to-image. Three variants per request, applied straight onto the layer or fill via figma.createImageAsync. Async with SSE so the plugin never blocks.',
+			'Text-to-image at MVP via OpenAI gpt-image-2 — three variants per request, applied as an image fill via figma.createImageAsync(signedUrl) and then setting node.fills with the returned imageHash. Image-to-image lights up in Beta via fal.ai. Async with SSE so the plugin never blocks.',
 	},
 	{
 		n: '04',
@@ -149,12 +149,13 @@ const features = [
 							<span class="sub-eyebrow mono">2.3 — System</span>
 							<h3 class="serif">From plugin to model and back.</h3>
 							<p>
-								OpenAI for both text and image at MVP — same key, same billing, same
-								rate-limit pool. The LLM proxy abstracts the call site, so Beta opens
-								routing to Claude (text) and fal.ai (image) as fallback or per-feature
-								pick. Synchronous calls for copy variants and translation. Image
-								generation runs as a background job; the worker streams completion back
-								over SSE so the plugin never blocks. Multi-tenant from day one: one
+								Text + translation + multimodal extraction route through OpenRouter
+								from MVP, pinned to GPT-5.1 by env config. Image generation hits OpenAI
+								directly with gpt-image-2 (text-to-image only). Beta lights up fal.ai
+								for image-to-image and image fallback, plus per-feature text routing
+								rules in OpenRouter. Synchronous calls for copy variants and translation.
+								Image generation runs as a background job; the worker streams completion
+								back over SSE so the plugin never blocks. Multi-tenant from day one: one
 								deployment, every record scoped to its tenant. Adding a customer is a
 								new row, not a new fork.
 							</p>
@@ -167,11 +168,13 @@ const features = [
 							<span class="sub-eyebrow mono">tech choices · companion excalidraw goes deeper</span>
 							<dl>
 								<div>
-									<dt>OpenAI at MVP, multi-provider in Beta.</dt>
+									<dt>OpenRouter for text from day one. Image direct to OpenAI.</dt>
 									<dd>
-										One key, one bill, one rate-limit pool ships faster. The LLM proxy
-										abstracts the call site, so Beta opens routing to Claude and fal.ai
-										as fallback or per-feature pick. Config change, not a rewrite.
+										One gateway, one key, GPT-5.1 pinned by env config (flips to
+										5.4 with one line). ~5% gateway markup buys per-feature routing
+										rules in Beta with no integration work. Image gen stays direct
+										to OpenAI for text-to-image; fal.ai joins in Beta for
+										image-to-image and image fallback.
 									</dd>
 								</div>
 								<div>
@@ -179,8 +182,7 @@ const features = [
 									<dd>
 										Errors, alerts, session replay, feature flags, product analytics,
 										LLM tracing, evals per feature. One vendor, one query language,
-										one bill — fits a two-engineer team. Managed ClickHouse under the
-										hood, so telemetry is columnar without operating it.
+										one bill — fits a two-engineer team.
 									</dd>
 								</div>
 								<div>
@@ -195,9 +197,9 @@ const features = [
 								<div>
 									<dt>WorkOS for auth, RBAC, and tenant onboarding.</dt>
 									<dd>
-										SSO, sealed sessions, Roles, Admin Portal widget embed for tenant
-										team management. Zero custom auth code, SOC2-ready primitives,
-										multi-tenant from day one.
+										SSO, sealed sessions, Roles, User Management widget
+										(`@workos-inc/widgets`) for in-app team admin. Zero custom auth
+										code, SOC2-ready primitives, multi-tenant from day one.
 									</dd>
 								</div>
 								<div>
@@ -235,10 +237,11 @@ const features = [
 					</h2>
 					<p class="section-lede">
 						The MVP is not a slice. It is the architecture, on a tighter calendar.
-						OpenAI only at MVP — multi-provider routing (Claude, fal.ai) lights up in
-						Beta. RBAC, full observability, evals per feature, public plugin distribution.
-						Three phases mapped to user scale: ten users, more users, many users. No
-						Phase 4 backlog of must-haves.
+						OpenRouter for text (GPT-5.1 pinned) + OpenAI direct for image (text-to-image)
+						at MVP. Beta brings fal.ai for image-to-image and image fallback, plus
+						per-feature text routing rules. RBAC, full observability, evals per feature,
+						public plugin distribution. Three phases mapped to user scale: ten users,
+						more users, many users. No Phase 4 backlog of must-haves.
 					</p>
 				</header>
 
@@ -277,9 +280,9 @@ const features = [
 						<div>
 							<dt>Provider availability.</dt>
 							<dd>
-								Same-provider retry-with-backoff at MVP — single OpenAI dependency.
-								Beta lights up multi-provider routing in the LLM proxy: Claude for text,
-								fal.ai for image, fallback or per-feature pick.
+								Text already routes through OpenRouter at MVP — flipping the pinned
+								model is a one-line config change. Image stays direct on OpenAI at MVP;
+								Beta adds fal.ai as the image fallback and image-to-image surface.
 							</dd>
 						</div>
 					</dl>

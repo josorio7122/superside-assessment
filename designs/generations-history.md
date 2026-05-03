@@ -124,8 +124,8 @@ Full detail for a single generation.
   "usage_events": [
     {
       "feature": "copy_variant",
-      "provider": "anthropic",
-      "model": "claude-sonnet-4-6",
+      "provider": "openai",
+      "model": "gpt-5.1",
       "input_tokens": 320,
       "output_tokens": 180,
       "cost_usd": 0.0204,
@@ -269,7 +269,7 @@ Slides in from the right when a row is clicked. Contains everything from `GET /a
 │                                         │
 │  Cost: $0.02   Latency: 1.1s            │
 │  Tokens: 320 in / 180 out               │
-│  Model: claude-sonnet-4-6               │
+│  Model: gpt-5.1                         │
 │  Retries: 0                             │
 │                                         │
 │  ── Input ────────────────              │
@@ -288,7 +288,7 @@ Slides in from the right when a row is clicked. Contains everything from `GET /a
 │      …                                  │
 │                                         │
 │  ── Usage Events ─────────              │
-│  • claude-sonnet-4-6                    │
+│  • gpt-5.1 (via openrouter)             │
 │    320in / 180out · 1.1s · $0.02        │
 └─────────────────────────────────────────┘
 ```

@@ -1,6 +1,6 @@
 # Usage Dashboard
 
-Per-user usage view. The simplest cut that satisfies N4 ("usage metering & cost attribution by user") for the pilot.
+Per-user usage view. The simplest cut that satisfies usage metering and cost attribution by user for the pilot.
 
 ## Goals
 
@@ -17,7 +17,7 @@ Per-user usage view. The simplest cut that satisfies N4 ("usage metering & cost 
 
 ## Storage decision
 
-Plain Postgres against `usage_event`, no columnar / warehouse system. At pilot scale (~30K events/month) and even at 12-month projection (~400K events/month), Postgres handles every dashboard query in well under 100ms with the existing composite indexes. The table is treated as append-only, which leaves the door open to migrate to a warehouse or pre-aggregated rollups later if scale ever demands it.
+Plain Postgres against `usage_event` at MVP — Branch A of the analytics scaling decision (see `architecture.md` and `roadmap.md` Phase 3). At pilot scale (~30K events/month) and even at 12-month projection (~400K events/month), Postgres handles every dashboard query well under 100ms with composite indexes. The week-6 audit may upgrade to Branch B (daily aggregates) or Branch C (ClickHouse) depending on Beta volume — the API surface here doesn't change.
 
 ## Actors
 

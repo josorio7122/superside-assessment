@@ -41,7 +41,7 @@ Authenticated identity within an org. Provisioned just-in-time on first SSO sign
 | `org_id` | indexed, fk → `org` |
 | `workos_user_id` | unique |
 | `email`, `name` | |
-| `role` | text, default `'member'`. Placeholder column — not enforced in MVP. |
+| `role` | text enum: `'admin'` / `'brand_manager'` / `'designer'`. Default `'designer'`. Mirrored from WorkOS Roles. Attached to request context at MVP but not gated; gate fires from Beta onwards (see `designs/auth-sso.md`). |
 | `created_at` | |
 
 ### `brand`
@@ -88,6 +88,19 @@ stateDiagram-v2
     failed --> processing: user retries
     ready --> ready: is_current flips between rows
 ```
+
+### `user_brand` (Beta scope)
+
+Per-user × per-brand access mapping. Drives the fine axis of RBAC (designers see only the brands they're assigned to). Admins and brand_managers bypass on read; row-level join applies only when `role = 'designer'`. Ships in Beta — table exists in MVP for forward compatibility but no gate fires.
+
+| Field | Notes |
+|-------|-------|
+| `user_id` (uuid fk → `user`) | composite pk |
+| `brand_id` (uuid fk → `brand`) | composite pk |
+| `granted_at` | timestamptz, default `now()` |
+| `granted_by` (uuid fk → `user`) | who assigned it; for audit |
+
+Composite primary key `(user_id, brand_id)`. Indexed on `brand_id` for "who has access" lookups in the admin UI.
 
 ### `generation`
 

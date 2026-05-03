@@ -7,8 +7,8 @@ End-to-end technical architecture for the platform. Anchors all the other docume
 | Criterion | How the architecture answers it |
 |-----------|---------------------------------|
 | **User experience & performance** | Two latency classes: synchronous text operations (copy variants, translation) hit a single LLM round-trip and stay inside the ≤2s budget; image generation is async via BullMQ with SSE notifications, so the plugin never blocks. Admin web is a standard React SPA with TanStack Query for snappy navigation. |
-| **Development effort (2 engineers + AI coding agents, 8-week target inside a 10-week ceiling)** | Managed services everywhere — WorkOS for auth and RBAC, OpenAI as the model provider, PostHog as the single observability platform (errors, alerts, session replay, feature flags, product analytics, LLM tracing, LLM evals), S3, Postgres, Redis. A single TypeScript stack across web / API / worker via a Turborepo monorepo with shared Zod schemas. No bespoke infrastructure to operate. |
-| **Short-term impact (Weeks 0–3, MVP)** | Internal pilot for the 10-person Creative Studio at DesignTechCo. Four user-facing actions wired end to end: generate copy variants, translate across 8 locales, generate image variants (text or image input), apply selected variant inside Figma. Single tenant. WorkOS SSO. WorkOS Admin Portal embed for org user management. The 3-day localisation collapses to under 5 minutes. |
+| **Development effort (2 engineers + AI coding agents, 8-week target inside a 10-week ceiling)** | Managed services everywhere — WorkOS for auth and RBAC, OpenRouter as the text/multimodal gateway, OpenAI direct for image gen at MVP, PostHog as the single observability platform (errors, alerts, session replay, feature flags, product analytics, LLM tracing, LLM evals), S3, Postgres, Redis. A single TypeScript stack across web / API / worker via a Turborepo monorepo with shared Zod schemas. No bespoke infrastructure to operate. |
+| **Short-term impact (Weeks 0–3, MVP)** | Internal pilot for the 10-person Creative Studio at DesignTechCo. Four user-facing actions wired end to end: generate copy variants, translate across 8 locales, generate text-to-image variants, apply selected variant inside Figma (image-to-image lands in Beta). Single tenant. WorkOS SSO. WorkOS User Management widget for in-app team admin. The 3-day localisation collapses to under 5 minutes. |
 | **Long-term impact (Weeks 3–8, Beta + Final Rollout)** | Multi-tenant SaaS at week 8. `org_id` on every table from day one; RBAC enforced via WorkOS roles (`admin` / `brand_manager` / `designer`) plus `user_brand` access mapping in our Postgres; PostHog full observability + LLM evals per feature; analytics scaling decision committed at Final Rollout based on Beta metrics (skip rollups / build rollups / ClickHouse migration); public plugin live in the Figma Community. No Phase 3 backlog. |
 
 ## Component diagram
@@ -31,7 +31,8 @@ flowchart TB
     end
 
     subgraph Models[Model services]
-        OAI[OpenAI<br/>GPT-5.1 text + multimodal<br/>gpt-image-2 image]
+        OR[OpenRouter<br/>text + multimodal<br/>pinned: GPT-5.1]
+        OAI[OpenAI direct<br/>gpt-image-2 text-to-image]
     end
 
     subgraph Data[Data stores]
@@ -55,12 +56,12 @@ flowchart TB
     H -- CRUD<br/>tenant-scoped --> PG
     H -- enqueue jobs --> Q
     H -- multipart upload<br/>signed URLs --> S3
-    H -- sync text + translate --> OAI
+    H -- sync text + translate --> OR
     H -- pub/sub<br/>subscribe --> R
 
     Q --> W
-    W -- image gen<br/>image-to-image --> OAI
-    W -- multimodal extraction --> OAI
+    W -- text-to-image --> OAI
+    W -- multimodal extraction --> OR
     W -- update generation<br/>insert usage_event --> PG
     W -- get/put bytes --> S3
     W -- publish completion --> R
@@ -112,8 +113,8 @@ Background workers run inside `apps/worker`. They consume BullMQ jobs over Redis
 
 Job types in MVP:
 
-- `image-generate` — text-to-image and image-to-image; calls OpenAI `gpt-image-2`, downloads variants, uploads to S3
-- `brand-profile-extract` — multimodal GPT-5.1 reads a PDF and emits a `BrandProfile` JSON
+- `image-generate` — **text-to-image only at MVP**; calls OpenAI `gpt-image-2` directly, downloads variants, uploads to S3. Image-to-image (edit) lands in Beta via fal.ai (OpenAI's native `images.edit` does not currently accept `gpt-image-2`).
+- `brand-profile-extract` — multimodal GPT-5.1 via OpenRouter reads a PDF and emits a `BrandProfile` JSON
 
 BullMQ retry config per job: 3 attempts, exponential backoff, base 1000ms. After exhaustion, the corresponding `generation` or `brand_profile` row transitions to `failed` and a failure event is emitted on SSE.
 
@@ -121,26 +122,32 @@ BullMQ retry config per job: 3 attempts, exponential backoff, base 1000ms. After
 
 Pure API dependencies. No self-hosted models, no inference infrastructure to operate.
 
-**MVP — OpenAI only.** One vendor, one key, one billing surface, one rate-limit pool. The fastest possible path to a shippable end-to-end pilot.
+**MVP — OpenRouter for text/multimodal, OpenAI direct for image.**
 
-| Service | Used for |
-|---------|----------|
-| **OpenAI — GPT-5.1** | Synchronous copy variants and translation; multimodal PDF extraction (in worker) |
-| **OpenAI — `gpt-image-2`** | Image generation, text-to-image and image-to-image variants (in worker) |
+| Surface | Endpoint | Model (MVP) | Notes |
+|---------|----------|-------------|-------|
+| Sync text + translation | OpenRouter | GPT-5.1 (pinned, env-config) | OpenRouter as a single gateway from day one. Hardcoded to GPT-5.1; flips to GPT-5.4 with one env var if 5.1 deprecated upstream. ~5% gateway markup is bought outright by skipping the multi-provider integration work later. |
+| PDF extraction (worker) | OpenRouter | GPT-5.1 multimodal | Same gateway as text. |
+| Image generation (worker) | OpenAI direct | `gpt-image-2` | **Text-to-image only at MVP.** OpenAI's `images.edit` endpoint does not currently accept `gpt-image-2` — image-to-image lands in Beta via fal.ai. |
 
-**Beta — multi-provider via the LLM proxy.** All model calls go through `packages/ai`, which wraps the Vercel AI SDK. The wrappers expose typed `generateObject` / `generateImage` calls and centralize prompt assembly, so swapping providers or picking per-feature is a config change, not a rewrite. Beta lights up:
+All call sites go through `packages/ai`, which wraps the Vercel AI SDK. The wrappers expose typed `generateObject` / `generateImage` calls and centralize prompt assembly. Provider selection is one config flip away. Same-provider retry-with-backoff on transient errors at every surface.
 
-- **Anthropic Claude** as fallback or per-feature pick for text generation and translation.
-- **fal.ai** as fallback or per-feature pick for image generation.
+**Beta — fal.ai for image-to-image + image fallback; per-feature routing for text.**
 
-Routing strategy is per-feature, configured via PostHog feature flags. Fallback triggers on transient OpenAI errors after the same-provider retry budget is exhausted. No cross-provider fallback in MVP — same-provider retry on transient errors only.
+| Surface | Beta addition | Why |
+|---------|---------------|-----|
+| Image-to-image | fal.ai (`gpt-image-2/edit`) | Beta unlocks the image-edit path that OpenAI's native endpoint blocks for `gpt-image-2`. |
+| Image fallback | fal.ai (Flux family) | Cross-provider fallback if OpenAI image throttles. Same call site. |
+| Text per-feature picks | OpenRouter routing rules | Eval data from MVP informs which features benefit from a different model (e.g. translation → Claude if eval shows better tone preservation). Same call site. |
+
+Routing rules controlled via PostHog feature flags. Beta lighting up multi-provider is a config change, not a rewrite — `packages/ai` already abstracts the call site.
 
 ### 6. Data stores
 
 | Store | What it holds |
 |-------|---------------|
 | **Postgres + Drizzle** | Source of truth for operational data — `org`, `user`, `user_brand` (RBAC scope), `brand`, `brand_profile` (versioned, profile in `jsonb`), `generation` (input/output in `jsonb`), `usage_event` (atomic billing rows). Every table has `org_id` indexed for tenant scoping. Analytics-read pattern (direct queries, daily rollups, or ClickHouse mirror) is decided at Final Rollout — see "Analytics scaling decision" below. |
-| **S3** | Brand-guideline source PDFs, uploaded image-to-image inputs, generated image variants. Forever retention. Access via short-lived signed URLs (1h for client reads, 5min for server-to-OpenAI handoff). |
+| **S3** | Brand-guideline source PDFs, generated image variants (and uploaded image-to-image inputs once Beta lights up that path). Forever retention. Access via short-lived signed URLs (1h for client reads). |
 | **Redis (or Valkey)** | BullMQ backing store; pub/sub channel that bridges workers to the SSE endpoint. No user data. |
 
 **Analytics scaling decision (gated on Beta metrics, committed in Final Rollout).** We do not pre-commit to a rollup pipeline or a warehouse migration. At week 6 we audit Beta numbers and pick a branch:
@@ -148,10 +155,10 @@ Routing strategy is per-feature, configured via PostHog feature flags. Fallback 
 | Beta number | Branch | What ships |
 |-------------|--------|-----------|
 | Volume < 50k events/day, p95 < 200ms on raw | **Skip rollups.** | Direct Postgres queries continue. Revisit at month 3 post-launch. |
-| Volume 50k–500k/day, p95 200ms–1s | **Build rollups.** | `usage_daily` table maintained via nightly `REFRESH MATERIALIZED VIEW CONCURRENTLY`. Dashboard reads rollups for trends, drops to raw `usage_event` for drill-downs. |
+| Volume 50k–500k/day, p95 200ms–1s | **Build rollups.** | Daily aggregate table per `(org_id, user_id, brand_id, feature, date)` refreshed nightly. Dashboard reads aggregates for trends, drops to raw `usage_event` for drill-downs. Implementation specifics deferred until the audit picks this branch. |
 | Volume > 500k/day sustained, or p95 > 1s on rollups, or customer-facing analytics enters scope | **Migrate to ClickHouse.** | `usage_event` mirrored via PostHog batch export or direct CDC. Postgres remains OLTP source of truth. The 2-week buffer to the 10-week ceiling exists for this branch. |
 
-The columnar workload we generate today — error traces, LLM call traces, eval results, product-event analytics — is already offloaded to **PostHog**, which runs on managed ClickHouse internally. We get columnar storage where it benefits us (telemetry) without operating a warehouse. The decision above only governs `usage_event` analytics on our Postgres source of truth.
+Telemetry (error traces, LLM call traces, eval results, product analytics) lives in PostHog regardless of which branch ships. The decision above only governs `usage_event` analytics on our Postgres source of truth.
 
 ### 7. Auth + RBAC
 
@@ -183,17 +190,18 @@ PostHog is the single observability platform. One vendor across error tracking, 
 
 `pino` structured JSON logs still ship at API + worker entrypoints (`requestId`, `userId`, `orgId` per request). They feed PostHog through the OTLP log exporter; long-term retention is on PostHog's logs surface. `pino-pretty` only in local dev.
 
-Cost and usage observability remains in the application data model: every model call writes a `usage_event` row scoped by `org_id`. The dashboard reads daily rollup tables for trend lines (sub-200ms p95 even at multi-million-row scale) and drops to raw `usage_event` only for drill-downs. PostHog supplements with UI-event analytics for funnels and retention.
+Cost and usage observability remains in the application data model: every model call writes a `usage_event` row scoped by `org_id`. Dashboard read pattern is decided at Final Rollout per the analytics scaling audit (skip / aggregates / ClickHouse). At MVP scale (Branch A, direct queries) the dashboard runs sub-100ms p95; the audit upgrades the read path only if Beta volume demands it. PostHog supplements with UI-event analytics for funnels and retention.
 
-Health and availability (the assessment's N5: 99%): managed-service SLAs as the floor, PostHog uptime checks for the API, alert thresholds tuned during Beta.
+Health and availability (99% target): managed-service SLAs as the floor, PostHog uptime checks for the API, alert thresholds tuned during Beta.
 
 ## External dependencies summary
 
 | Vendor | Service | Failure mode |
 |--------|---------|--------------|
-| OpenAI (text + multimodal) | GPT-5.1 for sync text generation, translation, PDF extraction | MVP: same-provider retries, errors propagate. Beta: cross-provider fallback to Claude via the LLM proxy. |
-| OpenAI (image) | `gpt-image-2` for image generation | MVP: job goes to `failed`, user retries manually. Beta: cross-provider fallback to fal.ai via the LLM proxy. |
-| WorkOS | SSO + Organizations + Roles + Admin Portal widgets | Sign-in fails; existing sessions remain valid until expiry. Role lookup is cached locally. |
+| OpenRouter | Sync text, translation, PDF extraction (GPT-5.1 pinned at MVP) | Single gateway, single key. MVP: same-provider retries. Beta: per-feature model picks via routing rules. ~5% gateway markup. |
+| OpenAI direct | `gpt-image-2` text-to-image at MVP | MVP: job goes to `failed` after retries, user retries manually. Beta: cross-provider fallback to fal.ai. |
+| fal.ai | Image-to-image (Beta), image fallback (Beta) | Beta unlocks the `gpt-image-2/edit` path that OpenAI's native endpoint blocks for `gpt-image-2`, plus Flux fallback. |
+| WorkOS | SSO + Organizations + Roles + User Management widget | Sign-in fails; existing sessions remain valid until expiry. Role lookup is cached locally. |
 | PostHog | Errors, alerts, session replay, flags, product analytics, LLM observability, LLM evals | Telemetry buffered locally; missing data is non-fatal. Eval-blocked publishes fall back to manual brand-manager override on outage. |
 | Figma | Plugin Community listing + REST API + OAuth app review | Public listing requires Figma review (5–10 business days target). Private install per org is the bridge during review. |
 | AWS S3 | Object store | Image fetch / upload errors propagate up the stack; would warrant CDN / region failover only at scale |
@@ -204,7 +212,7 @@ Every architectural decision either supports or doesn't block the multi-tenant S
 
 | Concern | MVP shape | What changes for SaaS |
 |---------|-----------|------------------------|
-| Tenant identity | `org` ↔ WorkOS Organization (1:1), pilot has one row | New customers self-onboard via WorkOS Admin Portal; one new `org` row per customer |
+| Tenant identity | `org` ↔ WorkOS Organization (1:1), pilot has one row | New customers self-onboard via WorkOS hosted sign-up; one new `org` row per customer |
 | Data isolation | `org_id` on every table; partial unique indexes scoped by `org_id`; query layer always scopes by request-context `orgId` | No change |
 | Authn / authz | One auth middleware, two session styles | Existing — WorkOS already supports multi-org natively |
 | Per-tenant infrastructure | None — single Postgres, single Redis, single S3 bucket with `<orgId>/` prefixes, single API & worker fleet | Still none. Vertical scale, then read replicas |
@@ -230,10 +238,10 @@ A full end-to-end "localise copy + replace images" walkthrough lives in `data-fl
 - A separate "BFF" between the plugin and the core API — Hono serves both clients directly. Their differences (bearer vs cookie, multipart vs JSON) are handled in middleware and route shape.
 - A CDN in front of S3 — straightforward to add when image-fetch volume grows; the manifest already accommodates a wildcard domain.
 - A streaming text path (server-sent partial tokens) — text gen fits the 2s budget without it; revisit if UX wants typewriter effects.
-- Cross-provider fallbacks **at MVP** — OpenAI is the single dependency for the 3-week pilot. Beta enables multi-provider routing in the LLM proxy (Claude for text, fal.ai for image, fallback or per-feature pick). The AI-SDK abstraction makes the upgrade a config change rather than a rewrite.
+- **Multi-provider routing logic at MVP.** The plumbing (OpenRouter for text, `packages/ai` abstraction over both gateways) is in from day one, but MVP pins to one model per surface. Beta turns on per-feature picks (text via OpenRouter routing rules) and adds fal.ai as the image fallback + image-to-image surface.
 - A separate identity/profile service — WorkOS owns identity; we own only the local mirror.
 - A separate APM (Datadog, New Relic, Grafana Cloud) — PostHog covers errors, alerts, session replay, product analytics, LLM tracing, and evals. One vendor, one billing surface, one SDK.
-- **A columnar warehouse (ClickHouse or equivalent) at MVP and Beta** — Postgres handles `usage_event` volumes through Beta. The ClickHouse decision is *not deferred indefinitely* — it is a scheduled audit at Final Rollout (week 6) gated on actual Beta numbers. Three branches: skip rollups, build rollups, or migrate to ClickHouse. PostHog already gives us managed columnar storage for telemetry, traces, and evals — that workload is solved regardless of which branch ships.
+- **A columnar warehouse (ClickHouse or equivalent) at MVP and Beta** — Postgres handles `usage_event` volumes through Beta. The decision is *not deferred indefinitely* — it is a scheduled audit at Final Rollout (week 6) gated on actual Beta numbers. Three branches: skip rollups, build rollups, or migrate to ClickHouse. Telemetry, traces, and evals live in PostHog regardless of which branch ships.
 - **Per-tenant rate limits** — single-tenant in MVP, light multi-tenant in Beta. Same-provider retries plus single-OpenAI-key concurrency are sufficient until customer usage demands tighter caps. Adding caps is a config change in the LLM proxy.
 
 These are deferred or rejected on purpose, not oversights.

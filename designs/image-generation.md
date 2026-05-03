@@ -1,4 +1,4 @@
-# Image Generation (F4)
+# Image Generation
 
 Backend design for the image-placeholder feature the Figma plugin invokes via `POST /api/generations/images`.
 
@@ -6,20 +6,21 @@ Backend design for the image-placeholder feature the Figma plugin invokes via `P
 
 - Generate **3 1024×1024 image variants** per request, grounded in the brand's visual identity (`brand_profile.visual`).
 - Support **two modes**:
-  - **text-to-image** — prompt + brand profile produce variants from scratch.
-  - **image-to-image** — plugin exports a selected node to bytes, uploads with the request, model produces variants seeded by that input image.
-- Run async — image generation latency (a few seconds per `gpt-image-2` call) is well outside N1's ≤2s budget.
+  - **text-to-image** — prompt + brand profile produce variants from scratch. **MVP scope.**
+  - **image-to-image** — plugin exports a selected node to bytes, uploads with the request, model produces variants seeded by that input image. **Beta scope** — OpenAI's `images.edit` does not currently accept `gpt-image-2`; lands via fal.ai's `gpt-image-2/edit` endpoint when fal.ai integration ships in Beta.
+- Run async — image generation latency is well outside the synchronous text budget.
 - Persist generated images and uploaded inputs forever so they remain visible in the generations dashboard / history.
 - Enforce a per-node lock — only one in-flight image generation per `(figmaFileKey, figmaNodeId)` at a time, regardless of mode.
 
 ## Non-goals (this design)
 
-- **Provider fallback** — no automatic cross-provider switch if `gpt-image-2` fails. Single provider per concern.
+- **Image-to-image at MVP.** Moves to Beta with the fal.ai integration. Plugin UI exposes the mode but the action shows "available in Beta" until fal.ai ships.
+- **Cross-provider fallback at MVP.** Beta lights up fal.ai as the image fallback in addition to image-to-image.
 - **Aspect ratios other than 1024×1024** — locked for MVP (`gpt-image-2` supports more, but we don't expose it).
 - **Content moderation server-side** — trust the provider.
-- **Hard spend caps** (B8) — deferred.
+- **Hard spend caps** — deferred.
 - **Plugin "recent generations" panel** — backend already supports it via `GET /api/generations`; UX lives in the plugin design pass.
-- **User-controlled fidelity / strength** for image-to-image — defaults from `gpt-image-2` only in MVP.
+- **User-controlled fidelity / strength** for image-to-image — defaults from fal/`gpt-image-2/edit` only in Beta.
 
 ## Modes
 
@@ -313,7 +314,7 @@ The lock applies regardless of `mode`. A user cannot start a text-mode generatio
 
 ## Latency
 
-Image generation does not need to fit N1 (≤2s).
+Image generation does not need to fit the synchronous text budget (≤2s p50). Async path with SSE notification is sufficient.
 
 | Phase | Budget |
 |-------|--------|

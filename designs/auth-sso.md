@@ -86,7 +86,9 @@ Every backend route runs through a middleware that:
 4. Attaches `{ userId, orgId, role }` to the Hono request context. (`role` is informational only in MVP.)
 5. Rejects with `401` if no session.
 
-The MVP authorization model is: **any authenticated user in an org can perform any action available in the platform**. There is no role-based access control. Every database query in feature code reads `orgId` from the request context and scopes queries by it. Cross-tenant reads are not permitted. This rule is enforced by code review; the partial unique indexes and tenant-scoped indexes on every table serve as a backstop.
+**MVP authorization model:** any authenticated user in an org can perform any action available in the platform. `user.role` is mirrored from WorkOS and attached to the request context, but **no role gate fires at MVP** — the column is informational. Every database query in feature code reads `orgId` from the request context and scopes queries by it; cross-tenant reads are not permitted. Tenant-scoped indexes and partial unique indexes serve as a backstop.
+
+**Beta authorization model (lights up week 3–4):** three roles enforced — `admin` / `brand_manager` / `designer`. Per-brand access via the `user_brand` mapping table in our Postgres. Every router scope-checks `(org_id, user_id, role, brand_id)` before any read or write. Designers see only the brands they're assigned to; brand managers own profile lifecycle for their brands; admins have full org scope. WorkOS Roles drives the coarse axis; `user_brand` drives the fine axis. Hybrid pattern is intentional — WorkOS Roles primitive doesn't model per-resource scope, our Postgres mapping fills the gap. Adversarial test suite at Beta exit covers every role × every endpoint × every owned-vs-foreign brand.
 
 ## Sign-out
 
@@ -109,4 +111,4 @@ The following are intentionally not addressed in this design:
 - **Sessions are validated server-side per request** rather than verified locally as JWTs. Revocation is immediate; validation logic lives outside our codebase.
 - **Single `org` per `user`** is enforced at the schema level.
 - **Cookies are `httpOnly` + `Secure` + `SameSite=Lax`**, scoped to the shared root domain of API and admin web.
-- **No role-based access control in MVP.** `user.role` is a placeholder column defaulted to `'member'` and not enforced anywhere. RBAC arrives — if at all — in the multi-tenant SaaS phase.
+- **RBAC enforced from Beta.** `user.role` (enum: `admin` / `brand_manager` / `designer`) attached to the request context at MVP but not gated. Beta turns on the gate plus the `user_brand` per-brand scope check. Adversarial test suite is the Beta-exit gate.

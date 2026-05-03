@@ -6,12 +6,13 @@ const phases = [
 		audience: '10 users',
 		focus: 'Internal pilot',
 		body:
-			'DesignTechCo Creative Studio, ten designers. Single tenant. OpenAI as the only model provider. Plugin built in parallel with the backend, submitted to Figma Community at end of week 3.',
+			'DesignTechCo Creative Studio, ten designers. Single tenant. OpenRouter for text (GPT-5.1 pinned), OpenAI direct for image (text-to-image only). Plugin built in parallel with backend, submitted to Figma Community at end of week 3.',
 		ships: [
-			'Four user-facing actions wired end to end',
+			'Four user-facing actions wired end to end (image-to-image deferred to Beta)',
 			'Brand-guideline lifecycle: upload, extract, review, publish, version, rollback',
-			'Admin web: brand mgmt, generations history, usage dashboard, WorkOS Admin Portal embed',
-			'OpenAI only: GPT-5.1 (text + multimodal extraction) · gpt-image-2 (image)',
+			'Admin web: brand mgmt, generations history, usage dashboard, WorkOS User Management widget',
+			'OpenRouter from day one (GPT-5.1 pinned) · OpenAI direct for gpt-image-2 text-to-image',
+			'Plugin submitted to Figma Community (review window starts)',
 		],
 		risks: [
 			{ k: 'Brand-guideline extraction garbage on narrow PDFs', v: 'Mandatory human review · hand-author fallback · rollback as a flag flip.' },
@@ -23,14 +24,15 @@ const phases = [
 		name: 'Beta',
 		dot: 'weeks 3–6',
 		audience: 'more users',
-		focus: 'Multi-tenant + access + multi-provider',
+		focus: 'Multi-tenant + access + image-to-image',
 		body:
-			'One or two additional client orgs go live. MVP-pilot feedback drives priorities. RBAC, full observability, evals per feature, multi-provider routing in the LLM proxy. Public Community listing arrives mid-Beta.',
+			'One or two additional client orgs go live. MVP-pilot feedback drives priorities. RBAC, full observability, evals per feature. fal.ai integration brings image-to-image and image fallback. Public Community listing arrives mid-Beta.',
 		ships: [
 			'Feedback from MVP pilot: top items from DesignTechCo designers land first',
 			'RBAC via WorkOS Roles plus user_brand mapping in our Postgres',
-			'WorkOS Admin Portal widget embed for tenant team management',
-			'Multi-provider routing via LLM proxy: Claude (text) and fal.ai (image) as fallback or per-feature pick',
+			'WorkOS User Management widget for tenant team admin',
+			'fal.ai integration: image-to-image (gpt-image-2/edit) + image fallback',
+			'Per-feature text routing rules in OpenRouter (eval-driven)',
 			'PostHog: errors, alerts, session replay, feature flags, product analytics, LLM tracing, evals',
 			'Eval suite per feature: text gen, translation, image gen, PDF extraction',
 		],

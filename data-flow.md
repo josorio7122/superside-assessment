@@ -115,7 +115,7 @@ See `research/figma-plugin.md` for the constraints behind this design.
 
 - One auth middleware accepts both bearer (plugin) and cookie (admin web) sessions; both resolve to `(userId, orgId)`.
 - Zod validates payload shape; `org_id` is the implicit filter on every read.
-- Translate is **synchronous** — single OpenAI round-trip plus DB writes inside the request; designed to fit ≤2s p50.
+- Translate is **synchronous** — single OpenRouter round-trip (GPT-5.1 pinned by env config) plus DB writes inside the request; designed to fit ≤2s p50.
 - Image is **asynchronous** — the API inserts the row, enqueues the job, and returns 202 immediately. The partial unique index on `(org_id, figma_file_key, figma_node_id) WHERE type='image' AND status IN ('pending','running')` is the per-node lock.
 
 ### Orchestration (BullMQ + worker)
@@ -139,7 +139,7 @@ See `research/figma-plugin.md` for the constraints behind this design.
 
 ### S3
 
-- Stores generated images, uploaded image-to-image inputs, and source brand-guideline PDFs.
+- Stores generated images and source brand-guideline PDFs (uploaded image-to-image inputs join in Beta when fal.ai integration ships).
 - Forever retention in MVP.
 - Signed GET URLs (1h TTL) gate client access. The plugin manifest whitelists the bucket domain.
 
@@ -150,20 +150,20 @@ See `research/figma-plugin.md` for the constraints behind this design.
 
 ### Models
 
-- **OpenAI GPT-5.1** for translation. Successor to GPT-4o, qualifies as the "GPT-4o or equivalent" tier the assessment calls for. Cheaper than GPT-4o, with strong cached-input pricing for our reusable brand voice block.
-- **OpenAI `gpt-image-2`** for image. Typical <3s latency, ≥99% text-rendering accuracy, native multi-image-per-request, supports image-as-input via `images.edit`.
-- No fallback providers in MVP. Single OpenAI key for everything; same-provider retries handle transient errors.
+- **GPT-5.1 via OpenRouter** for text + translation + multimodal PDF extraction. Pinned by env config; flips to GPT-5.4 (or any future model on OpenRouter's catalog) with one line. Strong cached-input pricing for our reusable brand voice block.
+- **OpenAI `gpt-image-2` direct** for image generation — text-to-image only at MVP (`images.edit` does not currently accept `gpt-image-2`).
+- No automatic cross-provider fallback at MVP. Same-provider retries handle transient errors. Beta lights up fal.ai for image-to-image and image fallback.
 
 ## Latency at each step
 
 | Step | Budget |
 |------|--------|
-| Translate request → response | ~1.5–1.8s p50 (fits N1) |
+| Translate request → response | ~1.5–1.8s p50 (fits ≤2s budget) |
 | Image POST → 202 (text mode) | ~50ms |
-| Image worker → OpenAI → results | 2–4s p50 (`gpt-image-2`) |
+| Image worker → model (`gpt-image-2`) → results | 2–4s p50, ~10s p95 |
 | S3 upload of 3 outputs (bytes already in worker) | ~300–1500ms total |
 | SSE event delivery | <100ms |
-| **Total image flow end-to-end** | **~3–6s p50, ~10s p95** |
+| **Total image flow end-to-end** | **~3–6s p50, ~12s p95** (Beta exit budget: p95 ≤ 20s — comfortable headroom) |
 | Designer applies variant in Figma | <500ms |
 
 ## What if it fails?

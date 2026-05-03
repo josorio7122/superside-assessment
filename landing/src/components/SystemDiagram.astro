@@ -17,11 +17,12 @@
 			Three columns left to right. Clients on the left: Figma plugin and Admin web.
 			Auth, server, and database in the middle: WorkOS validates the Hono API,
 			the API does CRUD against Postgres. Async and models on the right: the API
-			calls the LLM proxy for synchronous text and translation, and enqueues
-			image generation and PDF extraction into a BullMQ queue that workers consume,
-			calling the LLM proxy and writing bytes to S3, with completion events flowing
-			back to the API via Redis pub sub. The LLM proxy routes to OpenAI only at
-			MVP, and lights up Claude and fal.ai as fallback or per-feature pick in Beta.
+			calls OpenRouter for synchronous text and translation, and enqueues image
+			generation and PDF extraction into a BullMQ queue that workers consume.
+			Workers call OpenAI directly for image (gpt-image-2 text-to-image) and
+			OpenRouter for multimodal extraction, write bytes to S3, and publish
+			completion events to Redis pub/sub which the API's SSE endpoint forwards
+			to clients. Beta adds fal.ai for image-to-image and image fallback.
 		</desc>
 
 		<defs>
@@ -122,9 +123,9 @@
 
 		<g class="node node-model">
 			<rect x="820" y="150" width="180" height="110" />
-			<text x="835" y="182" class="node-title serif">LLM proxy</text>
-			<text x="835" y="208" class="node-meta">mvp: openai only</text>
-			<text x="835" y="226" class="mono">beta: + claude (text)</text>
+			<text x="835" y="182" class="node-title serif">Models</text>
+			<text x="835" y="208" class="node-meta">openrouter · text + multimodal</text>
+			<text x="835" y="226" class="mono">openai · gpt-image-2</text>
 			<text x="835" y="244" class="mono">beta: + fal.ai (image)</text>
 		</g>
 

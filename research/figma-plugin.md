@@ -95,7 +95,7 @@ A Figma plugin runs in **two contexts**:
 
 ## Reading and writing text layers
 
-The `TextNode` API exposes everything we need to drive F1 (copy variants) and F2 (translation):
+The `TextNode` API exposes everything we need to drive copy variants and translation:
 
 | Property | Type | Use for our API |
 |---|---|---|
@@ -109,7 +109,9 @@ The `TextNode` API exposes everything we need to drive F1 (copy variants) and F2
 | `figma.currentPage.selection` | array | What the user has selected — what the plugin sends |
 
 - Writing is symmetric: set `node.characters = "..."` after the API responds.
-- Fonts must be loaded before `characters` can be set: `await figma.loadFontAsync(node.fontName)`.
+- Fonts **must** be loaded before `characters` can be set: `await figma.loadFontAsync(node.fontName)`. Without this, assignment throws.
+- **Mixed-font caveat.** A text node can have different fonts per character range. `node.fontName === figma.mixed` (a special symbol) signals this. In that case `loadFontAsync(node.fontName)` doesn't help — walk every character range with `node.getRangeFontName(start, end)` and load each font before assignment. Common in design files; cheap to handle, easy to forget.
+- After assignment, Figma keeps the first font if the new string is shorter than the old, and extends with the last font if longer. For variant replacement (single brand-styled label) this is the desired behavior; for arbitrary text it can produce surprising results.
 
 ### Implication for our platform
 
