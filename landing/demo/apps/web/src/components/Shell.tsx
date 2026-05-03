@@ -17,8 +17,7 @@ const NAV: NavItem[] = [
 
 export function Shell() {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const activeId =
-    NAV.find((n) => path === n.match || path.startsWith(`${n.match}/`))?.id ?? "brands";
+  const activeId = NAV.find((n) => path === n.match || path.startsWith(`${n.match}/`))?.id ?? "brands";
 
   return (
     <div className="studio-shell">
@@ -53,7 +52,15 @@ export function Shell() {
                     <Link to={n.to} data-active={active ? "" : undefined}>
                       <span className="ico" aria-hidden="true">
                         {n.id === "brands" && (
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.3"
+                            aria-hidden="true"
+                          >
                             <rect x="2" y="2" width="4" height="4" />
                             <rect x="8" y="2" width="4" height="4" />
                             <rect x="2" y="8" width="4" height="4" />
@@ -61,19 +68,43 @@ export function Shell() {
                           </svg>
                         )}
                         {n.id === "generations" && (
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.3"
+                            aria-hidden="true"
+                          >
                             <circle cx="7" cy="7" r="5.2" />
                             <path d="M7 4 V7 L9 8.5" />
                           </svg>
                         )}
                         {n.id === "usage" && (
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.3"
+                            aria-hidden="true"
+                          >
                             <path d="M2 11.5 L5 8 L7.5 10 L12 4" />
                             <path d="M9 4 H12 V7" />
                           </svg>
                         )}
                         {n.id === "plugin" && (
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.3"
+                            aria-hidden="true"
+                          >
                             <rect x="2" y="2" width="10" height="10" rx="1" />
                             <path d="M5 5.5 L7 7.5 L9 5.5" />
                           </svg>

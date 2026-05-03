@@ -14,7 +14,15 @@ export function SourcePdfCard({ filename, sizeBytes, s3Key }: Props) {
   const inner = (
     <>
       <div className="source-icon" aria-hidden="true">
-        <svg width="22" height="28" viewBox="0 0 22 28" fill="none" stroke="currentColor" strokeWidth="1.4">
+        <svg
+          width="22"
+          height="28"
+          viewBox="0 0 22 28"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          aria-hidden="true"
+        >
           <path d="M3 1.5 H15 L20 6.5 V26.5 H3 Z" />
           <path d="M15 1.5 V6.5 H20" />
           <path d="M6 12 H17 M6 16 H17 M6 20 H13" strokeWidth="1.2" />
@@ -25,7 +33,16 @@ export function SourcePdfCard({ filename, sizeBytes, s3Key }: Props) {
         <p className="source-sub">{formatSize(sizeBytes)}</p>
       </div>
       <span className="source-arrow" aria-hidden="true">
-        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 11 11"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
           <path d="M2 9 L9 2 M4 2 L9 2 L9 7" />
         </svg>
       </span>

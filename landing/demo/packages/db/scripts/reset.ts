@@ -1,6 +1,6 @@
-import { config } from "dotenv";
-import { join, dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { config } from "dotenv";
 import { Pool } from "pg";
 
 const __dir = dirname(fileURLToPath(import.meta.url));

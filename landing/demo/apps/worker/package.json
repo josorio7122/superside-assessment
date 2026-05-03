@@ -10,20 +10,20 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "bullmq": "^5.20.0",
-    "ioredis": "^5.4.0",
-    "pino": "^9.5.0",
-    "pino-pretty": "^11.0.0",
-    "@aws-sdk/client-s3": "^3.700.0",
-    "drizzle-orm": "^0.36.0",
-    "dotenv": "^16.4.5",
+    "bullmq": "^5.76.5",
+    "ioredis": "^5.10.1",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3",
+    "@aws-sdk/client-s3": "^3.1041.0",
+    "drizzle-orm": "^0.45.2",
+    "dotenv": "^17.4.2",
     "@studio/db": "workspace:*",
     "@studio/ai": "workspace:*",
     "@studio/schemas": "workspace:*"
   },
   "devDependencies": {
-    "tsx": "^4.19.0",
-    "typescript": "^5.6.0",
-    "@types/node": "^22.0.0"
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "@types/node": "^24.12.2"
   }
 }

@@ -1,10 +1,6 @@
 import { Worker } from "bullmq";
-import { redisQueue, logger } from "./infra.js";
-import {
-  handleExtractProfile,
-  handleExtractProfileFailed,
-  type ExtractProfileJob,
-} from "./extract-profile-handler.js";
+import { type ExtractProfileJob, handleExtractProfile, handleExtractProfileFailed } from "./extract-profile-handler.js";
+import { logger, redisQueue } from "./infra.js";
 
 const worker = new Worker<ExtractProfileJob>("extract-profile", handleExtractProfile, {
   connection: redisQueue,

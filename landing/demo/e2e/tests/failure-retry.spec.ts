@@ -1,7 +1,7 @@
-import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { expect, test } from "@playwright/test";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const API = process.env.API_URL ?? "http://localhost:3001";
@@ -55,9 +55,7 @@ test("failure-retry: forced failure -> retry -> ready", async ({ request }) => {
   const failStart = Date.now();
   while (Date.now() - failStart < 60_000 && row.status !== "failed") {
     await new Promise((r) => setTimeout(r, 1500));
-    row = await request
-      .get(`${API}/api/profiles/${created.id}`)
-      .then((r) => r.json());
+    row = await request.get(`${API}/api/profiles/${created.id}`).then((r) => r.json());
   }
   expect(row.status, "expected first attempt to fail").toBe("failed");
   expect(row.ingestError, "failed row should carry an error message").toBeTruthy();
@@ -70,9 +68,7 @@ test("failure-retry: forced failure -> retry -> ready", async ({ request }) => {
   const okStart = Date.now();
   while (Date.now() - okStart < 180_000 && row.status !== "ready") {
     await new Promise((r) => setTimeout(r, 2000));
-    row = await request
-      .get(`${API}/api/profiles/${created.id}`)
-      .then((r) => r.json());
+    row = await request.get(`${API}/api/profiles/${created.id}`).then((r) => r.json());
     if (row.status === "failed") {
       throw new Error(`retry failed: ${row.ingestError}`);
     }

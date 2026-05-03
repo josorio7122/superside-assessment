@@ -1,14 +1,6 @@
-import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { useMemo, useState } from "react";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { api } from "../../lib/api";
 import "./usage.css";
 
@@ -43,7 +35,9 @@ export function UsageDashboard() {
 
   const userById = useMemo(() => {
     const m = new Map<string, { name: string }>();
-    usersQ.data?.forEach((u) => m.set(u.id, { name: u.name }));
+    usersQ.data?.forEach((u) => {
+      m.set(u.id, { name: u.name });
+    });
     return m;
   }, [usersQ.data]);
 
@@ -142,11 +136,11 @@ export function UsageDashboard() {
             <span className="mono small subtle">USD · {days}d</span>
           </header>
           <div style={{ width: "100%", height: 200 }}>
-            {dayQ.isLoading ? (
-              <p className="text-[var(--color-stone)] text-[0.875rem]">Loading…</p>
-            ) : chartData.length === 0 ? (
+            {dayQ.isLoading && <p className="text-[var(--color-stone)] text-[0.875rem]">Loading…</p>}
+            {!dayQ.isLoading && chartData.length === 0 && (
               <p className="text-[var(--color-stone)] text-[0.875rem]">No data.</p>
-            ) : (
+            )}
+            {!dayQ.isLoading && chartData.length > 0 && (
               <ResponsiveContainer>
                 <AreaChart data={chartData} margin={{ top: 10, right: 12, left: -16, bottom: 0 }}>
                   <defs>
@@ -182,7 +176,7 @@ export function UsageDashboard() {
                       color: "oklch(20% 0.012 50)",
                     }}
                     labelStyle={{ color: "oklch(55% 0.005 50)", fontSize: 10, marginBottom: 4 }}
-                    formatter={(v: number) => [formatUsd(v), "cost"]}
+                    formatter={(v) => [formatUsd(Number(v)), "cost"]}
                   />
                   <Area
                     type="monotone"
@@ -226,10 +220,7 @@ export function UsageDashboard() {
                   <td>
                     <span className="share-cell">
                       <span className="share-bar">
-                        <span
-                          className="share-fill"
-                          style={{ width: `${u.share * 100}%` }}
-                        ></span>
+                        <span className="share-fill" style={{ width: `${u.share * 100}%` }}></span>
                       </span>
                       <span className="share-num">{Math.round(u.share * 100)}%</span>
                     </span>
@@ -242,13 +233,19 @@ export function UsageDashboard() {
               {userRows.length > 0 && (
                 <tr>
                   <td>
-                    <span className="mono" style={{ color: "var(--color-stone)", fontSize: "0.625rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    <span
+                      className="mono"
+                      style={{
+                        color: "var(--color-stone)",
+                        fontSize: "0.625rem",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
                       total
                     </span>
                   </td>
-                  <td className="num mono small">
-                    {userRows.reduce((s, r) => s + r.calls, 0).toLocaleString()}
-                  </td>
+                  <td className="num mono small">{userRows.reduce((s, r) => s + r.calls, 0).toLocaleString()}</td>
                   <td className="num mono small">{formatUsd(totalUserCost)}</td>
                   <td></td>
                   <td></td>

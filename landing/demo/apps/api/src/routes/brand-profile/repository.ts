@@ -1,23 +1,15 @@
-import { db, schema, ok, err, RepoError, type Result } from "@studio/db";
+import { db, err, firstOrInternal, ok, RepoError, type Result, schema } from "@studio/db";
 import type { BrandProfile } from "@studio/schemas";
 import { and, desc, eq, sql } from "drizzle-orm";
 
 export type BrandProfileRow = typeof schema.brandProfiles.$inferSelect;
 
 export const brandProfileRepo = {
-  async listByBrand(
-    orgId: string,
-    brandId: string,
-  ): Promise<Result<BrandProfileRow[], RepoError>> {
+  async listByBrand(orgId: string, brandId: string): Promise<Result<BrandProfileRow[], RepoError>> {
     const rows = await db
       .select()
       .from(schema.brandProfiles)
-      .where(
-        and(
-          eq(schema.brandProfiles.orgId, orgId),
-          eq(schema.brandProfiles.brandId, brandId),
-        ),
-      )
+      .where(and(eq(schema.brandProfiles.orgId, orgId), eq(schema.brandProfiles.brandId, brandId)))
       .orderBy(desc(schema.brandProfiles.version));
     return ok(rows);
   },
@@ -26,9 +18,7 @@ export const brandProfileRepo = {
     const [row] = await db
       .select()
       .from(schema.brandProfiles)
-      .where(
-        and(eq(schema.brandProfiles.id, id), eq(schema.brandProfiles.orgId, orgId)),
-      );
+      .where(and(eq(schema.brandProfiles.id, id), eq(schema.brandProfiles.orgId, orgId)));
     return row ? ok(row) : err(new RepoError("not_found", `profile ${id} not found`));
   },
 
@@ -44,7 +34,7 @@ export const brandProfileRepo = {
       sql`select coalesce(max(version),0)+1 as next from brand_profile where brand_id=${input.brandId}`,
     );
     const version = (next.rows[0]?.next as number) ?? 1;
-    const [row] = await db
+    const rows = await db
       .insert(schema.brandProfiles)
       .values({
         orgId: input.orgId,
@@ -59,7 +49,7 @@ export const brandProfileRepo = {
         createdBy: input.userId,
       })
       .returning();
-    return ok(row!);
+    return firstOrInternal(rows, "insert returned no row");
   },
 
   async insertHandAuthored(input: {
@@ -76,13 +66,8 @@ export const brandProfileRepo = {
       await tx
         .update(schema.brandProfiles)
         .set({ isCurrent: false })
-        .where(
-          and(
-            eq(schema.brandProfiles.brandId, input.brandId),
-            eq(schema.brandProfiles.isCurrent, true),
-          ),
-        );
-      const [row] = await tx
+        .where(and(eq(schema.brandProfiles.brandId, input.brandId), eq(schema.brandProfiles.isCurrent, true)));
+      const rows = await tx
         .insert(schema.brandProfiles)
         .values({
           orgId: input.orgId,
@@ -94,7 +79,7 @@ export const brandProfileRepo = {
           createdBy: input.userId,
         })
         .returning();
-      return ok(row!);
+      return firstOrInternal(rows, "insert returned no row");
     });
   },
 
@@ -108,16 +93,9 @@ export const brandProfileRepo = {
       const [prior] = await tx
         .select()
         .from(schema.brandProfiles)
-        .where(
-          and(
-            eq(schema.brandProfiles.id, input.profileId),
-            eq(schema.brandProfiles.orgId, input.orgId),
-          ),
-        );
-      if (!prior)
-        return err(new RepoError("not_found", `profile ${input.profileId} not found`));
-      if (prior.status !== "ready")
-        return err(new RepoError("conflict", "profile not ready"));
+        .where(and(eq(schema.brandProfiles.id, input.profileId), eq(schema.brandProfiles.orgId, input.orgId)));
+      if (!prior) return err(new RepoError("not_found", `profile ${input.profileId} not found`));
+      if (prior.status !== "ready") return err(new RepoError("conflict", "profile not ready"));
       const next = await tx.execute<{ next: number }>(
         sql`select coalesce(max(version),0)+1 as next from brand_profile where brand_id=${prior.brandId}`,
       );
@@ -125,13 +103,8 @@ export const brandProfileRepo = {
       await tx
         .update(schema.brandProfiles)
         .set({ isCurrent: false })
-        .where(
-          and(
-            eq(schema.brandProfiles.brandId, prior.brandId),
-            eq(schema.brandProfiles.isCurrent, true),
-          ),
-        );
-      const [row] = await tx
+        .where(and(eq(schema.brandProfiles.brandId, prior.brandId), eq(schema.brandProfiles.isCurrent, true)));
+      const rows = await tx
         .insert(schema.brandProfiles)
         .values({
           orgId: prior.orgId,
@@ -146,41 +119,28 @@ export const brandProfileRepo = {
           createdBy: input.userId,
         })
         .returning();
-      return ok(row!);
+      return firstOrInternal(rows, "insert returned no row");
     });
   },
 
-  async setCurrent(
-    orgId: string,
-    profileId: string,
-  ): Promise<Result<BrandProfileRow, RepoError>> {
+  async setCurrent(orgId: string, profileId: string): Promise<Result<BrandProfileRow, RepoError>> {
     return db.transaction(async (tx) => {
       const [target] = await tx
         .select()
         .from(schema.brandProfiles)
-        .where(
-          and(
-            eq(schema.brandProfiles.id, profileId),
-            eq(schema.brandProfiles.orgId, orgId),
-          ),
-        );
+        .where(and(eq(schema.brandProfiles.id, profileId), eq(schema.brandProfiles.orgId, orgId)));
       if (!target) return err(new RepoError("not_found", `profile ${profileId} not found`));
       if (target.status !== "ready") return err(new RepoError("conflict", "not a ready row"));
       await tx
         .update(schema.brandProfiles)
         .set({ isCurrent: false })
-        .where(
-          and(
-            eq(schema.brandProfiles.brandId, target.brandId),
-            eq(schema.brandProfiles.isCurrent, true),
-          ),
-        );
-      const [row] = await tx
+        .where(and(eq(schema.brandProfiles.brandId, target.brandId), eq(schema.brandProfiles.isCurrent, true)));
+      const rows = await tx
         .update(schema.brandProfiles)
         .set({ isCurrent: true })
         .where(eq(schema.brandProfiles.id, profileId))
         .returning();
-      return ok(row!);
+      return firstOrInternal(rows, "update returned no row");
     });
   },
 

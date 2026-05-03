@@ -1,7 +1,7 @@
-import { SourcePdfCard } from "./SourcePdfCard";
-import { PaletteCard } from "./PaletteCard";
-import { VersionTimeline } from "./VersionTimeline";
 import type { ProfileRow } from "../../lib/api";
+import { PaletteCard } from "./PaletteCard";
+import { SourcePdfCard } from "./SourcePdfCard";
+import { VersionTimeline } from "./VersionTimeline";
 
 interface Props {
   brandId: string;
@@ -19,9 +19,7 @@ export function Sidebar({ brandId, current, versions }: Props) {
           s3Key={current.sourcePdfS3Key}
         />
       )}
-      {current?.profile?.visual.palette && (
-        <PaletteCard palette={current.profile.visual.palette} />
-      )}
+      {current?.profile?.visual.palette && <PaletteCard palette={current.profile.visual.palette} />}
       <VersionTimeline brandId={brandId} versions={versions} />
     </aside>
   );

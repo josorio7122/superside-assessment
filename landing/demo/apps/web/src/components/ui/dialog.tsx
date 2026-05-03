@@ -1,6 +1,6 @@
-import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
+import * as React from "react";
 import { cn } from "../../lib/utils";
 
 export const Dialog = DialogPrimitive.Root;
@@ -63,10 +63,7 @@ export const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn(
-      "font-[var(--font-serif)] text-[1.25rem] tracking-[-0.01em] text-[var(--color-charcoal)]",
-      className,
-    )}
+    className={cn("font-[var(--font-serif)] text-[1.25rem] tracking-[-0.01em] text-[var(--color-charcoal)]", className)}
     {...props}
   />
 ));

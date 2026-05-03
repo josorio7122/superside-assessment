@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { Button } from "../../components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "../../components/ui/dialog";
-import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { api } from "../../lib/api";
@@ -58,18 +58,9 @@ export function RenameBrandDialog({ brandId, currentName, open, onOpenChange }: 
         >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="rename-brand-name">Brand name</Label>
-            <Input
-              id="rename-brand-name"
-              value={name}
-              autoFocus
-              onChange={(e) => setName(e.target.value)}
-            />
+            <Input id="rename-brand-name" value={name} autoFocus onChange={(e) => setName(e.target.value)} />
           </div>
-          {m.isError && (
-            <p className="text-[0.8125rem] text-[oklch(50%_0.13_25)]">
-              {(m.error as Error).message}
-            </p>
-          )}
+          {m.isError && <p className="text-[0.8125rem] text-[oklch(50%_0.13_25)]">{(m.error as Error).message}</p>}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel

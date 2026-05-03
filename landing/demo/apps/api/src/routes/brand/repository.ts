@@ -1,4 +1,4 @@
-import { db, schema, ok, err, RepoError, type Result } from "@studio/db";
+import { db, err, firstOrInternal, ok, RepoError, type Result, schema } from "@studio/db";
 import { and, eq, isNull, sql } from "drizzle-orm";
 
 export type Brand = typeof schema.brands.$inferSelect;
@@ -13,8 +13,8 @@ export const brandRepo = {
     return ok(rows);
   },
   async create(orgId: string, name: string): Promise<Result<Brand, RepoError>> {
-    const [row] = await db.insert(schema.brands).values({ orgId, name }).returning();
-    return ok(row!);
+    const rows = await db.insert(schema.brands).values({ orgId, name }).returning();
+    return firstOrInternal(rows, "insert returned no row");
   },
   async getById(orgId: string, id: string): Promise<Result<Brand, RepoError>> {
     const [row] = await db
@@ -23,13 +23,13 @@ export const brandRepo = {
       .where(and(eq(schema.brands.id, id), eq(schema.brands.orgId, orgId)));
     return row ? ok(row) : err(new RepoError("not_found", `brand ${id} not found`));
   },
-  async rename(orgId: string, id: string, name: string): Promise<Result<Brand, RepoError>> {
+  async rename(input: { orgId: string; id: string; name: string }): Promise<Result<Brand, RepoError>> {
     const [row] = await db
       .update(schema.brands)
-      .set({ name })
-      .where(and(eq(schema.brands.id, id), eq(schema.brands.orgId, orgId)))
+      .set({ name: input.name })
+      .where(and(eq(schema.brands.id, input.id), eq(schema.brands.orgId, input.orgId)))
       .returning();
-    return row ? ok(row) : err(new RepoError("not_found", `brand ${id} not found`));
+    return row ? ok(row) : err(new RepoError("not_found", `brand ${input.id} not found`));
   },
   async softDelete(orgId: string, id: string): Promise<Result<Brand, RepoError>> {
     const [row] = await db

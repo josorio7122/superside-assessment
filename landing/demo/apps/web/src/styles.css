@@ -50,6 +50,13 @@
   }
 }
 
-.serif { font-family: var(--font-serif); font-feature-settings: "ss01", "kern", "liga"; }
-.sans  { font-family: var(--font-sans); }
-.mono  { font-family: var(--font-mono); }
+.serif {
+  font-family: var(--font-serif);
+  font-feature-settings: "ss01", "kern", "liga";
+}
+.sans {
+  font-family: var(--font-sans);
+}
+.mono {
+  font-family: var(--font-mono);
+}

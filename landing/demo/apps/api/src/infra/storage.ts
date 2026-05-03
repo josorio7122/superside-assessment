@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join, dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { env } from "../env.js";
 
@@ -18,14 +18,14 @@ const s3 =
       })
     : null;
 
-export async function putPdf(key: string, body: Buffer, contentType = "application/pdf") {
+export async function putPdf(key: string, body: Buffer) {
   if (s3) {
     await s3.send(
       new PutObjectCommand({
         Bucket: env.S3_BUCKET,
         Key: key,
         Body: body,
-        ContentType: contentType,
+        ContentType: "application/pdf",
       }),
     );
     return;

@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { Button } from "../../components/ui/button";
 import type { BrandProfile } from "@studio/schemas";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { Button } from "../../components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { api } from "../../lib/api";
 
 interface Props {
@@ -19,7 +19,7 @@ export function ProfileEditor({ profileId, initial, brandId }: Props) {
   // SSE invalidated cache, "Set as current" flipped, etc.)
   useEffect(() => {
     setDraft(initial);
-  }, [initial, profileId]);
+  }, [initial]);
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(initial);
 
@@ -34,11 +34,7 @@ export function ProfileEditor({ profileId, initial, brandId }: Props) {
   return (
     <>
       <div className="bd-head-actions" style={{ marginBottom: "1rem", justifyContent: "flex-end", display: "flex" }}>
-        <Button
-          variant="outline"
-          onClick={() => setDraft(initial)}
-          disabled={!dirty || save.isPending}
-        >
+        <Button variant="outline" onClick={() => setDraft(initial)} disabled={!dirty || save.isPending}>
           Discard
         </Button>
         <Button onClick={() => save.mutate()} disabled={!dirty || save.isPending}>
@@ -87,10 +83,7 @@ export function ProfileEditor({ profileId, initial, brandId }: Props) {
               })
             }
           />
-          <DoDontField
-            doList={draft.voice.do}
-            dontList={draft.voice.dont}
-          />
+          <DoDontField doList={draft.voice.do} dontList={draft.voice.dont} />
         </TabsContent>
 
         <TabsContent value="visual">
@@ -99,9 +92,24 @@ export function ProfileEditor({ profileId, initial, brandId }: Props) {
               <span className="lbl">Palette</span>
               <span className="lbl-meta">{draft.visual.palette.length} colors</span>
             </div>
-            <ul className="swatches" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "0.5rem" }}>
+            <ul
+              className="swatches"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                gap: "0.5rem",
+              }}
+            >
               {draft.visual.palette.map((c) => (
-                <li key={`${c.name}-${c.hex}`} style={{ border: "1px solid var(--color-hairline)", padding: "0.55rem 0.65rem", borderRadius: "4px", background: "oklch(98% 0.003 60)" }}>
+                <li
+                  key={`${c.name}-${c.hex}`}
+                  style={{
+                    border: "1px solid var(--color-hairline)",
+                    padding: "0.55rem 0.65rem",
+                    borderRadius: "4px",
+                    background: "oklch(98% 0.003 60)",
+                  }}
+                >
                   <span className="sw" style={{ background: c.hex }}></span>
                   <div>
                     <p>{c.name}</p>
@@ -122,7 +130,16 @@ export function ProfileEditor({ profileId, initial, brandId }: Props) {
                 <div className="lbl-row">
                   <span className="lbl">Typography</span>
                 </div>
-                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                <ul
+                  style={{
+                    listStyle: "none",
+                    padding: 0,
+                    margin: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.35rem",
+                  }}
+                >
                   {(["display", "body", "mono"] as const).map((kind) => {
                     const v = draft.visual.typography?.[kind];
                     if (!v) return null;
@@ -175,10 +192,7 @@ export function ProfileEditor({ profileId, initial, brandId }: Props) {
         </TabsContent>
 
         <TabsContent value="banned">
-          <BannedTermsField
-            value={draft.banned_terms}
-            onChange={(v) => setDraft({ ...draft, banned_terms: v })}
-          />
+          <BannedTermsField value={draft.banned_terms} onChange={(v) => setDraft({ ...draft, banned_terms: v })} />
         </TabsContent>
       </Tabs>
     </>
@@ -200,6 +214,7 @@ function ToneChipsField({ value, onChange }: { value: string[]; onChange: (v: st
       </div>
       <div className="chips">
         {value.map((v, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: tone descriptors are deduped on add but allow empty edits; index-position is the stable identity here
           <span key={`${v}-${i}`} className="chip">
             {v}
             <button
@@ -245,15 +260,14 @@ function PrinciplesField({ value, onChange }: { value: string[]; onChange: (v: s
         <span className="lbl-meta">extracted, edited</span>
       </div>
       {value.map((v, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: principles are edited in place; positional identity matches React's reconciler intent
         <div key={i} className="principle-row">
           <textarea
             className="principle-input"
             aria-label={`Voice principle ${i + 1}`}
             value={v}
             rows={2}
-            onChange={(e) =>
-              onChange(value.map((x, j) => (j === i ? e.target.value : x)))
-            }
+            onChange={(e) => onChange(value.map((x, j) => (j === i ? e.target.value : x)))}
           />
           <button
             type="button"
@@ -265,11 +279,7 @@ function PrinciplesField({ value, onChange }: { value: string[]; onChange: (v: s
           </button>
         </div>
       ))}
-      <button
-        type="button"
-        className="principle-add"
-        onClick={() => onChange([...value, ""])}
-      >
+      <button type="button" className="principle-add" onClick={() => onChange([...value, ""])}>
         + Add principle
       </button>
     </section>
@@ -291,6 +301,7 @@ function DoDontField({ doList, dontList }: { doList: string[]; dontList: string[
           </p>
           <ul className="do-list">
             {doList.map((d, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: read-only list with potentially duplicate entries
               <li key={i}>{d}</li>
             ))}
           </ul>
@@ -301,6 +312,7 @@ function DoDontField({ doList, dontList }: { doList: string[]; dontList: string[
           </p>
           <ul className="dont-list">
             {dontList.map((d, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: read-only list with potentially duplicate entries
               <li key={i}>{d}</li>
             ))}
           </ul>
@@ -324,6 +336,7 @@ function BannedTermsField({ value, onChange }: { value: string[]; onChange: (v: 
       </div>
       <div className="banned-grid">
         {value.map((v, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: banned terms deduped on add; positional identity used for in-place edits
           <span key={`${v}-${i}`} className="banned-chip">
             {v}
             <button

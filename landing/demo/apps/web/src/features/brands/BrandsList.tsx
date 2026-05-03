@@ -1,17 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { api, type BrandWithStats } from "../../lib/api";
-import { NewBrandDialog } from "./NewBrandDialog";
-import { RenameBrandDialog } from "./RenameBrandDialog";
-import { DeleteBrandDialog } from "./DeleteBrandDialog";
-import { Skeleton } from "../../components/ui/skeleton";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
+import { Skeleton } from "../../components/ui/skeleton";
+import { api, type BrandWithStats } from "../../lib/api";
+import { DeleteBrandDialog } from "./DeleteBrandDialog";
+import { NewBrandDialog } from "./NewBrandDialog";
+import { RenameBrandDialog } from "./RenameBrandDialog";
 import "./brands.css";
 
 const HUES = [320, 130, 30, 0, 270, 200, 250, 60, 180];
@@ -109,25 +109,19 @@ export function BrandsList() {
       )}
 
       {q.isError && (
-        <p className="text-[var(--color-stone)] text-[0.875rem]">
-          Failed to load brands: {(q.error as Error).message}
-        </p>
+        <p className="text-[var(--color-stone)] text-[0.875rem]">Failed to load brands: {(q.error as Error).message}</p>
       )}
 
       {q.data && q.data.length === 0 && (
         <div className="border border-[var(--color-hairline)] rounded p-6 text-center">
           <p className="text-[var(--color-charcoal)] text-[0.9375rem]">No brands yet.</p>
-          <p className="text-[var(--color-stone)] text-[0.8125rem] mt-1">
-            Create one to upload a guideline PDF.
-          </p>
+          <p className="text-[var(--color-stone)] text-[0.8125rem] mt-1">Create one to upload a guideline PDF.</p>
         </div>
       )}
 
       {q.data && q.data.length > 0 && filtered.length === 0 && (
         <div className="border border-[var(--color-hairline)] rounded p-6 text-center">
-          <p className="text-[var(--color-charcoal)] text-[0.9375rem]">
-            No brands match “{query}”.
-          </p>
+          <p className="text-[var(--color-charcoal)] text-[0.9375rem]">No brands match “{query}”.</p>
         </div>
       )}
 
@@ -168,10 +162,7 @@ export function BrandsList() {
                       className="brand-link"
                       aria-label={`Open ${b.name}`}
                     >
-                      <span
-                        className="brand-glyph"
-                        style={{ background: `oklch(85% 0.06 ${hue})` }}
-                      >
+                      <span className="brand-glyph" style={{ background: `oklch(85% 0.06 ${hue})` }}>
                         {glyph}
                       </span>
                       <span className="brand-name">{b.name}</span>
@@ -188,21 +179,15 @@ export function BrandsList() {
                   </td>
                   <td className="num mono">{b.genCount30d.toLocaleString()}</td>
                   <td className="mono small subtle">{relativeTime(b.lastActivityAt)}</td>
-                  <td className="row-action" onClick={(e) => e.stopPropagation()}>
+                  <td
+                    className="row-action"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  >
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className="row-menu-btn"
-                          aria-label={`Actions for ${b.name}`}
-                        >
-                          <svg
-                            width="14"
-                            height="3"
-                            viewBox="0 0 14 3"
-                            fill="currentColor"
-                            aria-hidden="true"
-                          >
+                        <button type="button" className="row-menu-btn" aria-label={`Actions for ${b.name}`}>
+                          <svg width="14" height="3" viewBox="0 0 14 3" fill="currentColor" aria-hidden="true">
                             <circle cx="2" cy="1.5" r="1" />
                             <circle cx="7" cy="1.5" r="1" />
                             <circle cx="12" cy="1.5" r="1" />
@@ -210,9 +195,7 @@ export function BrandsList() {
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onSelect={() => setRenameTarget({ id: b.id, name: b.name })}
-                        >
+                        <DropdownMenuItem onSelect={() => setRenameTarget({ id: b.id, name: b.name })}>
                           Rename
                         </DropdownMenuItem>
                         <DropdownMenuItem

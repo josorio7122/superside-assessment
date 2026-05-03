@@ -1,7 +1,7 @@
-import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { expect, test } from "@playwright/test";
 import { BrandProfileSchema } from "@studio/schemas";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -17,9 +17,7 @@ const API = process.env.API_URL ?? "http://localhost:3001";
  * machines. This test deliberately creates a *fresh* brand each run so it
  * exercises the live worker path end-to-end.
  */
-test("@live extraction: upload Slack PDF -> ready profile -> Zod-valid", async ({
-  request,
-}) => {
+test("@live extraction: upload Slack PDF -> ready profile -> Zod-valid", async ({ request }) => {
   test.setTimeout(200_000);
 
   const pdfPath = join(__dir, "..", "..", "infra", "seed-pdfs", "slack-2020.pdf");
@@ -38,10 +36,7 @@ test("@live extraction: upload Slack PDF -> ready profile -> Zod-valid", async (
       file: { name: "slack-2020.pdf", mimeType: "application/pdf", buffer: pdf },
     },
   });
-  expect(
-    upload.ok(),
-    `POST /api/brands/:id/profiles -> ${upload.status()}: ${await upload.text()}`,
-  ).toBeTruthy();
+  expect(upload.ok(), `POST /api/brands/:id/profiles -> ${upload.status()}: ${await upload.text()}`).toBeTruthy();
   const created = await upload.json();
   expect(created.status).toBe("processing");
 

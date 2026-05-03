@@ -1,16 +1,18 @@
-import { config } from "dotenv";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { config } from "dotenv";
 import IORedis from "ioredis";
-import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import pino from "pino";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 config({ path: join(__dir, "..", "..", "..", ".env") });
 
+if (!process.env.REDIS_URL) throw new Error("REDIS_URL is required");
+
 export const env = {
-  REDIS_URL: process.env.REDIS_URL!,
+  REDIS_URL: process.env.REDIS_URL,
   STORAGE_MODE: (process.env.STORAGE_MODE ?? "local") as "s3" | "local",
   LOCAL_STORAGE_DIR: process.env.LOCAL_STORAGE_DIR ?? "./.local-storage",
   S3_ENDPOINT: process.env.S3_ENDPOINT ?? "http://localhost:4566",
@@ -28,9 +30,7 @@ const localRoot = join(__dir, "..", "..", "..", env.LOCAL_STORAGE_DIR);
 export const logger = pino({
   level: env.LOG_LEVEL,
   transport:
-    process.env.NODE_ENV === "development"
-      ? { target: "pino-pretty", options: { colorize: true } }
-      : undefined,
+    process.env.NODE_ENV === "development" ? { target: "pino-pretty", options: { colorize: true } } : undefined,
 });
 
 export const redisQueue = new IORedis(env.REDIS_URL, { maxRetriesPerRequest: null });

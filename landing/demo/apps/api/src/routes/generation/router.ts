@@ -1,8 +1,8 @@
-import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { GenerationsQuerySchema } from "@studio/schemas";
-import { genRepo } from "./repository.js";
+import { Hono } from "hono";
 import { send } from "../../lib/result-to-http.js";
+import { genRepo } from "./repository.js";
+import { GenerationsQuerySchema } from "./validator.js";
 
 export const generationRouter = new Hono()
   .get("/", zValidator("query", GenerationsQuerySchema), async (c) => {

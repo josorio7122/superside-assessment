@@ -1,8 +1,8 @@
+import { type BrandProfile, BrandProfileSchema } from "@studio/schemas";
 import { generateObject } from "ai";
-import { BrandProfileSchema, type BrandProfile } from "@studio/schemas";
 import { extractionModel } from "./client.js";
-import { EXTRACT_BRAND_PROFILE_PROMPT } from "./prompts/extract-brand-profile.js";
 import { priceUsage } from "./pricing.js";
+import { EXTRACT_BRAND_PROFILE_PROMPT } from "./prompts/extract-brand-profile.js";
 
 export type ExtractionResult = {
   profile: BrandProfile;
@@ -33,7 +33,12 @@ export async function extractBrandProfile(pdf: Buffer): Promise<ExtractionResult
   });
   const latencyMs = Date.now() - start;
   const usage = result.usage as
-    | { promptTokens?: number; completionTokens?: number; inputTokens?: number; outputTokens?: number }
+    | {
+        promptTokens?: number;
+        completionTokens?: number;
+        inputTokens?: number;
+        outputTokens?: number;
+      }
     | undefined;
   const inputTokens = usage?.promptTokens ?? usage?.inputTokens ?? 0;
   const outputTokens = usage?.completionTokens ?? usage?.outputTokens ?? 0;
@@ -44,7 +49,7 @@ export async function extractBrandProfile(pdf: Buffer): Promise<ExtractionResult
       provider: "openrouter",
       inputTokens,
       outputTokens,
-      costUsd: priceUsage("openai/gpt-5.5", inputTokens, outputTokens),
+      costUsd: priceUsage({ model: "openai/gpt-5.5", inputTokens, outputTokens }),
       latencyMs,
     },
   };

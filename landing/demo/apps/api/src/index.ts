@@ -2,16 +2,16 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { env } from "./env.js";
-import { logger } from "./logger.js";
-import { requestId } from "./middleware/request-id.js";
-import { fakeAuth } from "./middleware/fake-auth.js";
-import { errorBoundary } from "./middleware/error.js";
-import { brandRouter } from "./features/brand/router.js";
-import { profileRouter } from "./features/brand-profile/router.js";
-import { generationRouter } from "./features/generation/router.js";
-import { usageRouter } from "./features/usage/router.js";
-import { usersRouter } from "./features/users/router.js";
 import { getPdf } from "./infra/storage.js";
+import { logger } from "./logger.js";
+import { errorBoundary } from "./middleware/error.js";
+import { fakeAuth } from "./middleware/fake-auth.js";
+import { requestId } from "./middleware/request-id.js";
+import { brandRouter } from "./routes/brand/router.js";
+import { profileRouter } from "./routes/brand-profile/router.js";
+import { generationRouter } from "./routes/generation/router.js";
+import { usageRouter } from "./routes/usage/router.js";
+import { usersRouter } from "./routes/users/router.js";
 
 const app = new Hono();
 app.use("*", requestId);
@@ -22,9 +22,7 @@ app.get("/healthz", (c) => c.json({ ok: true }));
 
 app.use("/api/*", fakeAuth);
 
-app.get("/api/me", async (c) =>
-  c.json({ orgId: c.get("orgId"), userId: c.get("userId") }),
-);
+app.get("/api/me", async (c) => c.json({ orgId: c.get("orgId"), userId: c.get("userId") }));
 
 app.route("/api/brands", brandRouter);
 app.route("/api", profileRouter);

@@ -21,15 +21,11 @@ function PluginPage() {
       <p className="plugin-caption">
         Brand-aware copy, translation and image generation, embedded inside Figma. The platform writes
         plugin-originating rows to <span className="mono">generation</span> and{" "}
-        <span className="mono">usage_event</span> — visible in History and Usage. The runtime itself is
-        not part of this demo.
+        <span className="mono">usage_event</span> — visible in History and Usage. The runtime itself is not part of this
+        demo.
       </p>
 
-      <section
-        className="plugin-stage"
-        role="group"
-        aria-label="Studio Figma plugin mockup"
-      >
+      <section className="plugin-stage" aria-label="Studio Figma plugin mockup">
         <div className="plugin-canvas" aria-hidden="true">
           <div className="canvas-grid"></div>
           <span className="canvas-label mono">slack-q2-ad.fig · page 1 · 100%</span>
@@ -117,9 +113,7 @@ function PluginPage() {
         </div>
       </section>
 
-      <p className="plugin-footnote">
-        Designer surface — Figma plugin (out of demo scope).
-      </p>
+      <p className="plugin-footnote">Designer surface — Figma plugin (out of demo scope).</p>
     </>
   );
 }

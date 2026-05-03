@@ -1,4 +1,4 @@
-import { db, schema, ok, err, RepoError } from "@studio/db";
+import { db, err, ok, RepoError, schema } from "@studio/db";
 import { and, desc, eq, lt } from "drizzle-orm";
 
 export const genRepo = {

@@ -4,7 +4,7 @@ const PRICES: Record<string, { input: number; output: number }> = {
   "openai/gpt-image-2": { input: 0, output: 0.04 },
 };
 
-export function priceUsage(model: string, inputTokens: number, outputTokens: number): number {
-  const p = PRICES[model] ?? { input: 0, output: 0 };
-  return (inputTokens / 1000) * p.input + (outputTokens / 1000) * p.output;
+export function priceUsage(input: { model: string; inputTokens: number; outputTokens: number }): number {
+  const p = PRICES[input.model] ?? { input: 0, output: 0 };
+  return (input.inputTokens / 1000) * p.input + (input.outputTokens / 1000) * p.output;
 }

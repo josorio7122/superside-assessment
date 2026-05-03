@@ -1,5 +1,6 @@
-import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Button } from "../../components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../components/ui/dialog";
-import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { api } from "../../lib/api";
@@ -71,17 +71,10 @@ export function NewBrandDialog() {
             />
           </div>
           {create.isError && (
-            <p className="text-[0.75rem] text-[oklch(45%_0.16_25)]">
-              {(create.error as Error).message}
-            </p>
+            <p className="text-[0.75rem] text-[oklch(45%_0.16_25)]">{(create.error as Error).message}</p>
           )}
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={create.isPending}
-            >
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={create.isPending}>
               Cancel
             </Button>
             <Button type="submit" disabled={!name.trim() || create.isPending}>

@@ -1,11 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { api } from "../../lib/api";
 
 export interface HistoryFilters {
@@ -26,8 +20,7 @@ export function Filters({ value, onChange }: Props) {
   const brands = useQuery({ queryKey: ["brands"], queryFn: api.brands.list });
   const users = useQuery({ queryKey: ["users"], queryFn: api.users.list });
 
-  const set = <K extends keyof HistoryFilters>(k: K, v: HistoryFilters[K]) =>
-    onChange({ ...value, [k]: v });
+  const set = <K extends keyof HistoryFilters>(k: K, v: HistoryFilters[K]) => onChange({ ...value, [k]: v });
 
   const dirty = !!(value.brandId || value.type || value.status || value.userId);
 
@@ -35,10 +28,7 @@ export function Filters({ value, onChange }: Props) {
     <div className="hist-filters">
       <span className="lbl">filter</span>
 
-      <Select
-        value={value.brandId ?? ANY}
-        onValueChange={(v) => set("brandId", v === ANY ? undefined : v)}
-      >
+      <Select value={value.brandId ?? ANY} onValueChange={(v) => set("brandId", v === ANY ? undefined : v)}>
         <SelectTrigger aria-label="Brand filter" style={{ minWidth: "9rem" }}>
           <SelectValue placeholder="Brand" />
         </SelectTrigger>
@@ -54,9 +44,7 @@ export function Filters({ value, onChange }: Props) {
 
       <Select
         value={value.type ?? ANY}
-        onValueChange={(v) =>
-          set("type", v === ANY ? undefined : (v as HistoryFilters["type"]))
-        }
+        onValueChange={(v) => set("type", v === ANY ? undefined : (v as HistoryFilters["type"]))}
       >
         <SelectTrigger aria-label="Type filter" style={{ minWidth: "9rem" }}>
           <SelectValue placeholder="Type" />
@@ -71,9 +59,7 @@ export function Filters({ value, onChange }: Props) {
 
       <Select
         value={value.status ?? ANY}
-        onValueChange={(v) =>
-          set("status", v === ANY ? undefined : (v as HistoryFilters["status"]))
-        }
+        onValueChange={(v) => set("status", v === ANY ? undefined : (v as HistoryFilters["status"]))}
       >
         <SelectTrigger aria-label="Status filter" style={{ minWidth: "9rem" }}>
           <SelectValue placeholder="Status" />
@@ -87,10 +73,7 @@ export function Filters({ value, onChange }: Props) {
         </SelectContent>
       </Select>
 
-      <Select
-        value={value.userId ?? ANY}
-        onValueChange={(v) => set("userId", v === ANY ? undefined : v)}
-      >
+      <Select value={value.userId ?? ANY} onValueChange={(v) => set("userId", v === ANY ? undefined : v)}>
         <SelectTrigger aria-label="User filter" style={{ minWidth: "9rem" }}>
           <SelectValue placeholder="User" />
         </SelectTrigger>

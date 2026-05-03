@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 import { Button } from "../../components/ui/button";
 import { api } from "../../lib/api";
 
@@ -30,8 +30,7 @@ export function ReplaceWithPdfCard({ brandId }: Props) {
         <h2>Replace with new PDF</h2>
       </header>
       <p className="replace-card-body">
-        Upload a new brand-guideline PDF. The current version stays current until extraction
-        succeeds.
+        Upload a new brand-guideline PDF. The current version stays current until extraction succeeds.
       </p>
       <input
         ref={inputRef}

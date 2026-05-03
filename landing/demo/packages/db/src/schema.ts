@@ -1,33 +1,23 @@
+import type { BrandProfile } from "@studio/schemas";
+import { sql } from "drizzle-orm";
 import {
-  pgTable,
-  uuid,
-  text,
-  timestamp,
-  integer,
   boolean,
+  index,
+  integer,
   jsonb,
   numeric,
   pgEnum,
-  index,
+  pgTable,
+  text,
+  timestamp,
   uniqueIndex,
+  uuid,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
-import type { BrandProfile } from "@studio/schemas";
 
 export const profileStatus = pgEnum("brand_profile_status", ["processing", "ready", "failed"]);
 export const generationType = pgEnum("generation_type", ["copy_variant", "translate", "image"]);
-export const generationStatus = pgEnum("generation_status", [
-  "pending",
-  "running",
-  "done",
-  "failed",
-]);
-export const usageFeature = pgEnum("usage_feature", [
-  "copy_variant",
-  "translate",
-  "image",
-  "extract",
-]);
+export const generationStatus = pgEnum("generation_status", ["pending", "running", "done", "failed"]);
+export const usageFeature = pgEnum("usage_feature", ["copy_variant", "translate", "image", "extract"]);
 
 export const orgs = pgTable("org", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -88,12 +78,8 @@ export const brandProfiles = pgTable(
   (t) => ({
     orgIdx: index("bp_org_idx").on(t.orgId),
     versionIdx: index("bp_brand_version_idx").on(t.orgId, t.brandId, t.version),
-    currentUnique: uniqueIndex("bp_brand_current_unique")
-      .on(t.brandId)
-      .where(sql`${t.isCurrent} = true`),
-    statusIdx: index("bp_status_idx")
-      .on(t.orgId, t.status)
-      .where(sql`${t.status} IN ('processing','failed')`),
+    currentUnique: uniqueIndex("bp_brand_current_unique").on(t.brandId).where(sql`${t.isCurrent} = true`),
+    statusIdx: index("bp_status_idx").on(t.orgId, t.status).where(sql`${t.status} IN ('processing','failed')`),
   }),
 );
 
@@ -124,9 +110,7 @@ export const generations = pgTable(
   (t) => ({
     orgIdx: index("gen_org_idx").on(t.orgId),
     userTimeIdx: index("gen_user_time_idx").on(t.orgId, t.userId, t.createdAt),
-    activeIdx: index("gen_active_idx")
-      .on(t.orgId, t.status)
-      .where(sql`${t.status} IN ('pending','running')`),
+    activeIdx: index("gen_active_idx").on(t.orgId, t.status).where(sql`${t.status} IN ('pending','running')`),
     nodeLockIdx: uniqueIndex("gen_node_lock_idx")
       .on(t.orgId, t.figmaFileKey, t.figmaNodeId)
       .where(sql`${t.type} = 'image' AND ${t.status} IN ('pending','running')`),
@@ -159,3 +143,16 @@ export const usageEvents = pgTable(
     brandTimeIdx: index("ue_brand_time_idx").on(t.orgId, t.brandId, t.createdAt),
   }),
 );
+
+export const schema = {
+  profileStatus,
+  generationType,
+  generationStatus,
+  usageFeature,
+  orgs,
+  users,
+  brands,
+  brandProfiles,
+  generations,
+  usageEvents,
+};

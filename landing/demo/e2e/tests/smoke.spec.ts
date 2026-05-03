@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const API = process.env.API_URL ?? "http://localhost:3001";
 
@@ -19,17 +19,13 @@ test("brands table — dropdown rename + delete", async ({ page, request }) => {
   await page.getByLabel("Brand name").fill(newName);
   await page.getByRole("button", { name: "Save" }).click();
 
-  await expect(
-    page.getByRole("link", { name: new RegExp(`Open ${newName}`) }),
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: new RegExp(`Open ${newName}`) })).toBeVisible();
 
   await page.getByRole("button", { name: `Actions for ${newName}` }).click();
   await page.getByRole("menuitem", { name: "Delete" }).click();
   await page.getByRole("button", { name: "Delete" }).click();
 
-  await expect(
-    page.getByRole("link", { name: new RegExp(`Open ${newName}`) }),
-  ).toHaveCount(0);
+  await expect(page.getByRole("link", { name: new RegExp(`Open ${newName}`) })).toHaveCount(0);
 });
 
 /**
@@ -46,9 +42,7 @@ test("smoke: brand list -> detail -> edit -> save -> rollback", async ({ page, r
   const brands = await request.get(`${API}/api/brands`).then((r) => r.json());
   const slack = brands.find((b: { name: string }) => b.name === "Slack");
   expect(slack, "expected a seeded Slack brand").toBeTruthy();
-  const beforeProfiles = await request
-    .get(`${API}/api/brands/${slack.id}/profiles`)
-    .then((r) => r.json());
+  const beforeProfiles = await request.get(`${API}/api/brands/${slack.id}/profiles`).then((r) => r.json());
   const beforeCount = beforeProfiles.length;
   const beforeCurrent = beforeProfiles.find((p: { isCurrent: boolean }) => p.isCurrent);
   expect(beforeCurrent, "Slack should have a current profile").toBeTruthy();
@@ -60,7 +54,10 @@ test("smoke: brand list -> detail -> edit -> save -> rollback", async ({ page, r
   // 2. Open Slack detail. The brand-name cell is a Link (a11y: no nested
   //    interactives in the row). The whole row also handles onClick as a
   //    UX nicety, but tests target the focusable link directly.
-  await page.getByRole("link", { name: /Open Slack/ }).first().click();
+  await page
+    .getByRole("link", { name: /Open Slack/ })
+    .first()
+    .click();
   await expect(page.getByRole("heading", { name: "Slack", level: 1 })).toBeVisible();
 
   // 3. Ready profile editor visible (Voice tab default)
@@ -71,8 +68,14 @@ test("smoke: brand list -> detail -> edit -> save -> rollback", async ({ page, r
   await expect(chips.first()).toBeVisible();
   const initialChipCount = await chips.count();
   expect(initialChipCount).toBeGreaterThan(0);
-  const removed = (await chips.first().innerText()).trim().replace(/\s*×\s*$/, "").trim();
-  await chips.first().getByRole("button", { name: new RegExp(`Remove ${removed}`, "i") }).click();
+  const removed = (await chips.first().innerText())
+    .trim()
+    .replace(/\s*×\s*$/, "")
+    .trim();
+  await chips
+    .first()
+    .getByRole("button", { name: new RegExp(`Remove ${removed}`, "i") })
+    .click();
   await expect(chips).toHaveCount(initialChipCount - 1);
 
   // 5. Save -> wait for the Save button to leave its pending state
@@ -92,9 +95,7 @@ test("smoke: brand list -> detail -> edit -> save -> rollback", async ({ page, r
     )
     .toBe(beforeCount + 1);
 
-  const afterEdit = await request
-    .get(`${API}/api/brands/${slack.id}/profiles`)
-    .then((r) => r.json());
+  const afterEdit = await request.get(`${API}/api/brands/${slack.id}/profiles`).then((r) => r.json());
   const newCurrent = afterEdit.find((p: { isCurrent: boolean }) => p.isCurrent);
   expect(newCurrent.id).not.toBe(beforeCurrent.id);
   const previousId = beforeCurrent.id;
@@ -135,8 +136,6 @@ test("smoke: brand list -> detail -> edit -> save -> rollback", async ({ page, r
   await expect(previousRow.getByRole("button", { name: /Set as current/i })).toHaveCount(0);
 
   // Sanity: total version count stayed the same after rollback (no insert).
-  const afterRollback = await request
-    .get(`${API}/api/brands/${slack.id}/profiles`)
-    .then((r) => r.json());
+  const afterRollback = await request.get(`${API}/api/brands/${slack.id}/profiles`).then((r) => r.json());
   expect(afterRollback.length).toBe(beforeCount + 1);
 });

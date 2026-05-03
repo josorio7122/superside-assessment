@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import { redisSub, PROFILE_EVENTS_CHANNEL } from "./redis.js";
+import { PROFILE_EVENTS_CHANNEL, redisSub } from "./redis.js";
 
 export type ProfileEvent = {
   profileId: string;

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const API = process.env.API_URL ?? "http://localhost:3001";
 
@@ -23,10 +23,7 @@ const PAGES: Array<{ id: string; build: () => Promise<string> }> = [
       const list = (await r.json()) as Array<{ id: string; name: string }>;
       // Heineken's profile is not touched by smoke.spec.ts (which mutates
       // Slack), so the brand-detail snapshot stays stable across full runs.
-      const stable =
-        list.find((b) => b.name === "Heineken") ??
-        list.find((b) => b.name === "Slack") ??
-        list[0];
+      const stable = list.find((b) => b.name === "Heineken") ?? list.find((b) => b.name === "Slack") ?? list[0];
       if (!stable) throw new Error("no brands seeded — run pnpm db:seed");
       return `/brands/${stable.id}`;
     },

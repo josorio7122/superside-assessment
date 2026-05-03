@@ -49,12 +49,8 @@ export function VersionTimeline({ brandId, versions }: Props) {
                 {relativeTime(v.createdAt)}
                 {v.isCurrent ? " · current" : ""}
               </p>
-              {v.status === "processing" && (
-                <p className="v-status">processing…</p>
-              )}
-              {v.status === "failed" && (
-                <p className="v-status">failed</p>
-              )}
+              {v.status === "processing" && <p className="v-status">processing…</p>}
+              {v.status === "failed" && <p className="v-status">failed</p>}
               {!v.isCurrent && v.status === "ready" && (
                 <button
                   type="button"

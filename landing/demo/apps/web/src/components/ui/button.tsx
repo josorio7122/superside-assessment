@@ -1,6 +1,6 @@
-import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
 import { cn } from "../../lib/utils";
 
 const buttonVariants = cva(
@@ -8,16 +8,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "bg-[var(--color-charcoal)] text-[var(--color-cream)] hover:bg-[oklch(28%_0.012_50)]",
+        default: "bg-[var(--color-charcoal)] text-[var(--color-cream)] hover:bg-[oklch(28%_0.012_50)]",
         outline:
           "border border-[var(--color-hairline)] bg-transparent text-[var(--color-charcoal)] hover:bg-[var(--color-sunken)]",
-        ghost:
-          "bg-transparent text-[var(--color-charcoal)] hover:bg-[var(--color-sunken)]",
-        link:
-          "bg-transparent text-[var(--color-coral)] underline-offset-4 hover:underline",
-        destructive:
-          "bg-[oklch(45%_0.16_25)] text-[var(--color-cream)] hover:bg-[oklch(40%_0.16_25)]",
+        ghost: "bg-transparent text-[var(--color-charcoal)] hover:bg-[var(--color-sunken)]",
+        link: "bg-transparent text-[var(--color-coral)] underline-offset-4 hover:underline",
+        destructive: "bg-[oklch(45%_0.16_25)] text-[var(--color-cream)] hover:bg-[oklch(40%_0.16_25)]",
       },
       size: {
         sm: "h-8 px-3 text-[0.75rem]",
@@ -39,13 +35,7 @@ export interface ButtonProps
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
-    return (
-      <Comp
-        ref={ref}
-        className={cn(buttonVariants({ variant, size }), className)}
-        {...props}
-      />
-    );
+    return <Comp ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />;
   },
 );
 Button.displayName = "Button";

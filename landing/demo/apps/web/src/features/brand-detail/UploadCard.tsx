@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 import { Button } from "../../components/ui/button";
 import { api } from "../../lib/api";
 
@@ -36,8 +36,8 @@ export function UploadCard({ brandId }: Props) {
       <p className="lbl">guideline</p>
       <h2>No profile yet</h2>
       <p>
-        Upload a brand-guideline PDF to extract a structured profile, or hand-author one
-        from scratch. Extraction runs through OpenRouter and typically completes in 30–60s.
+        Upload a brand-guideline PDF to extract a structured profile, or hand-author one from scratch. Extraction runs
+        through OpenRouter and typically completes in 30–60s.
       </p>
       <div className="upload-actions">
         <input
@@ -53,11 +53,7 @@ export function UploadCard({ brandId }: Props) {
         <Button onClick={() => inputRef.current?.click()} disabled={upload.isPending}>
           {upload.isPending ? "Uploading…" : "Upload PDF"}
         </Button>
-        <Button
-          variant="outline"
-          onClick={() => handAuthor.mutate()}
-          disabled={handAuthor.isPending}
-        >
+        <Button variant="outline" onClick={() => handAuthor.mutate()} disabled={handAuthor.isPending}>
           {handAuthor.isPending ? "Creating…" : "Hand-author"}
         </Button>
       </div>

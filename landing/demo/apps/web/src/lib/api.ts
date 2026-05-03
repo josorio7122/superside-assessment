@@ -146,10 +146,8 @@ export const api = {
         method: "PUT",
         body: JSON.stringify({ profile }),
       }),
-    retry: (id: string) =>
-      req<ProfileRow>(`/profiles/${id}/retry`, { method: "POST" }),
-    setCurrent: (id: string) =>
-      req<ProfileRow>(`/profiles/${id}/set-current`, { method: "POST" }),
+    retry: (id: string) => req<ProfileRow>(`/profiles/${id}/retry`, { method: "POST" }),
+    setCurrent: (id: string) => req<ProfileRow>(`/profiles/${id}/set-current`, { method: "POST" }),
     eventsUrl: (id: string) => `/api/profiles/${id}/events`,
   },
 
@@ -157,9 +155,7 @@ export const api = {
     list: (q: Record<string, string | number | undefined>) => {
       const usp = new URLSearchParams();
       for (const [k, v] of Object.entries(q)) if (v !== undefined && v !== "") usp.set(k, String(v));
-      return req<{ items: GenerationRow[]; nextCursor: string | null }>(
-        `/generations?${usp}`,
-      );
+      return req<{ items: GenerationRow[]; nextCursor: string | null }>(`/generations?${usp}`);
     },
     get: (id: string) => req<GenerationRow>(`/generations/${id}`),
   },

@@ -23,9 +23,10 @@ function latencyOf(g: GenerationRow): string {
 
 function promptOf(g: GenerationRow): string {
   // Best-effort extraction from `input` jsonb shape used by seed
-  const input = g.input as
-    | { type?: string; payload?: { prompt?: string; text?: string; from?: string; to?: string; count?: number } }
-    | null;
+  const input = g.input as {
+    type?: string;
+    payload?: { prompt?: string; text?: string; from?: string; to?: string; count?: number };
+  } | null;
   if (!input?.payload) return "";
   const p = input.payload;
   if (p.prompt) return p.prompt;
@@ -37,7 +38,8 @@ function promptOf(g: GenerationRow): string {
 function outputOf(g: GenerationRow): string {
   if (g.output == null) return "(no output)";
   if (typeof g.output === "string") return g.output;
-  if (Array.isArray(g.output)) return g.output.map((v) => (typeof v === "string" ? `• ${v}` : JSON.stringify(v))).join("\n");
+  if (Array.isArray(g.output))
+    return g.output.map((v) => (typeof v === "string" ? `• ${v}` : JSON.stringify(v))).join("\n");
   return JSON.stringify(g.output, null, 2);
 }
 
@@ -47,7 +49,12 @@ export function GenerationDrawer({ gen, brandName, userName, onClose }: Props) {
       <SheetContent side="right">
         {gen && (
           <>
-            <SheetHeader style={{ padding: "1rem 1.25rem 0.75rem", borderBottom: "1px solid var(--color-hairline)" }}>
+            <SheetHeader
+              style={{
+                padding: "1rem 1.25rem 0.75rem",
+                borderBottom: "1px solid var(--color-hairline)",
+              }}
+            >
               <p className="lbl mono" style={{ marginBottom: "0.35rem" }}>
                 generation · {gen.id.slice(0, 8)}
               </p>
@@ -57,9 +64,7 @@ export function GenerationDrawer({ gen, brandName, userName, onClose }: Props) {
               </SheetDescription>
             </SheetHeader>
             <div className="gen-detail-body">
-              {promptOf(gen) && (
-                <p className="gen-detail-prompt">"{promptOf(gen)}"</p>
-              )}
+              {promptOf(gen) && <p className="gen-detail-prompt">"{promptOf(gen)}"</p>}
               <div>
                 <p className="lbl mono" style={{ marginBottom: "0.4rem" }}>
                   output
@@ -103,9 +108,7 @@ export function GenerationDrawer({ gen, brandName, userName, onClose }: Props) {
                 </div>
                 <div>
                   <dt>Completed</dt>
-                  <dd>
-                    {gen.completedAt ? new Date(gen.completedAt).toLocaleTimeString() : "—"}
-                  </dd>
+                  <dd>{gen.completedAt ? new Date(gen.completedAt).toLocaleTimeString() : "—"}</dd>
                 </div>
               </dl>
             </div>

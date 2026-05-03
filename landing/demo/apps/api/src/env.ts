@@ -1,14 +1,11 @@
-import { config } from "dotenv";
 import { existsSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { config } from "dotenv";
 import { z } from "zod";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const envPath = [
-  join(__dir, "..", ".env"),
-  join(__dir, "..", "..", "..", ".env"),
-].find((p) => existsSync(p));
+const envPath = [join(__dir, "..", ".env"), join(__dir, "..", "..", "..", ".env")].find((p) => existsSync(p));
 if (envPath) config({ path: envPath });
 else config();
 

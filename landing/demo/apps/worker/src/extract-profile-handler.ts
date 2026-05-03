@@ -1,8 +1,8 @@
-import type { Job } from "bullmq";
-import { db, schema } from "@studio/db";
 import { extractBrandProfile } from "@studio/ai";
+import { db, schema } from "@studio/db";
+import type { Job } from "bullmq";
 import { and, eq } from "drizzle-orm";
-import { env, logger, getPdfBytes, redisPub } from "./infra.js";
+import { env, getPdfBytes, logger, redisPub } from "./infra.js";
 
 const PROFILE_EVENTS = "profile:events";
 const failedAttemptCounters = new Map<string, number>();
@@ -41,16 +41,8 @@ export async function handleExtractProfile(job: Job<ExtractProfileJob>) {
     await tx
       .update(schema.brandProfiles)
       .set({ isCurrent: false })
-      .where(
-        and(
-          eq(schema.brandProfiles.brandId, brandId),
-          eq(schema.brandProfiles.isCurrent, true),
-        ),
-      );
-    await tx
-      .update(schema.brandProfiles)
-      .set({ isCurrent: true })
-      .where(eq(schema.brandProfiles.id, profileId));
+      .where(and(eq(schema.brandProfiles.brandId, brandId), eq(schema.brandProfiles.isCurrent, true)));
+    await tx.update(schema.brandProfiles).set({ isCurrent: true }).where(eq(schema.brandProfiles.id, profileId));
     await tx.insert(schema.usageEvents).values({
       orgId,
       brandId,
@@ -77,9 +69,6 @@ export async function handleExtractProfileFailed(job: Job<ExtractProfileJob>, er
     .update(schema.brandProfiles)
     .set({ status: "failed", ingestError: errMsg })
     .where(eq(schema.brandProfiles.id, profileId));
-  await redisPub.publish(
-    PROFILE_EVENTS,
-    JSON.stringify({ profileId, event: "failed", error: errMsg }),
-  );
+  await redisPub.publish(PROFILE_EVENTS, JSON.stringify({ profileId, event: "failed", error: errMsg }));
   logger.error({ profileId, err: errMsg }, "extract:final-fail");
 }

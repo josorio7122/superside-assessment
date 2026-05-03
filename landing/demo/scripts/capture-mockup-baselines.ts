@@ -14,7 +14,7 @@
  * Run: `pnpm --filter studio-demo exec tsx scripts/capture-mockup-baselines.ts`
  * or  `node --import tsx scripts/capture-mockup-baselines.ts`
  */
-import { spawn, type ChildProcess } from "node:child_process";
+import { type ChildProcess, spawn } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -62,15 +62,12 @@ async function startLanding(): Promise<DevServer> {
   });
 
   const url = await new Promise<string>((resolveUrl, rejectUrl) => {
-    const timer = setTimeout(
-      () => rejectUrl(new Error("landing dev did not become ready in 60s")),
-      60_000,
-    );
+    const timer = setTimeout(() => rejectUrl(new Error("landing dev did not become ready in 60s")), 60_000);
     const handle = (chunk: Buffer) => {
       const s = chunk.toString();
       // Astro prints a "Local: http://localhost:4321/..." line on ready
       const m = s.match(/Local:?\s*(http:\/\/localhost:\d+)/);
-      if (m && m[1]) {
+      if (m?.[1]) {
         clearTimeout(timer);
         resolveUrl(m[1]);
       }
@@ -103,9 +100,12 @@ async function main() {
       await page.waitForLoadState("networkidle");
       // Click the matching tab to ensure data-active is set, since hash-only
       // navigation may not toggle the panel without a user event.
-      await page.locator(`[data-tab="${id}"]`).click().catch(() => {
-        /* tab might already be active */
-      });
+      await page
+        .locator(`[data-tab="${id}"]`)
+        .click()
+        .catch(() => {
+          /* tab might already be active */
+        });
       const panel = page.locator(`[data-panel="${id}"][data-active]`);
       await panel.waitFor({ state: "visible", timeout: 5000 });
       const buf = await panel.screenshot({ type: "png" });

@@ -1,6 +1,6 @@
+import { db, ok, schema } from "@studio/db";
+import { and, eq, gte, sql } from "drizzle-orm";
 import { brandRepo } from "./repository.js";
-import { db, schema, ok } from "@studio/db";
-import { and, desc, eq, gte, sql } from "drizzle-orm";
 
 export const brandService = {
   list: brandRepo.list,
@@ -15,12 +15,7 @@ export const brandService = {
     const [currentProfile] = await db
       .select()
       .from(schema.brandProfiles)
-      .where(
-        and(
-          eq(schema.brandProfiles.brandId, id),
-          eq(schema.brandProfiles.isCurrent, true),
-        ),
-      )
+      .where(and(eq(schema.brandProfiles.brandId, id), eq(schema.brandProfiles.isCurrent, true)))
       .limit(1);
 
     const since = new Date(Date.now() - 30 * 24 * 3600_000);
@@ -30,9 +25,7 @@ export const brandService = {
         lastActivityAt: sql<Date | null>`max(${schema.generations.createdAt})`,
       })
       .from(schema.generations)
-      .where(
-        and(eq(schema.generations.brandId, id), gte(schema.generations.createdAt, since)),
-      );
+      .where(and(eq(schema.generations.brandId, id), gte(schema.generations.createdAt, since)));
 
     return ok({
       brand: r.value,

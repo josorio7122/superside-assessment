@@ -1,18 +1,17 @@
+import type { RepoError, Result } from "@studio/db";
 import type { Context } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
-import type { Result } from "@studio/db";
-import { RepoError } from "@studio/db";
 
-export function send<T>(c: Context, r: Result<T, RepoError>, ok: ContentfulStatusCode = 200) {
+const errorStatus: Record<RepoError["kind"], ContentfulStatusCode> = {
+  not_found: 404,
+  conflict: 409,
+  validation: 400,
+  internal: 500,
+};
+
+function respond<T>(input: { c: Context; r: Result<T, RepoError>; ok: ContentfulStatusCode }) {
+  const { c, r, ok } = input;
   if (r.ok) return c.json(r.value as Record<string, unknown> | unknown[], ok);
-  const status: ContentfulStatusCode =
-    r.error.kind === "not_found"
-      ? 404
-      : r.error.kind === "conflict"
-        ? 409
-        : r.error.kind === "validation"
-          ? 400
-          : 500;
   return c.json(
     {
       error: {
@@ -21,6 +20,18 @@ export function send<T>(c: Context, r: Result<T, RepoError>, ok: ContentfulStatu
         requestId: c.get("requestId"),
       },
     },
-    status,
+    errorStatus[r.error.kind] ?? 500,
   );
+}
+
+export function send<T>(c: Context, r: Result<T, RepoError>) {
+  return respond({ c, r, ok: 200 });
+}
+
+export function sendCreated<T>(c: Context, r: Result<T, RepoError>) {
+  return respond({ c, r, ok: 201 });
+}
+
+export function sendAccepted<T>(c: Context, r: Result<T, RepoError>) {
+  return respond({ c, r, ok: 202 });
 }

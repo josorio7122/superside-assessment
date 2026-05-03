@@ -1,6 +1,10 @@
 /* Ported 1:1 from landing/src/components/mockups/UsageMockup.astro */
 
-.usage-head-actions { display: flex; gap: 0.5rem; align-items: center; }
+.usage-head-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
 .range {
   display: inline-flex;
   padding: 2px;
@@ -24,7 +28,10 @@
   box-shadow: 0 1px 2px oklch(20% 0.012 50 / 0.06);
 }
 
-.usage-layout { display: grid; gap: 1rem; }
+.usage-layout {
+  display: grid;
+  gap: 1rem;
+}
 
 .summary {
   display: grid;
@@ -38,7 +45,9 @@
   padding: 1rem 1.25rem;
   border-right: 1px solid var(--color-hairline);
 }
-.stat:last-child { border-right: none; }
+.stat:last-child {
+  border-right: none;
+}
 .stat-eyebrow {
   font-family: var(--font-mono);
   font-size: 0.625rem;
@@ -87,7 +96,8 @@
   align-items: baseline;
   margin-bottom: 0.85rem;
 }
-.chart-card h4, .user-table h4 {
+.chart-card h4,
+.user-table h4 {
   margin: 0;
   font-family: var(--font-serif);
   font-size: 1rem;
@@ -122,16 +132,26 @@
   letter-spacing: 0.06em;
   border-bottom: 1px solid var(--color-hairline);
 }
-.user-table th.num { text-align: right; }
+.user-table th.num {
+  text-align: right;
+}
 .user-table td {
   padding: 0.5rem 0.5rem;
   color: var(--color-charcoal);
   border-bottom: 1px solid var(--color-hairline);
 }
-.user-table td.num { text-align: right; }
-.user-table tr:last-child td { border-bottom: none; }
+.user-table td.num {
+  text-align: right;
+}
+.user-table tr:last-child td {
+  border-bottom: none;
+}
 
-.u-cell { display: inline-flex; align-items: center; gap: 0.5rem; }
+.u-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 .u-avatar {
   width: 20px;
   height: 20px;
@@ -173,13 +193,26 @@
   text-align: right;
 }
 
-.subtle { color: var(--color-stone); }
-.small { font-size: 0.75rem; }
+.subtle {
+  color: var(--color-stone);
+}
+.small {
+  font-size: 0.75rem;
+}
 
 @media (max-width: 720px) {
-  .summary { grid-template-columns: 1fr; }
-  .stat { border-right: none; border-bottom: 1px solid var(--color-hairline); }
-  .stat:last-child { border-bottom: none; }
+  .summary {
+    grid-template-columns: 1fr;
+  }
+  .stat {
+    border-right: none;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .stat:last-child {
+    border-bottom: none;
+  }
   .user-table th:nth-child(4),
-  .user-table td:nth-child(4) { display: none; }
+  .user-table td:nth-child(4) {
+    display: none;
+  }
 }

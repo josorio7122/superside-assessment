@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { api, type GenerationRow } from "../../lib/api";
 import { Filters, type HistoryFilters } from "./Filters";
 import { GenerationDrawer } from "./GenerationDrawer";
@@ -38,8 +38,16 @@ function latencyOf(g: GenerationRow): string {
 function TypeIcon({ type }: { type: GenerationRow["type"] }) {
   if (type === "image") {
     return (
-      <span className="type-icon type-image">
-        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.3">
+      <span className="type-icon type-image" aria-hidden="true">
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 11 11"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          aria-hidden="true"
+        >
           <rect x="1" y="1" width="9" height="9" rx="0.5" />
           <circle cx="3.5" cy="4" r="1" />
           <path d="M1 8 L4 5 L7 7.5 L10 5" />
@@ -49,8 +57,16 @@ function TypeIcon({ type }: { type: GenerationRow["type"] }) {
   }
   if (type === "translate") {
     return (
-      <span className="type-icon type-translate">
-        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.3">
+      <span className="type-icon type-translate" aria-hidden="true">
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 11 11"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          aria-hidden="true"
+        >
           <path d="M1 2 H6" />
           <path d="M3.5 2 V3 c0 1.5 -1.5 3 -2.5 3" />
           <path d="M2 5.5 c1 0 2.5 -1 2.5 -2.5" />
@@ -61,8 +77,16 @@ function TypeIcon({ type }: { type: GenerationRow["type"] }) {
     );
   }
   return (
-    <span className="type-icon type-copy_variant">
-      <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.3">
+    <span className="type-icon type-copy_variant" aria-hidden="true">
+      <svg
+        width="11"
+        height="11"
+        viewBox="0 0 11 11"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        aria-hidden="true"
+      >
         <path d="M2 2.5 H8 M2 5 H8 M2 7.5 H6" />
       </svg>
     </span>
@@ -90,13 +114,17 @@ export function HistoryTable() {
 
   const brandById = useMemo(() => {
     const m = new Map<string, string>();
-    brandsQ.data?.forEach((b) => m.set(b.id, b.name));
+    brandsQ.data?.forEach((b) => {
+      m.set(b.id, b.name);
+    });
     return m;
   }, [brandsQ.data]);
 
   const userById = useMemo(() => {
     const m = new Map<string, { name: string }>();
-    usersQ.data?.forEach((u) => m.set(u.id, { name: u.name }));
+    usersQ.data?.forEach((u) => {
+      m.set(u.id, { name: u.name });
+    });
     return m;
   }, [usersQ.data]);
 
@@ -106,22 +134,16 @@ export function HistoryTable() {
         <div>
           <p className="eyebrow">generations</p>
           <h1>History</h1>
-          <p className="subtitle">
-            {list.data ? `${list.data.items.length} loaded` : "loading"} · last 30 days
-          </p>
+          <p className="subtitle">{list.data ? `${list.data.items.length} loaded` : "loading"} · last 30 days</p>
         </div>
       </header>
 
       <Filters value={filters} onChange={setFilters} />
 
-      {list.isLoading && (
-        <p className="text-[var(--color-stone)] text-[0.875rem]">Loading…</p>
-      )}
+      {list.isLoading && <p className="text-[var(--color-stone)] text-[0.875rem]">Loading…</p>}
 
       {list.isError && (
-        <p className="text-[var(--color-stone)] text-[0.875rem]">
-          Failed to load: {(list.error as Error).message}
-        </p>
+        <p className="text-[var(--color-stone)] text-[0.875rem]">Failed to load: {(list.error as Error).message}</p>
       )}
 
       {list.data && list.data.items.length === 0 && (
@@ -145,11 +167,7 @@ export function HistoryTable() {
               const isSel = selected?.id === g.id;
               const u = userById.get(g.userId);
               return (
-                <tr
-                  key={g.id}
-                  data-selected={isSel ? "" : undefined}
-                  onClick={() => setSelected(g)}
-                >
+                <tr key={g.id} data-selected={isSel ? "" : undefined} onClick={() => setSelected(g)}>
                   <td>
                     <span className="type-cell">
                       <TypeIcon type={g.type} />
@@ -177,8 +195,8 @@ export function HistoryTable() {
 
       <GenerationDrawer
         gen={selected}
-        brandName={selected ? brandById.get(selected.brandId) ?? "" : ""}
-        userName={selected ? userById.get(selected.userId)?.name ?? "" : ""}
+        brandName={selected ? (brandById.get(selected.brandId) ?? "") : ""}
+        userName={selected ? (userById.get(selected.userId)?.name ?? "") : ""}
         onClose={() => setSelected(null)}
       />
     </>

@@ -1,6 +1,6 @@
-import { Hono } from "hono";
 import { db, schema } from "@studio/db";
 import { eq } from "drizzle-orm";
+import { Hono } from "hono";
 
 export const usersRouter = new Hono().get("/", async (c) => {
   const rows = await db

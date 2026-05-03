@@ -1,9 +1,9 @@
-import { brandProfileRepo } from "./repository.js";
-import { putPdf } from "../../infra/storage.js";
-import { extractProfileQueue } from "../../infra/queue.js";
-import { ok, err, RepoError } from "@studio/db";
-import { emptyBrandProfile, type BrandProfile } from "@studio/schemas";
 import { randomUUID } from "node:crypto";
+import { err, ok, RepoError } from "@studio/db";
+import { type BrandProfile, emptyBrandProfile } from "@studio/schemas";
+import { extractProfileQueue } from "../../infra/queue.js";
+import { putPdf } from "../../infra/storage.js";
+import { brandProfileRepo } from "./repository.js";
 
 export const brandProfileService = {
   list: brandProfileRepo.listByBrand,
@@ -45,12 +45,7 @@ export const brandProfileService = {
     return ok(r.value);
   },
 
-  async createHandAuthored(input: {
-    orgId: string;
-    brandId: string;
-    userId: string;
-    profile?: BrandProfile;
-  }) {
+  async createHandAuthored(input: { orgId: string; brandId: string; userId: string; profile?: BrandProfile }) {
     return brandProfileRepo.insertHandAuthored({
       orgId: input.orgId,
       brandId: input.brandId,
@@ -59,14 +54,18 @@ export const brandProfileService = {
     });
   },
 
-  async retry(orgId: string, userId: string, profileId: string) {
+  async retry(input: { orgId: string; userId: string; profileId: string }) {
+    const { orgId, userId, profileId } = input;
     const r = await brandProfileRepo.markRetry(orgId, profileId);
     if (!r.ok) return r;
+    if (!r.value.sourcePdfS3Key) {
+      return err(new RepoError("conflict", "profile has no source PDF to retry"));
+    }
     await extractProfileQueue.add(
       "extract",
       {
         profileId,
-        s3Key: r.value.sourcePdfS3Key!,
+        s3Key: r.value.sourcePdfS3Key,
         brandId: r.value.brandId,
         orgId,
         userId,
