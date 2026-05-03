@@ -14,6 +14,7 @@ import { Route as PluginRouteImport } from './routes/plugin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GenerationsIndexRouteImport } from './routes/generations.index'
 import { Route as BrandsIndexRouteImport } from './routes/brands.index'
+import { Route as BrandsBrandIdRouteImport } from './routes/brands.$brandId'
 
 const UsageRoute = UsageRouteImport.update({
   id: '/usage',
@@ -40,11 +41,17 @@ const BrandsIndexRoute = BrandsIndexRouteImport.update({
   path: '/brands/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrandsBrandIdRoute = BrandsBrandIdRouteImport.update({
+  id: '/brands/$brandId',
+  path: '/brands/$brandId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/plugin': typeof PluginRoute
   '/usage': typeof UsageRoute
+  '/brands/$brandId': typeof BrandsBrandIdRoute
   '/brands/': typeof BrandsIndexRoute
   '/generations/': typeof GenerationsIndexRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/plugin': typeof PluginRoute
   '/usage': typeof UsageRoute
+  '/brands/$brandId': typeof BrandsBrandIdRoute
   '/brands': typeof BrandsIndexRoute
   '/generations': typeof GenerationsIndexRoute
 }
@@ -60,21 +68,42 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/plugin': typeof PluginRoute
   '/usage': typeof UsageRoute
+  '/brands/$brandId': typeof BrandsBrandIdRoute
   '/brands/': typeof BrandsIndexRoute
   '/generations/': typeof GenerationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/plugin' | '/usage' | '/brands/' | '/generations/'
+  fullPaths:
+    | '/'
+    | '/plugin'
+    | '/usage'
+    | '/brands/$brandId'
+    | '/brands/'
+    | '/generations/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/plugin' | '/usage' | '/brands' | '/generations'
-  id: '__root__' | '/' | '/plugin' | '/usage' | '/brands/' | '/generations/'
+  to:
+    | '/'
+    | '/plugin'
+    | '/usage'
+    | '/brands/$brandId'
+    | '/brands'
+    | '/generations'
+  id:
+    | '__root__'
+    | '/'
+    | '/plugin'
+    | '/usage'
+    | '/brands/$brandId'
+    | '/brands/'
+    | '/generations/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PluginRoute: typeof PluginRoute
   UsageRoute: typeof UsageRoute
+  BrandsBrandIdRoute: typeof BrandsBrandIdRoute
   BrandsIndexRoute: typeof BrandsIndexRoute
   GenerationsIndexRoute: typeof GenerationsIndexRoute
 }
@@ -116,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrandsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/brands/$brandId': {
+      id: '/brands/$brandId'
+      path: '/brands/$brandId'
+      fullPath: '/brands/$brandId'
+      preLoaderRoute: typeof BrandsBrandIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -123,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PluginRoute: PluginRoute,
   UsageRoute: UsageRoute,
+  BrandsBrandIdRoute: BrandsBrandIdRoute,
   BrandsIndexRoute: BrandsIndexRoute,
   GenerationsIndexRoute: GenerationsIndexRoute,
 }
