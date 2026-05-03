@@ -1,5 +1,6 @@
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { api, type BrandWithStats } from "../../lib/api";
 import { NewBrandDialog } from "./NewBrandDialog";
 import { Skeleton } from "../../components/ui/skeleton";
@@ -28,6 +29,28 @@ function statusOf(b: BrandWithStats): "ready" | "processing" | "failed" | "empty
 
 export function BrandsList() {
   const q = useQuery({ queryKey: ["brands"], queryFn: api.brands.list });
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const filtered = useMemo(() => {
+    const list = q.data ?? [];
+    if (!query) return list;
+    const needle = query.toLowerCase();
+    return list.filter((b) => b.name.toLowerCase().includes(needle));
+  }, [q.data, query]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <>
@@ -40,7 +63,7 @@ export function BrandsList() {
           </p>
         </div>
         <div className="brands-head-actions">
-          <div className="search" aria-hidden="true">
+          <div className="search">
             <svg
               width="11"
               height="11"
@@ -48,16 +71,18 @@ export function BrandsList() {
               fill="none"
               stroke="currentColor"
               strokeWidth="1.4"
+              aria-hidden="true"
             >
               <circle cx="4.5" cy="4.5" r="3" />
               <path d="M7 7 L9.5 9.5" />
             </svg>
             <input
+              ref={inputRef}
               type="text"
               placeholder="Search brands"
               aria-label="Search brands"
-              tabIndex={-1}
-              readOnly
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
             <span className="kbd mono">⌘K</span>
           </div>
@@ -88,7 +113,15 @@ export function BrandsList() {
         </div>
       )}
 
-      {q.data && q.data.length > 0 && (
+      {q.data && q.data.length > 0 && filtered.length === 0 && (
+        <div className="border border-[var(--color-hairline)] rounded p-6 text-center">
+          <p className="text-[var(--color-charcoal)] text-[0.9375rem]">
+            No brands match “{query}”.
+          </p>
+        </div>
+      )}
+
+      {q.data && filtered.length > 0 && (
         <table className="brands-table">
           <thead>
             <tr>
@@ -100,7 +133,7 @@ export function BrandsList() {
             </tr>
           </thead>
           <tbody>
-            {q.data.map((b, i) => {
+            {filtered.map((b, i) => {
               const status = statusOf(b);
               const hue = HUES[i % HUES.length];
               const glyph = b.name.charAt(0).toUpperCase();
