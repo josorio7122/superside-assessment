@@ -83,6 +83,10 @@ function PluginPage() {
   const sourceLabel =
     profileQuery.data?.currentProfile?.sourcePdfFilename ?? "hand-authored";
   const dotColor = palette[0]?.hex ?? "#E8714F";
+  const emptyBg = palette[0]
+    ? `linear-gradient(135deg, ${palette[0].hex}, ${palette[1]?.hex ?? palette[0].hex})`
+    : undefined;
+  const emptyStyle = !heroSrc && emptyBg ? { background: emptyBg } : undefined;
 
   return (
     <>
@@ -107,7 +111,7 @@ function PluginPage() {
 
           <article className="ad ad-square">
             <div className="ad-frame-label mono">hero-image · 1080 × 1080</div>
-            <div className="ad-image">
+            <div className="ad-image" style={emptyStyle}>
               {heroSrc && <img src={heroSrc} alt="" />}
             </div>
             <div className="ad-band">
@@ -149,7 +153,7 @@ function PluginPage() {
 
           <div className="panel-body">
             <section className="layer-card">
-              <div className="layer-thumb" aria-hidden="true">
+              <div className="layer-thumb" aria-hidden="true" style={emptyStyle}>
                 {heroSrc && <img src={heroSrc} alt="" />}
               </div>
               <div className="layer-meta">
