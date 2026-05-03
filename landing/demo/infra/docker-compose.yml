@@ -25,25 +25,23 @@ services:
       timeout: 5s
       retries: 30
 
-  localstack:
-    image: localstack/localstack:latest
+  ministack:
+    image: ministackorg/ministack:latest
     restart: unless-stopped
     environment:
-      SERVICES: s3
-      DEBUG: 0
+      S3_PERSIST: "1"
+      S3_DATA_DIR: /tmp/ministack-data/s3
       AWS_DEFAULT_REGION: us-east-1
-      DOCKER_HOST: unix:///var/run/docker.sock
     ports: ["4566:4566"]
     volumes:
-      - "./localstack/init:/etc/localstack/init/ready.d"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "localstack-data:/var/lib/localstack"
+      - "./ministack/init:/etc/localstack/init/ready.d"
+      - "ministack-data:/tmp/ministack-data"
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:4566/_localstack/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4566/_ministack/health')"]
       interval: 3s
       timeout: 5s
       retries: 30
 
 volumes:
   pgdata:
-  localstack-data:
+  ministack-data:

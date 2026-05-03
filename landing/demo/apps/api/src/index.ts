@@ -11,7 +11,7 @@ import { profileRouter } from "./features/brand-profile/router.js";
 import { generationRouter } from "./features/generation/router.js";
 import { usageRouter } from "./features/usage/router.js";
 import { usersRouter } from "./features/users/router.js";
-import { readLocalForRoute } from "./infra/storage.js";
+import { getPdf } from "./infra/storage.js";
 
 const app = new Hono();
 app.use("*", requestId);
@@ -32,12 +32,19 @@ app.route("/api/generations", generationRouter);
 app.route("/api/usage", usageRouter);
 app.route("/api/users", usersRouter);
 
-app.get("/api/_storage/:key", async (c) => {
-  const key = decodeURIComponent(c.req.param("key"));
+app.get("/api/_storage/*", async (c) => {
+  const path = c.req.path.replace(/^\/api\/_storage\//, "");
+  const key = decodeURIComponent(path);
   try {
-    const buf = await readLocalForRoute(key);
-    return new Response(new Uint8Array(buf), { headers: { "Content-Type": "application/pdf" } });
-  } catch {
+    const buf = await getPdf(key);
+    return new Response(new Uint8Array(buf), {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `inline; filename="${key.split("/").pop()}"`,
+      },
+    });
+  } catch (e) {
+    logger.warn({ key, err: (e as Error).message }, "storage:not-found");
     return c.json({ error: { kind: "not_found", message: key } }, 404);
   }
 });

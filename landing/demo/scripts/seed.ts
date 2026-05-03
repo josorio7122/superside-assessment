@@ -55,9 +55,21 @@ async function loadOrExtract(
   return { profile, usage };
 }
 
+async function uploadSeedPdf(
+  brandKey: "slack" | "heineken",
+  putPdfBytes: (key: string, body: Buffer) => Promise<void>,
+): Promise<{ s3Key: string; sizeBytes: number; filename: string }> {
+  const filename = brandKey === "slack" ? "slack-2020.pdf" : "heineken.pdf";
+  const buf = await readFile(join(PDFS, filename));
+  const s3Key = `profiles/seed-${brandKey}.pdf`;
+  await putPdfBytes(s3Key, buf);
+  return { s3Key, sizeBytes: buf.length, filename };
+}
+
 async function main() {
   const { db, schema } = await import("@studio/db");
   const { extractBrandProfile } = await import("@studio/ai");
+  const { putPdfBytes } = await import("../apps/worker/src/infra.js");
   console.log("[seed] truncating tables…");
   await db.execute(
     "TRUNCATE TABLE usage_event, generation, brand_profile, brand, \"user\", org RESTART IDENTITY CASCADE" as any,
@@ -102,6 +114,9 @@ async function main() {
       editedProfile.voice.tone_descriptors = editedProfile.voice.tone_descriptors.slice(0, -1);
     }
 
+    const upload = await uploadSeedPdf(key, putPdfBytes);
+    console.log(`[seed] uploaded ${key} PDF -> s3://studio-demo/${upload.s3Key} (${upload.sizeBytes} bytes)`);
+
     const v1At = daysAgo(26);
     const v2At = daysAgo(11);
     const v3At = daysAgo(2);
@@ -112,8 +127,9 @@ async function main() {
       version: 1,
       profile,
       status: "ready",
+      sourcePdfS3Key: upload.s3Key,
       sourcePdfFilename: `${pdf}-v1.pdf`,
-      sourcePdfSizeBytes: 4_200_000,
+      sourcePdfSizeBytes: upload.sizeBytes,
       isCurrent: false,
       createdBy: users[1]!.id,
       createdAt: v1At,
@@ -124,8 +140,9 @@ async function main() {
       version: 2,
       profile,
       status: "ready",
+      sourcePdfS3Key: upload.s3Key,
       sourcePdfFilename: `${pdf}-v2.pdf`,
-      sourcePdfSizeBytes: 4_300_000,
+      sourcePdfSizeBytes: upload.sizeBytes,
       isCurrent: false,
       createdBy: users[1]!.id,
       createdAt: v2At,
@@ -136,8 +153,9 @@ async function main() {
       version: 3,
       profile: editedProfile,
       status: "ready",
+      sourcePdfS3Key: upload.s3Key,
       sourcePdfFilename: `${pdf}-v3.pdf`,
-      sourcePdfSizeBytes: 4_300_000,
+      sourcePdfSizeBytes: upload.sizeBytes,
       isCurrent: true,
       createdBy: users[0]!.id,
       createdAt: v3At,
