@@ -56,26 +56,32 @@ export const brandService = {
       .groupBy(schema.generations.brandId);
     const statsByBrand = new Map(stats.map((s) => [s.brandId, s]));
 
-    const profiles = await db
+    // Status of the LATEST version (max version per brand), not just the
+    // is_current row, so a re-upload in flight surfaces as "Processing"
+    // even while the prior ready row remains current.
+    const latest = await db
       .select({
         brandId: schema.brandProfiles.brandId,
         status: schema.brandProfiles.status,
+        version: schema.brandProfiles.version,
       })
       .from(schema.brandProfiles)
-      .where(
-        and(
-          eq(schema.brandProfiles.orgId, orgId),
-          eq(schema.brandProfiles.isCurrent, true),
-        ),
-      );
-    const statusByBrand = new Map(profiles.map((p) => [p.brandId, p.status]));
+      .where(eq(schema.brandProfiles.orgId, orgId));
+
+    const latestByBrand = new Map<string, { status: string; version: number }>();
+    for (const row of latest) {
+      const prev = latestByBrand.get(row.brandId);
+      if (!prev || row.version > prev.version) {
+        latestByBrand.set(row.brandId, { status: row.status, version: row.version });
+      }
+    }
 
     return ok(
       r.value.map((b) => ({
         ...b,
         genCount30d: statsByBrand.get(b.id)?.genCount30d ?? 0,
         lastActivityAt: statsByBrand.get(b.id)?.lastActivityAt ?? null,
-        profileStatus: statusByBrand.get(b.id) ?? null,
+        profileStatus: latestByBrand.get(b.id)?.status ?? null,
       })),
     );
   },

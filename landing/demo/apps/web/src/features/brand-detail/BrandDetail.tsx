@@ -26,16 +26,28 @@ export function BrandDetail({ brandId }: Props) {
   });
 
   const currentProfile = detail.data?.currentProfile ?? null;
-  // When a brand has no current profile yet (fresh brand mid-extraction, or
-  // every prior attempt failed), surface the latest in-flight or failed row so
-  // the user sees a banner instead of the upload card disappearing without
-  // explanation.
-  const inflight = currentProfile
-    ? null
-    : (versions.data ?? []).find((v) => v.status === "processing" || v.status === "failed") ?? null;
+  // Latest version row (max version per spec invariants). May or may not be the
+  // current row — re-uploads and failed extractions create newer non-current
+  // rows that the page must surface.
+  const latest = (versions.data ?? []).reduce<typeof versions.data extends infer T ? T extends Array<infer R> ? R | null : null : null>(
+    (acc, v) => (acc && acc.version >= v.version ? acc : v),
+    null as never,
+  );
+  const inflight =
+    latest && latest.id !== currentProfile?.id && (latest.status === "processing" || latest.status === "failed")
+      ? latest
+      : null;
+  // current = the row whose editor we render. If there's no ready current,
+  // fall back to the in-flight row so the page shows a banner instead of the
+  // upload card.
   const current = currentProfile ?? inflight;
+  // Pending = non-current newer version (re-upload or post-edit retry). Banner
+  // sits above the current editor.
+  const pending = currentProfile && inflight ? inflight : null;
 
-  useProfileEvents(current?.status === "processing" ? current.id : undefined, {
+  // SSE: subscribe to whichever row is in-flight (current or pending).
+  const sseTargetId = pending?.id ?? (current?.status === "processing" ? current.id : undefined);
+  useProfileEvents(sseTargetId, {
     onReady: () => {
       qc.invalidateQueries({ queryKey: ["brand", brandId] });
       qc.invalidateQueries({ queryKey: ["brand", brandId, "profiles"] });
@@ -47,7 +59,7 @@ export function BrandDetail({ brandId }: Props) {
   });
 
   const retry = useMutation({
-    mutationFn: () => api.profiles.retry(current!.id),
+    mutationFn: (id: string) => api.profiles.retry(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["brand", brandId] });
       qc.invalidateQueries({ queryKey: ["brand", brandId, "profiles"] });
@@ -93,7 +105,34 @@ export function BrandDetail({ brandId }: Props) {
         <div className="bd-main">
           {!current && <UploadCard brandId={brandId} />}
 
-          {current?.status === "processing" && (
+          {pending?.status === "processing" && (
+            <div className="processing-banner">
+              <h2>Extracting v{pending.version}…</h2>
+              <p>
+                {pending.sourcePdfFilename
+                  ? `Reading ${pending.sourcePdfFilename}.`
+                  : "Awaiting source."}{" "}
+                This usually takes 30–60s. v{currentProfile?.version} stays current until extraction succeeds.
+              </p>
+            </div>
+          )}
+
+          {pending?.status === "failed" && (
+            <div className="failed-banner">
+              <h2>v{pending.version} extraction failed</h2>
+              <p>{pending.ingestError ?? "Unknown error."}</p>
+              <div>
+                <Button
+                  onClick={() => retry.mutate(pending.id)}
+                  disabled={retry.isPending}
+                >
+                  {retry.isPending ? "Retrying…" : "Retry"}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {!currentProfile && current?.status === "processing" && (
             <div className="processing-banner">
               <h2>Extracting profile…</h2>
               <p>
@@ -105,12 +144,15 @@ export function BrandDetail({ brandId }: Props) {
             </div>
           )}
 
-          {current?.status === "failed" && (
+          {!currentProfile && current?.status === "failed" && (
             <div className="failed-banner">
               <h2>Extraction failed</h2>
               <p>{current.ingestError ?? "Unknown error."}</p>
               <div>
-                <Button onClick={() => retry.mutate()} disabled={retry.isPending}>
+                <Button
+                  onClick={() => retry.mutate(current.id)}
+                  disabled={retry.isPending}
+                >
                   {retry.isPending ? "Retrying…" : "Retry"}
                 </Button>
               </div>
