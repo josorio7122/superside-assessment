@@ -39,7 +39,10 @@
   "pnpm": {
     "overrides": {
       "drizzle-orm": "^0.36.0",
-      "zod": "^4.0.0"
+      "zod": "^4.0.0",
+      "@tanstack/router-generator>zod": "^3.24.2",
+      "@tanstack/router-plugin>zod": "^3.24.2",
+      "@tanstack/router-cli>zod": "^3.24.2"
     }
   }
 }

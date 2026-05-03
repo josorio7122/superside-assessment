@@ -1,0 +1,55 @@
+@import "tailwindcss";
+@import "@studio/tokens/global.css";
+
+/* shadcn neutrals re-themed onto studio cream/charcoal axis */
+@layer base {
+  :root {
+    --background: var(--color-cream);
+    --foreground: var(--color-charcoal);
+    --muted: var(--color-sunken);
+    --muted-foreground: var(--color-stone);
+    --border: var(--color-hairline);
+    --input: var(--color-hairline);
+    --ring: var(--color-coral);
+    --primary: var(--color-charcoal);
+    --primary-foreground: var(--color-cream);
+    --secondary: var(--color-sunken);
+    --secondary-foreground: var(--color-charcoal);
+    --accent: var(--color-coral);
+    --accent-foreground: var(--color-cream);
+    --destructive: oklch(45% 0.16 25);
+    --destructive-foreground: var(--color-cream);
+    --popover: var(--color-cream);
+    --popover-foreground: var(--color-charcoal);
+    --card: var(--color-cream);
+    --card-foreground: var(--color-charcoal);
+    --radius: 0.25rem;
+  }
+
+  body {
+    background: var(--color-cream);
+    color: var(--color-reading);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.65;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-coral-soft);
+    color: var(--color-charcoal);
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+    border-radius: 2px;
+  }
+}
+
+.serif { font-family: var(--font-serif); font-feature-settings: "ss01", "kern", "liga"; }
+.sans  { font-family: var(--font-sans); }
+.mono  { font-family: var(--font-mono); }
