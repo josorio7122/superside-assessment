@@ -158,4 +158,18 @@ export const brandProfileRepo = {
       .returning();
     return row ? ok(row) : err(new RepoError("conflict", "profile not in failed state"));
   },
+
+  async currentForBrand(orgId: string, brandId: string): Promise<Result<BrandProfileRow, RepoError>> {
+    const [row] = await db
+      .select()
+      .from(schema.brandProfiles)
+      .where(
+        and(
+          eq(schema.brandProfiles.orgId, orgId),
+          eq(schema.brandProfiles.brandId, brandId),
+          eq(schema.brandProfiles.isCurrent, true),
+        ),
+      );
+    return row ? ok(row) : err(new RepoError("not_found", `no current profile for brand ${brandId}`));
+  },
 };

@@ -36,4 +36,29 @@ export const genRepo = {
       .where(and(eq(schema.generations.id, id), eq(schema.generations.orgId, orgId)));
     return row ? ok(row) : err(new RepoError("not_found", `generation ${id} not found`));
   },
+
+  async create(input: {
+    orgId: string;
+    brandId: string;
+    userId: string;
+    inputJson: unknown;
+  }) {
+    const [row] = await db
+      .insert(schema.generations)
+      .values({
+        orgId: input.orgId,
+        brandId: input.brandId,
+        userId: input.userId,
+        type: "image",
+        status: "running",
+        input: input.inputJson,
+        output: null,
+        figmaFileKey: null,
+        figmaNodeId: null,
+        startedAt: new Date(),
+      })
+      .returning();
+    if (!row) return err(new RepoError("internal", "insert returned no row"));
+    return ok(row);
+  },
 };
