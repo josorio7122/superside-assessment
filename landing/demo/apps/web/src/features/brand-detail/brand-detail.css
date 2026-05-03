@@ -227,14 +227,30 @@
   letter-spacing: 0.03em;
   font-family: var(--font-mono);
 }
-.source-link {
-  background: none;
-  border: none;
-  color: var(--color-stone);
-  cursor: pointer;
-  padding: 0.3rem;
+.source-card-link {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 120ms var(--ease-out-quart),
+              background-color 120ms var(--ease-out-quart);
 }
-.source-link:hover { color: var(--color-charcoal); }
+.source-card-link:hover {
+  border-color: oklch(70% 0.005 50);
+  background: var(--color-sunken);
+}
+.source-card-link:hover .source-arrow {
+  transform: translateX(2px);
+}
+.source-arrow {
+  margin-left: auto;
+  color: var(--color-stone);
+  display: inline-flex;
+  transition: transform 120ms var(--ease-out-quart);
+}
+.source-card-link:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: 4px;
+}
 
 .palette-card, .version-card {
   padding: 0.75rem;
