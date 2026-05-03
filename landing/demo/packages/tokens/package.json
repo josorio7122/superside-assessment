@@ -1,0 +1,9 @@
+{
+  "name": "@studio/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./global.css",
+    "./global.css": "./global.css"
+  }
+}
